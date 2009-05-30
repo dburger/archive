@@ -1,0 +1,179 @@
+1)  Can DES be broken?
+
+Yes, it is possible to use a brute force attack on the keyspace, especially if they are using 
+only 56 bit keys.  There are also certain methods of cryptanalysis that can reduce the 
+number of keys that need to be checked.  It is possible that the NSA has super powerful 
+computers in place to break DES.  A brute-force DES-cracking machine that can find a 
+key in an average of 3.5 hours cost only $1 million in 1993!  Susceptible to differential 
+and linear cryptanalysis.  Rumors are that statistical algorithms can be used to reduce the 
+likely keys such that DES can be cracked in 3 to 15 minutes.
+
+Differential cryptanalysis looks at ciphertext pairs whose plain texts have particular 
+differences and analyzes the evolution of these differences as the plaintext propagate 
+through the rounds of DES when encrypted with the same key.
+
+2)  Is DES good enough for things such as the transmission of data for business, banking, 
+etc.?
+
+When it comes to saying whether or not some sort of encryption is good enough it all 
+depends on whether or not the data you are protecting is more valuable than the cost to 
+break the cipher that conceals it.  In the case of banking, DES is probably not good 
+enough.  For certain business information it may be good enough, however, company 
+secrets that need to be kept for many years need something stronger than DES.
+
+3)  If you wanted strong enough encryption to be safe from the NSA, what kind of 
+symmetric encryption would you use?
+
+Well I probably wouldn’t use DES as the NSA had a hand in developing it.  What I 
+would probably use is AES with a very long key length, however, it is hard to say what 
+kind of advanced technology and techniques the NSA has, they could be years ahead of 
+everyone else.
+
+4)  What concept or theory would you use to determine how much ciphertext you need to 
+cryptanalyze DES?
+
+Differential cryptanalysis.
+
+5)  Based on your experience, without recalculating it, about how much ciphertext would 
+you need?
+
+The best attack against full 16-round DES requires 247 chosen plaintexts.
+
+6)  In the following, assume RSA. Assume that Alice is using n and her public key is e 
+And private key is d. How does Bob encipher a message to send to Alice?
+
+He takes his message M and computes, C = Me mod n.  This is the ciphertext that he 
+sends to Alice.
+
+7)  Why can’t Eve decipher the message?
+
+In order to decipher the message she would have be able to factor n into primes p and q 
+so that she can determine the inverse of e mod (p-1)(q-1).  With this inverse, call it d, she 
+could decipher the message.  The factoring of such large numbers is a very hard thing to 
+do.
+
+8)  Describe how Alice can sign a message using RSA.
+
+She enciphers the message using her private key d.
+9)  Why should Bob believe this is really Alice’s signature?
+
+Because only Alice has her private key, if her public key e decrypts the signed message, 
+then the message must have been signed and must have come from Alice.
+
+10)  How would you try to break RSA?
+
+You would try to factor n so that you could then determine the inverse of the persons 
+public key e.
+
+11)  About how big an n is considered safe for RSA now?
+
+About 1024 bits.
+
+12)  Assume that the gcd(n,k) = 1.  We discussed two ways of finding the inverse of k 
+modulo n.  Briefly, what are they?
+
+You can use the Euclidean algorithm or you can compute:
+
+k^phi(n)-1 mod phi(n).
+
+13)  Assume that you are using RSA and know only n and e, i. e. the public
+key. Suppose that the GCD of r and n is 1. With only this information, can
+you calculate the inverse of r? How?
+
+14)  Roughly, how many 512 bit primes numbers exist, within a factor of 100 or so?
+
+(2^511)/354
+
+15)  Name several things you can do with a good hash function like sha.
+
+You can use the hash as a password scheme, if the pass phrase the person types hashes to 
+the correct value they have clearance.
+
+You can use it in an archival type copyright system whereby the person does not even 
+need to submit original document.  They only submit a hash of the document which is 
+placed in a database with a timestamp.  If the document becomes disputed, the owner can 
+be verified by the hash value in the database.
+
+It can be used to do file comparisons on different systems.  If the two files hash to the 
+same value, it is extremely likely that they are identical files.
+
+16)  Assume that H(s) is a hash function.  Given s it should be easy to calculate H(s).  It 
+is required that given x, it is essentially impossible to find s such that H(s) = x.  What 
+undesirable thing is possible if this is not rue?
+
+If the hash is being used and signed with a digital signature algorithm, it would be 
+possible to later substitute a different document, probably disadvantageous to one of the 
+parties involved in place of the original document, and claim that that was the signed 
+document.
+
+17)  It is required that it be almost impossible to find two different values s1 and s2 such 
+that H(s1) = H(s2).  What undesirable thing is possible if this is not true?
+
+This leaves the hash open to the birthday attack.  If it is possible to create two messages 
+such that the hashes are equal, then one of them can be undesirable to the parties 
+involved.  In a protocol where only the hash is signed Alice can have Bob sign the 
+contract that is favorable to him and later claim that he had signed the undesirable 
+contract.
+
+18)  Explain how Alice and Bob can exchange keys using Diffie Hellman key exchange.
+
+Alice and Bob agree on large prime n and g such that g is primitive mod n.  Then Alice 
+chooses large random integer x and Bob chooses large random integer y.  Alice computes 
+X = gx mod n and Bob computes Y = gy mod n.  Alice and Bob exchange X and Y and 
+Alice computes Yx mod n while Bob computes Xy mod n.  Both of these values compute 
+to gxy mod n which can then be used as a session key or as a small one time pad as we did 
+for class.  The security comes from the difficult of calculating discrete logarithms in a 
+finite field compared to the ease of calculating exponentiation in the same field.
+
+19)  Explain why Eve cannot calculate the session key exchanged in this way.
+
+While Eve knows g, n, X, and Y, she needs to know either x or y, and to do that she 
+would have to calculate a discrete logarithm in a finite field of great size.  Therefore she 
+cannot find them.
+
+20)  What advantage does DSA have over RSA for a signature?  What is at least one 
+advantage of RSA over DSA?
+
+Because the primes used in DSA can be made public, they can be verified to have been 
+chosen as valid random primes.  With RSA, these primes cannot be revealed.
+
+RSA has the advantage of being faster than DSA.  Also, DSA was developed by the NSA 
+so the potential of a backdoor is always there.
+
+21)  With secret sharing using the LaGrange formula, and using a polynomial of d degree 
+r, you need r+1 points to calculate the secret.  How could you break this code if you have 
+only r points?  How many digits are required in the numbers used for this protocol for 
+reasonable security?
+
+You can’t.  Even an exhaustive search cannot reveal the message.  ??? How many digits?
+
+22)  There was a concept or technique that was used in the protocols described both for 
+digital cash and for digital elections, but that we had not discussed before these talks.  
+What was it?
+
+Blind signatures.  The concept of using something such as a random multiplication to 
+blind the document, then having the signer sign the blind document, and then dividing 
+back out the multiplication to produce the original signed document.
+
+23)  Name several kinds of biometric identification that have been investigated.  Is there 
+anything of this kind that is commercially available now?
+
+Iris identification, finger print identitfication, facial identification, and voice 
+identification are several biometric identification techniques that have been investigated.  
+From what I know facial identification has been used at stadium events to locate persons 
+with outstanding warrants.  I believe other types of this technology are commercially 
+available as well.
+
+24)  You are the security officer for a computing facility and some kind of security 
+problem occurs.  Where do you go for help?
+
+Go to CERT.
+
+25)  Judging from the presentations given these past few weeks, what is the most 
+important aspect of security that we did not cover in the fifteen units preceding that?
+
+It is difficult to narrow it down to one topic although I think we covered a ton of good 
+material in class.  If I had to choose I would have to say that maybe we should have 
+covered some of the great worm exposures of all time.
+
+

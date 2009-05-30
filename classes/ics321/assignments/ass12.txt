@@ -1,0 +1,77 @@
+David J. Burger
+ICS 321 Sec. 452
+7/07/01
+
+12.1)  Justify the statement “The databases used in Internet or intranet applications can 
+become immeasurable valuable assets.”  Use Amazon.com or Dell Computer as 
+examples.
+
+The database of any company is a highly valuable asset.  When that database is directly 
+connected to the customer via the Internet the value is magnified.  Amazon.com is a 
+company that has attempted to become the world’s largest online retailer.  Any problems 
+with the database system that cause even a small amount of downtime can cost Amazon 
+thousands of dollars.  In addition, the database contains the information that is the 
+lifeblood of the company.  The database that keeps track of inventory must be correct and 
+current so that realistic shipping times can be presented to the customer.  Information 
+gathered from previous shopping data can help to indicate other products the customer 
+might be interested in, promoting further sales.  In the age of the Internet, a database truly 
+becomes an invaluable company asset.
+
+12.3)  Are the ideas in this chapter new?  If not, why are they important to you now?
+
+These ideas are not new in that they apply to any situation in which people must 
+coordinate their efforts when working together on the same project.  The increased 
+importance comes from the extreme number of users that can be involved on working 
+with a database, especially in terms of an internet deployed database, at the same time.  
+As a person involved in the design of databases and development of applications that 
+access these databases, the proper handling of concurrent access becomes of prime 
+importance.
+
+12.4)  Explain the meaning of the word inappropriately in the phrase “one user’s work 
+does not inappropriately influence another user’s work.”
+
+When multiple users simultaneously use a database application transactions must be 
+integrated in a logically consistent manner.  Obviously, when using the database, the 
+work of one user affects other users, as it should.  For example, when one user registers 
+an order for a company the decreased inventory should be visible to other users.  
+Problems occur when one user’s work inappropriately influences another user’s work.  
+Such problems can occur when users simultaneously access and update records therefore 
+producing a lost update.  This can leave the database in an inconsistent state.
+
+
+
+12.8)  Give an example, other than the one in this text, of the lost update problem.
+
+Lost updates occur when two users obtain data that was correct at the time they obtained 
+the data and then updates are made based upon that data.  One of the users updates 
+relevant to the original data will be lost depending on the timing of the transactions.  As 
+an example imagine a reservation system where two users attempt to set up a reservation 
+for the same time slot.  When the data reads initiated by both users check the availability 
+of the date it is seen as clear.  Then data writes are attempted by both users to schedule a 
+reservation for that date.  The user that writes last will have the recorded reservation and 
+the other reservation will be lost.
+
+12.35)  Why is it important to write to the log before changing the database values?
+
+If a system is set up to execute a transaction, and then write to the log, a failure before 
+writing to the log the database would be changed but there would be no record of the 
+change.  This could lead to duplicate transactions when restoring the database.  If instead 
+we write the log and then update the database, the worst thing that can happen is an 
+unapplied transaction.
+
+12.51)  Describe the advantages and disadvantages of user name and password security.  
+In what ways might users be careless with their identities?  How can such carelessness 
+compromise the security of the database?  What steps could be taken to reduce the risk of 
+such problems?
+
+User name and password security is currently the most common method for 
+authenticating users.  When properly implemented, it is a good system for protecting the 
+database and making sure that the database is accessed by the proper users with the 
+proper access rights.  In some cases, however, careless users can undermine the system.  
+Users may choose passwords that are easy to remember because they have meaning to the 
+user such as a date, a pet name, or a family name.  Passwords like these are also easy for 
+hackers to guess.  In other cases, users may choose a more complicated password but 
+then right it down to remember it, thus revealing it to anyone who can find where it is 
+recorded.  Educating the users is an important step in increasing the effectiveness of user 
+name and password security.  Systems can also be set up to require passwords of a certain 
+complexity, such as requiring numbers and uppercase/lowercase letters.

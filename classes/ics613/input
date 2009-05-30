@@ -1,0 +1,9 @@
+server=mail.hawaii.edu
+from=root@pagecheck.com
+subject=Page Check Notification
+recipient=dburger@hawaii.edu
+recipient=bob@bob.com
+data=file.dat
+url=http://www2.hawaii.edu/~dburger
+url=http://csdl.ics.hawaii.edu/~johnson/413f03/a4-pagecheck.htm
+url=http://www.yahoo.com

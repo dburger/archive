@@ -1,0 +1,119 @@
+[CONFIGURATIONS]
+activeconfig=,Release
+config=,Release
+config=,Debug
+[GLOBAL]
+FILTERNAME=Source Files\nBitmaps\nOther Files\n
+FILTERPATTERN=*.java;*.c;*.cpp;*.cxx;*.hxx;*.prg;*.pas;*.dpr;*.asm;*.bas;*.sc;*.e\n*.jpg;*.gif;*.bmp\n*.*\n
+FILTERAPPCOMMAND=\n\n\n
+FILTERASSOCIATEFILETYPES=0 1 0 
+macro_switchconfig=_on_switchconfig_java
+app_type_list=application,applet,custom
+workingdir=.
+version=6.0
+packname=Java - Empty Project
+MACRO=\n
+[COMPILER.Release]
+app_type=application
+packver=3
+compile=copts: concur|capture|clear|dialog:_java_options_form:Compiler|readonly|savecurrent|menu: Compile:&Compilecmd: javac %cp "%f"otheropts: 
+make=copts: concur|capture|clear|dialog:_java_options_form:Compiler|readonly|saveall|menu: Build:&Buildcmd: javamakeotheropts: 
+rebuild=copts: concur|capture|dialog:_java_options_form:Compiler|readonly|saveall|menu: Rebuild:&Rebuildcmd: javarebuildotheropts: 
+debug=copts: |dialog:_java_options_form:Debugger|readonly|menu: Debug:&Debugcmd: jdb %cpotheropts: 
+apptool_debug_applet=copts: |dialog:_java_options_form:appletviewer|readonly|menu: Debug:&Debugcmd: appletviewer -debug %hotheropts: 
+apptool_debug_custom=copts: |menu: Debug:&Debugcmd: jdb %cp SortingProjectotheropts: 
+apptool_debug_application=copts: |dialog:_java_options_form:Debugger|readonly|menu: Debug:&Debugcmd: jdb %cpotheropts: 
+execute=copts: concur|capture|clear|dialog:_java_options_form:Interpreter|readonly|buildfirst|saveall|menu: Execute:E&xecutecmd: java %cpotheropts: 
+apptool_execute_applet=copts: concur|capture|dialog:_java_options_form:appletviewer|readonly|buildfirst|saveall|menu: Execute:E&xecutecmd: appletviewer %hotheropts: appletclass: SortingProject
+apptool_execute_custom=copts: concur|capture|buildfirst|saveall|menu: Execute:E&xecutecmd: java %cp SortingProjectotheropts: 
+apptool_execute_application=copts: concur|capture|clear|dialog:_java_options_form:Interpreter|readonly|buildfirst|saveall|menu: Execute:E&xecutecmd: java %cpotheropts: 
+usertool_dash=copts: |savenone|menu: dash:-cmd: otheropts: 
+usertool_view_javadoc=copts: |hide|dialog:_java_options_form:javadoc|readonly|disablecapoutput|savecurrent|menu: view javadoc:&View Javadoccmd: javaviewdocotheropts: 
+usertool_javadoc_all=copts: concur|capture|hide|dialog:_java_options_form:javadoc|readonly|saveall|menu: javadoc all:Javadoc Allcmd: javamakedoc javadoc -d docs %cp %{*.java}otheropts: 
+usertool_dash2=copts: |savenone|menu: dash2:-cmd: otheropts: 
+usertool_make_jar=copts: concur|capture|hide|dialog:_java_options_form:jar|readonly|saveall|menu: make jar:Make &Jarcmd: javamakejar jar cvf "SortingProject.jar" %{*.*}otheropts: 
+usertool_java_options=copts: |hide|readonly|disablecapoutput|savenone|nochangedir|menu: java options:Java &Options...cmd: javaoptionsotheropts: 
+user1=copts: |hide|menu: User 1:User 1cmd: otheropts: 
+user2=copts: |hide|menu: User 2:User 2cmd: otheropts: 
+includedirs=
+reffile=
+[COMPILER.Debug]
+app_type=application
+packver=3
+compile=copts: concur|capture|clear|dialog:_java_options_form:Compiler|readonly|menu: Compile:&Compilecmd: javac -g %cp "%f"otheropts: 
+make=copts: concur|capture|clear|dialog:_java_options_form:Compiler|readonly|saveall|menu: Build:&Buildcmd: javamakeotheropts: 
+rebuild=copts: concur|capture|dialog:_java_options_form:Compiler|readonly|saveall|menu: Rebuild:&Rebuildcmd: javarebuildotheropts: 
+debug=copts: |dialog:_java_options_form:Debugger|readonly|menu: Debug:&Debugcmd: jdb %cpotheropts: 
+apptool_debug_applet=copts: |dialog:_java_options_form:appletviewer|readonly|menu: Debug:&Debugcmd: appletviewer -debug %hotheropts: 
+apptool_debug_custom=copts: |menu: Debug:&Debugcmd: jdb %cp SortingProjectotheropts: 
+apptool_debug_application=copts: |dialog:_java_options_form:Debugger|readonly|menu: Debug:&Debugcmd: jdb %cpotheropts: 
+execute=copts: concur|capture|clear|dialog:_java_options_form:Interpreter|readonly|buildfirst|saveall|menu: Execute:E&xecutecmd: java %cpotheropts: 
+apptool_execute_applet=copts: concur|capture|dialog:_java_options_form:appletviewer|readonly|buildfirst|saveall|menu: Execute:E&xecutecmd: appletviewer %hotheropts: appletclass: SortingProject
+apptool_execute_custom=copts: concur|capture|buildfirst|saveall|menu: Execute:E&xecutecmd: java %cp SortingProjectotheropts: 
+apptool_execute_application=copts: concur|capture|clear|dialog:_java_options_form:Interpreter|readonly|buildfirst|saveall|menu: Execute:E&xecutecmd: java %cpotheropts: 
+usertool_dash=copts: |savenone|menu: dash:-cmd: otheropts: 
+usertool_view_javadoc=copts: |hide|dialog:_java_options_form:javadoc|readonly|disablecapoutput|savecurrent|menu: view javadoc:&View Javadoccmd: javaviewdocotheropts: 
+usertool_javadoc_all=copts: concur|capture|hide|dialog:_java_options_form:javadoc|readonly|saveall|menu: javadoc all:Javadoc Allcmd: javamakedoc javadoc -d docs %cp %{*.java}otheropts: 
+usertool_dash2=copts: |savenone|menu: dash2:-cmd: otheropts: 
+usertool_make_jar=copts: concur|capture|hide|dialog:_java_options_form:jar|readonly|saveall|menu: make jar:Make &Jarcmd: javamakejar jar cvf "SortingProject.jar" %{*.*}otheropts: 
+usertool_java_options=copts: |hide|readonly|disablecapoutput|savenone|nochangedir|menu: java options:Java &Options...cmd: javaoptionsotheropts: 
+user1=copts: |hide|menu: User 1:User 1cmd: otheropts: 
+user2=copts: |hide|menu: User 2:User 2cmd: otheropts: 
+includedirs=
+reffile=
+[FILES]
+AdjacencyListGraph.java
+ArrayPosition.java
+ArraySequence.java
+AVLItem.java
+BFSObject.java
+BFSPathFinder.java
+BinaryTree.java
+BoundaryViolationException.java
+Comparator.java
+Container.java
+DecIntegerComparator.java
+DFSPathFinder.java
+Dictionary.java
+DLNodePosition.java
+Edge.java
+EmptyContainerException.java
+FullContainerException.java
+Graph.java
+GraphAlgorithms.java
+GraphApp.java
+IntegerComparator.java
+InvalidKeyException.java
+InvalidPositionException.java
+Item.java
+LabeledVertex.java
+LinkedBinaryTree.java
+LinkedBinaryTreeHeap.java
+LinkedSequence.java
+MaxWeightBFSPathFinder.java
+MaxWeightPathFinder.java
+Node.java
+PathFinder.java
+Position.java
+PositionalContainer.java
+PriorityQueue.java
+ResidualGraphResult.java
+RestructurableNodeBinaryTree.java
+Sequence.java
+SequenceEnumerator.java
+SequenceHeapSort.java
+SequenceMergeSort.java
+SequenceQuickSort.java
+SequenceTester.java
+SimpleAVLTree.java
+SimpleBinarySearchTree.java
+SimpleTree.java
+SortingProject.java
+SortObject.java
+TreeProject.java
+TreeTester.java
+VariousSortApplet.java
+Vertex.java
+WeightedAdjacencyListGraph.java
+WeightedEdge.java
+[ASSOCIATION]

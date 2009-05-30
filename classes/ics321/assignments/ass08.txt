@@ -1,0 +1,41 @@
+David J. Burger
+ICS 321 Sec. 452
+6/20/01
+
+8.6)  Describe three reasons for using indexes.
+
+One reason that we would use indexes it to allow rows to be quickly accessed using the 
+indexed attribute’s value.  A second reason we would use indexes is if we desire to sort 
+our rows based on the indexed attribute.  Lastly, we may index in order to facilitate the 
+maintenance of an attribute with unique values.  In all cases performance is greatly 
+improved because the index maintains a data structure designed to be algorithmically 
+efficient for tasks such as these.
+
+8.10)  What aspects of a database design need to be defined to the DBMS?
+
+The types of database design methodologies that we have studied (E-R and Semantic 
+Object models) use a relational model to express database design.  Most DBMS products 
+of this time are based on the relational model and therefore we must simple define our 
+existing relational design to the DBMS.  If we were to implement our relational design to 
+DBMS systems not based upon the relational model, design conversion will be necessary.  
+Two such non-relational examples discussed in our book have been Object Oriented 
+Database Systems and CODASYL DBTG DBMS.
+
+The way in which the relational design is defined varies among DBMS products.  Some 
+products, such as Access, provide visual design tools that can be used to define the 
+structure of tables, indexes, and relationships.  Other products, such as large DBMS 
+products like Oracle, use data definition language statements stored in text files to create 
+the database schema.
+
+8.11)  Give an example, other than the one in this text, in which the allocation of the 
+database to physical media is important.
+
+Consider an application that a stock brokerage uses to keep track of customers and 
+trading activity.  Suppose that they are planning to deploy this application on a system 
+with one large, fast disk and one smaller, slower disk.  The application contains 
+CUSTOMER and TRANSACTION relations.  With the stock boom of the late 90’s, 
+many customers began using day trading techniques.  This resulted in a high number of 
+transactions needing to be processed very quickly.  In order to handle the volume and 
+throughput of transaction data it would be preferably to store the TRANSACTION 
+relation on the larger, faster disk.  The CUSTOMER relation, which contains a smaller 
+amount of data that changes infrequently, could be placed on the smaller, slower disk.

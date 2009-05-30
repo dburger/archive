@@ -1,0 +1,242 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+David Burger
+ICS 211
+Project 4
+Problems #8 pg 419 and #5 pg 494
+Due: Dec. 7, 2000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Problem #8 pg 419:
+File in which execution starts:  	SortAnalyzer.java
+Source files delivered with project:	SortAnalyzer.java
+
+Problem #5 pg 494:
+File in which execution starts:  	PhoneBookFrontEnd.java
+Source files delivered with project:	PhoneBookFrontEnd.java 
+Data file:			phonebook.txt
+
+
+Test Cases:
+
+***********************************************
+*                                             *
+*               Sort Analyzer                 *
+*                                             *
+***********************************************
+
+This program analyzes the number of comparisons
+needed by insertionSort and shellSort to sort a
+given set of data.
+
+Please enter a set of integer values separated
+by spaces.  To quit the program press <enter>
+on a blank line.
+321 578 156 908 794 237 816 217 65 652
+Number of comparisons for insertionSort:  69
+Number of comparisons for shellSort:  81
+
+Please enter a set of integer values separated
+by spaces.  To quit the program press <enter>
+on a blank line.
+764 367 982 56 129 538 568 432 800 794 234 318 598 480 959 
+278 880 4 190 758
+Number of comparisons for insertionSort:  235
+Number of comparisons for shellSort:  193
+
+Please enter a set of integer values separated
+by spaces.  To quit the program press <enter>
+on a blank line.
+785 632 190 987 65 839 654 532 375 287 598 212 975 387 101 
+823 659 819 832 356 458 341 871 393 231 32 462 699 295 634
+Number of comparisons for insertionSort:  531
+Number of comparisons for shellSort:  333
+
+Please enter a set of integer values separated
+by spaces.  To quit the program press <enter>
+on a blank line.
+
+Commentary:  I ran the SortAnalyzer program with three sets of data.  First, I fed the 
+sort routines a list of ten integer values.  With only ten integer values, insertionSort was 
+able to complete the sort with 69 comparisons while shellSort took 81 comparisons.  So, 
+for very small data sets it appears that insertionSort has a slight advantage.  Then I fed the 
+routines a list of twenty integer values.  For twenty integer values insertionSort required 
+235 comparisons while shellSort required 193 comparisons.  It looks as if shellSort is 
+starting to become more advantageous for arrays at around this size.  Lastly, I fed the 
+routines a list of thirty integers.  In this case, insertionSort made 531 comparisons while 
+shellSort made only 333 comparisons.  At this level the difference in the number of 
+comparisons need for the sorting algorithms is becoming quite significant.
+
+
+Test Cases – First Run:
+
+The first run was made with no pre-existing data file so the phone book starts out empty.
+
+*********************************************************
+**                  Phonebook Program                  **
+**                                                     **
+**  This program functions as an electronic phonebook. **
+**  It store phone numbers indexed by name.            **
+**  Data is persisted between sessions in a file       **
+**  called phonebook.txt.                              **
+**                                                     **
+**  The function keys are defined below.               **
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>a
+Enter the name of the person to add:  David Burger
+Enter the phone number:  123-456-7890
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>a
+Enter the name of the person to add:  Alfred Seita
+Enter the phone number:  111-222-3333
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>a
+Enter the name of the person to add:  Bill Clinton
+Enter the phone number:  999-999-9999
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>f
+Enter the name of the person to find:  Alfred Seita
+Phone number:  111-222-3333
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>c
+Enter the name of the person to change:  David Burger
+Enter the new phone number:  111-111-1111
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>d
+Enter the name of the person to delete:  Bill Clinton
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>q
+After the first test run an examination of the phonebook.txt data file was made and it 
+revealed that it contained the following data:
+
+David Burger|111-111-1111
+Alfred Seita|111-222-3333
+
+Test Cases – Second Run:
+
+The second run was made with the data file already containing the values from the first 
+test run.
+
+*********************************************************
+**                  Phonebook Program                  **
+**                                                     **
+**  This program functions as an electronic phonebook. **
+**  It store phone numbers indexed by name.            **
+**  Data is persisted between sessions in a file       **
+**  called phonebook.txt.                              **
+**                                                     **
+**  The function keys are defined below.               **
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>a
+Enter the name of the person to add:  Alfred Seita
+Alfred Seita already exists in the phonebook.
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>f
+Enter the name of the person to find:  David Burger
+Phone number:  111-111-1111
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>m
+Unrecognized command.
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>d
+Enter the name of the person to delete:  David Burger
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>a
+Enter the name of the person to add:  Al Gore
+Enter the phone number:  555-555-5555
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>a
+Enter the name of the person to add:  George W. Bush
+Enter the phone number:  777-777-7777
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>f
+Enter the name of the person to find:  David Burger
+Unable to find David Burger.
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>f
+Enter the name of the person to find:  Al Gore
+Phone number:  555-555-5555
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>f
+Enter the name of the person to find:  George W. Bush
+Phone number:  777-777-7777
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>c
+Enter the name of the person to change:  Alfred Seita
+Enter the new phone number:  101-101-1010
+*********************************************************
+*     (a)dd - (c)hange - (d)elete - (f)ind - (q)uit     *
+*********************************************************
+==>q
+
+After the second run an examination of the phonebook.txt data file was once again made.  
+This time the contents looked like this:
+
+Alfred Seita|101-101-1010
+Al Gore|555-555-5555
+George W. Bush|777-777-7777

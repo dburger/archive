@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>Sequence Testing Results</title>
+</head>
+<body topmargin="0" leftmargin="0">
+<table width="100%" bgcolor="#ffcc00">
+  <tr height="49">
+    <td>
+    <font size="7">digitalOverflow</font><font size="1">101010</font>
+    </td>
+  </tr>
+</table>
+<blockquote>
+<a href="#testing">testing results</a> | <a href="#responsibilities">group responsibilities</a>
+<h3><a name="testing">Sequence Testing Results</a></h3>
+This document presents the results of using bubble sort on two different sequence
+implementations as implemented by David Burger and Robert Griffis for ICS 311.
+The two sequences were implemented as ArraySequence and LinkedSequence.  The
+ArraySequence used a private array to store the elements of the sequence.  The
+LinkedSequence used a doubly linked list to store the elements.  The bubble sorts
+used to test the sequence relied on different techniques for accessing sequence elements.
+In bubbleSort1, elements were accessed in the sequence by using ranks.  In bubbleSort2,
+elements were accessed in the sequence by using positions.  The running
+time, in milliseconds, for sorting 1000 random integers stored in these sequences using
+bubbleSort1 and bubbleSort2 are shown below.<p>
+<table border="1" cellspacing="0" align="center">
+  <tr>
+    <td><pre> </pre></td><td>bubbleSort1(rank)</td><td>bubbleSort2(positional)</td>
+  </tr>
+  <tr>
+    <td>ArraySequence</td><td align="right">1480</td><td align="right">1430</td>
+  </tr>
+  <tr>
+    <td>LinkedSequence</td><td align="right">22470</td><td align="right">940</td>
+  </tr>  
+</table>
+<p>
+These results explicitly depict the impact of implementation choices in the efficiencies
+of our code.<p>
+When using bubbleSort2, elements are accessed by position.  In the bubbleSort2 code
+this is achieved by calls to first() and subsequent calls to after().  As we might expect,
+the LinkedSequence excels at positional access and comes in with a very quick 940 milliseconds
+to sort 1000 integers.  This fast time is achieved because the positional objects can be
+cast back into node objects within the LinkedSequence giving direct access to getNext().  The
+ArraySequence checked in with a time of 1430 milliseconds for the same sort.  This fast time was
+somewhat surprising, however, by storing the indexes in the objects implementing the positional
+abstraction, we were able to get at the index and therefore compute the index of a neighbor
+element in an O(1) fashion.  While it appears that the computation of the index of a neighbor has
+resulted in a slightly slower actual running time for the ArraySequence than the LinkedSequence,
+both implementations feature the same Big-Oh time complexity.
+<p>
+When using bubbleSort1, elements are accessed by rank.  Therefore, it is no surprise that
+the running time for sorting the ArraySequence is a quick 1480 milliseconds for the 1000 integer
+sort.  Probably what was most surprising was the fact that this time was not quite as fast as sorting
+the ArraySequence with bubbleSort2.  The interesting results of our sequence tests came when sorting
+the LinkedSequence with bubbleSort1.  Accessing an element by rank in a LinkedSequence results in
+an iteration from the end of the sequence to the desired rank.  While we had taken care in our
+implementation to iterate from the closer end, this still results in an O(n) operation.  This O(n)
+ranked access operation results in a performance degradation of the bubble sort algorithm to O(n<sup>3</sup>)
+and a sorting time of 22470 milliseconds for the 1000 integers in our test.  The poor performance of
+a LinkedSequence with bubbleSort1 was not unexpected and demonstrates that a LinkedSequence is a poor
+choice for situations where ranked access will be prevalent.
+<p>
+Our tests also demonstrate the superiority of bubbleSort2.  Its sort via positional access has good
+performance regardless if you choose to use an ArraySequence or LinkedSequence.
+<p>
+<h3><a name="responsibilities">Group Responsibilities</a></h3>
+<blockquote>
+  <h4>Coding</h4>
+  <blockquote>
+    We decided if it was best from an educational standpoint if we both implemented the ArraySequence
+    and LinkedSequence independently.  We then had a meeting to compare our implementations and decide
+    on the algorithms/implementation to use.  Therefore both of us had a hand in the coding of the
+    ArraySequence and LinkedSequence.
+  </blockquote>
+  <h4>Web Site</h4>
+  <blockquote>
+    The web site was designed and published by Robert Griffis.
+  </blockquote>
+  <h4>Testing Results Write Up</h4>
+  <blockquote>
+    The testing results write up was done by David Burger.
+  </blockquote>
+  <h4>Testing Applet</h4>
+  <blockquote>
+    The testing applet was written by David Burger.
+  </blockquote>
+</blockquote>
+</blockquote>
+</body>
+</html>

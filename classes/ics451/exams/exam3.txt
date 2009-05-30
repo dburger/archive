@@ -1,0 +1,189 @@
+===============================================================================
+Answer 1.
+
+The TCP sliding window system is the means by which a receiver controls the
+incoming flow of data.  A window size is advertised which specifies how much
+data the receiver is willing to accept.  The receiver is free to change the
+size of this window but cannot take back what has already been advertised.
+The left edge of the window moves as data is received and acknowledged.  The
+right edge of the window moves as the application using the TCP "consumes"
+the data, that is, buffered data is being handled by the application.  Because
+the movement of the right and left edges of the window depend upon different
+events they don't actually both move at the exact same time.  They can,
+however, change in close enough proximity such that subsequent window
+advertisements indicate that both of them have moved since the last window
+advertisement.
+
+Number of bytes that a TCP sender is allowed to send:
+
+B = SND.WL2 + SND.WND - SND.NXT
+
+Note that this arithmetic is modulo 2^32.
+Also note that this determines the number of bytes the sender can send, but in
+any one segment the TCP sender is still bound by the MSS, maximum segment size.
+
+===============================================================================
+Answer 2.
+
+The three way handshake begins with one computer acting as the client to
+connect to the other machine acting as a server waiting for a connection.  The
+client machine begins by sending a synchronization segment to the server at a
+given IP address and port number.  The segment is called a synchronization
+segment, or a SYN, because it is used to synchronize the crucial parameters
+defining the connection.  This first segment will contain the initial sequence
+number, the size of the receive window, and the maximum segment size that the
+client can accept.  Although different TCP implementations may have different
+ways of picking the initial sequence number, in general it is picked to avoid
+accepting packets from previous connections such as those that could result in
+a crash and reboot situation.  When the server receives this initial SYN
+segment.  It will initialize its state information about the connection from
+the supplied initial sequence number, window size, and maximum segment size.
+It will then choose its own initial sequence number, and create a SYN
+segment to send to the client that contains this initial sequence number along
+with the size of its receive window and the maximum segment size it can
+accept.  It also sends an ACK to the client.  This ACK will have a value one
+more than the ISN sent by the client and therefore ACKs the SYN segment and
+indicates the sequence number for the first byte of data that will be sent
+by the client.  When the client receives this SYN/ACK packet from the server,
+it can then initialize the state information about the connection regarding
+the servers initial sequence number, window size, and maximum segment size.
+It will then send back a packet that ACKs the servers SYN/ACK segment by
+sending a ACK value one larger than the servers ISN in the SYN/ACK packet.
+When the server receives this ACK both sides have properly initialized all
+the crucial information about the connection and are ready to begin
+exchanging data.
+
+===============================================================================
+Answer 3.
+
+The domain name server is used to resolve domain names into IP addresses.  This
+allows us to enter user friendly strings to access resources.  Obviously the
+domain name server itself must be referenced using its IP address because it is
+the point of name resolution and therefore this service isn't available until
+the domain name server is set up.
+
+Default search domains allow systems to be configured to make often accessed
+resources easier to identify.  For example, lets say you work in the ics
+department at the University of Hawaii and you often access other computers
+with the ics.hawaii.edu suffix.  The client system can be configured so that
+it will try this suffix if the name doesn't work.  If you typed in burger for
+the computer name and this name did not work, the client would automatically
+try burger.ics.hawaii.edu.  This can be very convenient for users.
+
+The nslookup unix call can be used to determine the IP addresses of an
+arbitrary domain name.
+
+
+===============================================================================
+Answer 4.
+
+The quiz server is an application that runs over the web through a web browser.
+Writing such a program by using CGI with a web server comes with several
+advantages.  The most obvious advantage is that the web server can handle the
+details of the HTTP protocol while the developer can focus on the application.
+In addition, many programming languages have libraries of functions designed to
+make CGI programming easier.  Perl, for example, has publicly available
+libraries with some very nice functions designed to assist with HTML form
+processing.  The disadvantages of using the CGI and web server approach would
+be that you don't have as much overall control of the code.  In other words,
+any vulnerabilities of the web server and CGI interaction now become
+vulnerabilities of your system.  Also, firing up a full web server application
+with CGI support may be overkill for what you are trying to accomplish, a much
+leaner system may be possible with a custom server.
+
+With the custom server approach you get full control over the code, and, with
+careful programming techniques you can develop a system that you trust from a
+security standpoint.  It should also be possible to produce a server that
+has less overhead than running a full web server with CGI support, thereby
+reducing the load on your server computer.  The downside of this approach is
+that you basically have to reinvent the wheel when it comes to HTTP.
+Therefore, if your system serves up a lot of static content, you might as well
+go with the web server and CGI approach.  The quiz server serves up mostly
+dynamic content so this is not a big issue for this program.
+
+In summary it is possible to write web applications in a variety of ways.  Most
+people are probably going to go with the web server / CGI approach because it
+will simplify the programming task.  There may be times, however, when you
+want full control and a leaner footprint, in these cases you may want to write
+a custom server.
+
+===============================================================================
+Answer 5.
+
+I'll call my protocol Simple Steady Protocol or SSP.  SSP is designed to run
+over IP so it is SSP/IP.  SSP is a send and wait protocol that has a maximum
+packet size of 320 bytes.  The SSP header is laid out as follows:
+
+                                    
+    0                   1                   2                   3   
+    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |          Source Port          |       Destination Port        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                      Communications ID                        |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |           Checksum            |         Control Flags         |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+   |                             data                              |
+   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+As you can see the header starts out with 16 bit source and destination ports.
+The port numbers are followed by the Communications ID.  The Checksum is used
+to checksum the packet and also includes the IP pseudo header.  The Control
+Flags are used for start up and shutdown of the connection as well as allowing
+room for special control situations or expansion of the protocol that may
+take place in the future.
+
+A session begins with the computer initiating communications sending a packet to
+the system acting as the server.  That packet contains a 32 bit Communications
+ID value designed to be chosen in such a manner that interference will not
+take place from previous communications.  This can be implemented as a random
+value or may include the system time in some manner.  This packet also
+contains a bit in the Control Flags that indicates this is a request for
+communication.
+
+The computer waiting for a connection will receive the packet and respond with
+a packet that uses a bit in the Control Flags to indicate if it will accept or
+reject the communications session.  If the session will be accepted, the
+returned Communications ID will be the received Communications ID incremented
+by one.  The initiating computer treats this as an ACK of the original packet
+and the communications line is established for use.
+
+Data exchange takes place in a send and wait manner.  The initiating computer
+would get the first opportunity to send data.  The Communications ID is
+incremented to indicate the byte number of the next byte in the communications,
+both sides included, therefore, when a packet arrives the Communications ID acts
+both as ACK for the previously sent packet and is used to create an identifier
+for the new packet.  The sent Communications ID is always:
+Received ID + Bytes in Received Packet
+
+Each side of the communications keeps a retransmission timer.  This is an
+adaptive timer that uses the speed of previous communications to adjust the
+timeout level for future communications.  If a packet is sent and not ACKed
+within the retransmission time frame it is merely resent.
+
+Because this is a send and wait protocol, missing packets are not a big issue.
+If the next packet is missing it will of course not be ACKed and will therefore
+cause a retransmission after the timeout occurs.  Duplicate packets are also
+not a problem because they will not contain the correct Communications ID for
+the next packet and therefore will be ignored.  In the same way, packets with
+errors will be discovered in the checksum computation and will be ignored,
+causing a retransmission after the  timeout.  The checksum computation
+includes the IP pseudo header and therefore also catches packets mis-delivered
+from other IP's.
+
+When one side of the communications is ready to shutdown it sets a bit in the
+Control Flags.  The other side will then set its Control Flags to indicate if
+it is also ready to shutdown or if it wishes to send more data.  When it
+finally agrees to the shutdown the communications is officially terminated when
+its packet agreeing to the shutdown is ACKed.
+
+Because my SSP protocol only allows one side to send data at a time, it is
+slower than TCP.  Working on this problem made me appreciate the design of TCP
+because for most of the problems of reliable communications the TCP solutions
+naturally came to mind.  It was difficult to think "outside the box" of a
+different way to do things.  I came up with some ideas on using the secure
+hash algorithm to identify and ACK packets while providing a method for
+verifying the bytes at the same time, but the size of the hash seemed too large
+for a reasonable implementation.  I am now very curious to learn about
+alternatives to TCP/IP that can provide the reliability and throughput of TCP.

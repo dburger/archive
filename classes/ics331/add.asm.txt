@@ -1,0 +1,60 @@
+        ORG 100h
+START:  LXI H,CRLF   ;load the address of the CRLF string
+        CALL PRINT   ;print the CRLF
+        LXI H,PROMPT ;load the address of the prompt message
+        CALL PRINT   ;print the prompt message
+        CALL INPUT   ;input a character into A
+        CALL OUTA    ;display the typed character
+        SUI 30h      ;change the ASCII to numeric
+        MOV B,A      ;number to add stored in B
+        LXI H,CRLF   ;load the address of the CRLF string
+        CALL PRINT   ;print the CRLF
+        MVI C,0      ;use C to hold the total
+        MOV A,B      ;number to add back in A
+ADDLP:  ANA A        ;set the flags
+        JZ FINISH
+        CALL INPUT   ;wait for a number
+        CALL OUTA    ;display the typed number
+        SUI 30h      ;convert ASCII to numeric value
+        ADD C        ;add the previous total to new number
+        CPI 10       ;compare a to 9
+        JC CONT
+        SUI 10       ;keep the answer to 0 - 9
+CONT:   MOV C,A      ;copy new total to C
+        LXI H,CRLF   ;load the address of the CRLF string
+        CALL PRINT   ;print the CRLF
+        DCR B        ;decrement number to add        
+        MOV A,B      ;number to add back in A
+        JMP ADDLP
+FINISH: LXI H,RESULT ;load the address of the answer message
+        CALL PRINT   ;print the answer message
+        MOV A,C      ;move the answer to A
+        ADI 30h      ;change numeric to ASCII
+        CALL OUTA    ;print out the answer
+        HLT          ;jobs done!
+PRINT:  IN 30h       ;load screen status to A
+        ANI 80h      ;see if the ready bit is set
+        JZ PRINT     ;if not check again
+        MOV A,M      ;mov the first character to A
+        ANA A        ;set the flags
+        RZ           ;if zero return
+        OUT 31h      ;output the character in A
+        INX H        ;point at next character
+        JMP PRINT    ;repeat loop
+INPUT:  IN 20h       ;load keyboard status
+        ANI 01h      ;see if ready bit set
+        JZ INPUT     ;if not check again
+        IN 21h       ;input character to A
+        RET
+OUTA:   PUSH PSW     ;put the contents of PSW-A on stack
+        IN 30h       ;load screen status to A
+        ANI 380h     ;see if the ready bit is set
+        JZ OUTA      ;if not check again
+        POP PSW      ;restore PSW-A
+        OUT 31h      ;output the character
+        RET
+PROMPT: DB 'Enter the number of numbers to be added:  ',0
+RESULT: DB 'The answer is:  ',0
+CRLF:   DB 0Dh,0Ah,0
+ANSW:   DS 1
+        END START

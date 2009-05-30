@@ -1,0 +1,72 @@
+
+;  do {
+
+
+;      x = x + 5;
+
+#0:
+
+;      y = f(x, 17);
+
+      mov   AX,x
+      add   AX,5
+      mov   x,AX
+      push x
+      push 17
+
+;  } while(p(q(x)));
+
+      call f
+      mov   y,AX
+      push x
+      call q
+      push AX
+      call p
+
+;  while(p(x+5)) {
+
+      test AX
+      jnz #0
+#1:
+      mov   AX,x
+      add   AX,5
+      push AX
+      call p
+
+;      while(a-b) a = a-3;
+
+      test AX
+      jz #2
+#3:
+      mov   AX,a
+      sub   AX,b
+      test AX
+      jz #4
+
+;      y = g(a, 17, c+2);
+
+      mov   AX,a
+      sub   AX,3
+      mov   a,AX
+      jmp #3
+#4:
+      push a
+      push 17
+      mov   AX,c
+      add   AX,2
+      push AX
+
+;      x = h(y);
+
+      call g
+      mov   y,AX
+      push y
+
+;  }
+      call h
+
+      mov   x,AX
+
+      jmp #1
+#2:
+Finished OK

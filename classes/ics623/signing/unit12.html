@@ -1,0 +1,361 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Win">
+  <TITLE>Unit 12</TITLE>
+</HEAD>
+<BODY>
+
+<H2>Unit 12--Digital Signature Algorithm</H2>
+
+<P>Read Section 20.1 carefully. Skip the sections on &quot;El Gamal Encryption
+with DSA&quot;, &quot;RSA Encryption with DSA&quot;, and &quot;Sublimal
+Channel in DSA&quot;. What was NSA's role in the development of DSA? What
+was the reaction of the security community in general to NSA's involvment?
+What are the advantages of RSA over DSA for signatures? What are the advantages
+of DSA over RSA for signatures? What is the patent situation for DSA and
+for RSA?</P>
+
+<P>The El Gamal signature algorithm is described on page 476. It is very
+similar to DSA. I think it is worth while looking at it, for that reason.</P>
+
+<P>Write a program to sign something with El Gamal and to verify the signature.
+I have done one case and given you intermediate results. If you do that
+case and make good use of the data, it should not be too difficult to make
+that program work. Then sign something else, using the same private key,
+and show that it can be verified using the public information. Give me enough
+information so that I can see that you verified the signature and enough
+so that I can verify the signature.</P>
+
+<P>Now do the same with DSA. Write a program and use the intermediate results
+that I have given you at the end of these notes to debug it. Then sign something
+else using the same keys, and show that it can be verified using public
+information. Give me enough information so that I can see that you verified
+the signature and enough so that I can verify the signature.</P>
+
+<P>I also want to see the programs.</P>
+
+<P>For DSA, there are a couple of places that call for calculating something
+mod p and then mod q. This cannot be done with the programs you have. You
+need to do long division. I wrote very simple programs to do binary long
+division of a 1023-bit number by a 511 bit number to give a 512-bit quotient
+and a 511-bit remainder. The program I wrote uses the same algorithm as
+is used in simple hardware. I will put functions that you can use for that
+purpose on a <A HREF="binary.html">separate page</A>.</P>
+
+<H3>El Gamal Digital Signature</H3>
+
+<P>I want to discuss this first, because it is simpler than the standard
+Digital Signature Algorithm (DSA), and yet very similar. DSA seems to have
+been derived from El Gamal. Now also, I will describe El Gamal a little
+differently from what is in the book, on page 476. I will make two changes.
+First, I will use the variable name r where he uses a and s where he uses
+b. Secondly, there is an equation M = (x*a + k*b) mod (p-1). I want to rewrite
+that. First writing r for a and s for b, M = (x*r + k*s) mod (p-1), and
+then I want to solve for s: s = k'*(M - x*r) mod (p-1), and the inverse
+k' of k then is taken mod p-1. I will make my description complete, and
+with this information you can see that it is the same as what Schneier has.
+These little changes make El Gamal look more like DSA.</P>
+
+<P>First you choose a prime number p, and I guess it ought to be at least
+around 512 bits and maybe 1024 would be better. Then you choose an element
+g that is preferably primitive mod p, and a number x less than p-1. Then
+you calculate y = g^x mod p. Your public key is y and g and p together.
+(g and p could be shared.) Then g and p and x is your private key. Trying
+to find x from y is the discrete logarithm problem, which is hard enough
+to be secure.</P>
+
+<P>Now to sign a message M (which must be smaller than p),</P>
+
+<P>1) Choose a number k randomly (and different for every signature) and
+calculate r = g^k mod p. k must be relatively prime to p-1. (Calculate k^phi(p-1)
+mod (p-1)--if it is 1 you are OK. Then the inverse of k, k' =k^(phi(p-1)-1)
+mod p-1.)</P>
+
+<P>2) Calculate s = k'*(M - x*r) mod (p-1)</P>
+
+<P>Then r and s together are the signature. k must be kept secret. It is
+not needed again.</P>
+
+<P>Then to verify a signature, you calculate (y^r)*(r^s) mod p and the result
+should equal g^M mod p. Note that you do this calculation using only public
+information, your public key (p and g and y), the message M, and the signature
+(r and s).</P>
+
+<P>You can see that it should come out right as follows:</P>
+
+<P>(y^r)*(r^s) = (g^(x*r))*(g^(k*k'*(M - x*r) = (g^(x*r))*g^(M-x*r) = g^M.</P>
+
+<P>To forge a signature without stealing the private key, you could try
+to choose a value for r and then solve for s in the verification equation.
+That requires solving for s in r^s = (y^r)'*g^M, which is the discrete logarithm
+problem. You could choose s and try to solve for r, and then you have to
+solve (y^r)*(r^s) = g^M for r, and that appears to be even more difficult.
+You could try to solve for r and s simultaneously--certainly no one has
+done it and it doesn't look feasible.</P>
+
+<P>The k must be kept secret. If the bad guy knows k be, then he/she can
+solve the equation s = . . . above for x, and have the secret key. The k
+must not be reused. If the bad guy knows two messages that you have sent
+with the same k, then he/she has two equations s = . . . and the only unknowns
+are k and x, and he/she again can solve those equations and get k and x.
+After he/she multiplies both sides of the equations by k, the equations
+become linear in k and x.</P>
+
+<H3>Digital Signature Algorithm</H3>
+
+<P>If p is 1024 bits, then the El Gamel signature is 2048 bits. That is
+pretty big, A signature ought to be more the size of a hash. Some unnamed
+person in NSA came up with an idea that makes the computation use a big
+prime, but the signature has only 320 bytes, which is a lot better. This
+is the important change. There are one or two other trivial changes. Here
+is how it is done (see page 486):</P>
+
+<P>You choose a large prime number p of the form p = 2*f*q+1, where q is
+a 160-bit prime number. Then phi(p) = 2*f*q. Therefore there exist elements
+of order q. You can get one by choosing a number h and raising it to the
+power 2*f. (g = h^(2*f)) If the result g is not 1, then it must have order
+q, because g^q = 1.</P>
+
+<P>So you choose g of order q mod p. Then you choose x, and calculate y
+= g^x. Then your public key is (p and q and g and y), and your private key
+is (p and q and g and x). p and q and g can be shared.</P>
+
+<P>Here you always use the hash function--SHA is specified in the standard--and
+you sign H(m) rather than signing the message itself. Now to sign a message,
+you choose a k less than q. (You have to keep k secret and use it only once,
+as with El Gamal.) Then you calculate</P>
+
+<P>1) r = (g^k mod p) mod q, and</P>
+
+<P>2) s = k'*(H(m) + x*r) mod q, where k' is the inverse of k.</P>
+
+<P>Then r and s together are the signature. Since they are taken mod q,
+a 160-bit prime, they are 160 bits each.</P>
+
+<P>To verify the signature, you calculate</P>
+
+<P>w = s' (the inverse of s)</P>
+
+<P>u1 = H(m)*w mod q, and</P>
+
+<P>u2 = r*w mod q, and then calculate</P>
+
+<P>v = (g^u1*y^u2 mod p) mod q, and if the signature is valid, the result
+is equal to r.</P>
+
+<P>Note that if w1 = w2 mod q, then g^w1 = g^w2, because g^(i*q) = 1 for
+all i because g has order q.</P>
+
+<P>You can see that a valid signature will satisfy this equation as follows:
+First let's look at the equations above, omitting the mod q:</P>
+
+<P>1) r = (g^k mod p) , and</P>
+
+<P>2) s = k'*(H(m) + x*r)</P>
+
+<P>If these hold, then, similarly to El Gamal, g^H(m)*y^r = r^s mod p. This
+can be verified by substituting y = g^x on the left, and r = g^k and s =
+k'*(H(m) + x*r) on the right. Now let's assume that s has an inverse, s',
+mod p-1. Then raise both sides of this equation to the power s'. That gives
+g^(s'*H(m))*y^(r*s') = r, or g^u1*y^u2 = r. This equation is true if we
+don't reduce. Reducing the u1 and the u2 mod q has no effect on the validity
+of this equation because g and y both have order q. However, r was also
+reduced--if we reduce the left side also, then the equation will still be
+valid.</P>
+
+<PRE>----------------------------------------------------------------------
+Data for a sample run of El Gamal and DSA. For both cases, the 
+following p is used. p = 2*q*f + 1, where q is a 160-bit prime and f 
+is a 350-bit prime. 
+p
+76ba9c0d d6af4e18 8bcce75b cb7a0ce9 b6c3128d 2b4c21cc 2adb4821 ba53ea2a
+1b181203 42bfbfad 89bee4d5 eb9b0544 ceec5cef ee03b004 b410ee20 e48928ab
+Big Endian:
+0x76ba9c0d, 0xd6af4e18, 0x8bcce75b, 0xcb7a0ce9,
+0xb6c3128d, 0x2b4c21cc, 0x2adb4821, 0xba53ea2a,
+0x1b181203, 0x42bfbfad, 0x89bee4d5, 0xeb9b0544,
+0xceec5cef, 0xee03b004, 0xb410ee20, 0xe48928ab,
+Little Endian:
+0xe48928ab, 0xb410ee20, 0xee03b004, 0xceec5cef,
+0xeb9b0544, 0x89bee4d5, 0x42bfbfad, 0x1b181203,
+0xba53ea2a, 0x2adb4821, 0x2b4c21cc, 0xb6c3128d,
+0xcb7a0ce9, 0x8bcce75b, 0xd6af4e18, 0x76ba9c0d,
+q
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 ef049282 e49accee e5675b4a 7fde735a 9df5f9bb
+Big Endian:
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0xef049282,
+0xe49accee, 0xe5675b4a, 0x7fde735a, 0x9df5f9bb,
+Little Endian:
+0x9df5f9bb, 0x7fde735a, 0xe5675b4a, 0xe49accee,
+0xef049282, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+f
+00000000 00000000 00000000 00000000 00000000 3f951178 18a9fade 0a023be4
+cc97ebec 1dd9e632 6e7a4738 3a0e053e 8d4725f8 724eb4e8 f2f7eaa6 e946012f
+Big Endian:
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x3f951178, 0x18a9fade, 0x0a023be4,
+0xcc97ebec, 0x1dd9e632, 0x6e7a4738, 0x3a0e053e,
+0x8d4725f8, 0x724eb4e8, 0xf2f7eaa6, 0xe946012f,
+Little Endian:
+0xe946012f, 0xf2f7eaa6, 0x724eb4e8, 0x8d4725f8,
+0x3a0e053e, 0x6e7a4738, 0x1dd9e632, 0xcc97ebec,
+0x0a023be4, 0x18a9fade, 0x3f951178, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+-----------------------------------------------------
+For El Gamal, I found that 2 is a primitive element mod p and I used
+g = 2. 
+Make keys.
+x
+74c0e013 bfb6842a 679f43ba 09179d7c ed643c8c 4fc38516 ad569042 0e1935f6
+9925b0b4 797447f8 c1212912 680fbfcc e1f91f72 aa7fe944 b3abc6ce 32895a88
+Big Endian:
+0x74c0e013, 0xbfb6842a, 0x679f43ba, 0x09179d7c,
+0xed643c8c, 0x4fc38516, 0xad569042, 0x0e1935f6,
+0x9925b0b4, 0x797447f8, 0xc1212912, 0x680fbfcc,
+0xe1f91f72, 0xaa7fe944, 0xb3abc6ce, 0x32895a88,
+Little Endian:
+0x32895a88, 0xb3abc6ce, 0xaa7fe944, 0xe1f91f72,
+0x680fbfcc, 0xc1212912, 0x797447f8, 0x9925b0b4,
+0x0e1935f6, 0xad569042, 0x4fc38516, 0xed643c8c,
+0x09179d7c, 0x679f43ba, 0xbfb6842a, 0x74c0e013,
+y
+4060ee72 0cf043b8 1eef6e0a 284f8cda c95f5d5d 520667d1 456495f3 9b181b8a
+704b8727 1b567c21 bfcca20a 7adeefae f9f5551a 65f04c32 89444ff5 543d851f
+Sign H.
+H
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 2615c94b 736a7aa1 6faea1d2 f17b72fb 1f9873dd
+Big Endian:
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x2615c94b,
+0x736a7aa1, 0x6faea1d2, 0xf17b72fb, 0x1f9873dd,
+Little Endian:
+0x1f9873dd, 0xf17b72fb, 0x6faea1d2, 0x736a7aa1,
+0x2615c94b, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+k
+03cd3747 06d7d4b3 046cdbe2 6a5d128c 427c3c55 31169898 77a4044d 56f32f43
+56e509fe 06058ed8 1c06dac8 4431b782 3ab50c2a 60b7acd9 10d63af1 000041a7
+Big Endian:
+0x03cd3747, 0x06d7d4b3, 0x046cdbe2, 0x6a5d128c,
+0x427c3c55, 0x31169898, 0x77a4044d, 0x56f32f43,
+0x56e509fe, 0x06058ed8, 0x1c06dac8, 0x4431b782,
+0x3ab50c2a, 0x60b7acd9, 0x10d63af1, 0x000041a7,
+Little Endian:
+0x000041a7, 0x10d63af1, 0x60b7acd9, 0x3ab50c2a,
+0x4431b782, 0x1c06dac8, 0x06058ed8, 0x56e509fe,
+0x56f32f43, 0x77a4044d, 0x31169898, 0x427c3c55,
+0x6a5d128c, 0x046cdbe2, 0x06d7d4b3, 0x03cd3747,
+r
+4fb4756f fae2a107 6472482b 7504ffaf 25f2e29b e1c34896 268ea268 dca0e397
+9485854c 46800164 5355b7ca 2bd6d043 102c1d8a 5fb62e53 374a4c99 60fce126
+k'
+11da4671 ca3e1ec5 e056449f 50b23ded 05eb23a2 8a3305b9 590a4273 f17b641f
+59036f1a a4f2a5fb 566412be e54d1e46 81fe945c fcabd2b6 b41b8582 924791eb
+s
+0b311901 8db5d93a ddd0e461 8bab7373 38f6d540 bb0616df 78efd684 66498580
+9d5a8ef8 953d0fb5 518f8d01 8c4a597e cccd1599 8f7fa137 c4316862 780ba6f3
+(y^r)*(r^s)
+43b374ba 9296e148 135788f8 7ff53641 ee25a3e5 853d1632 072ee516 e475dcb7
+95359497 b4408c2f f34584a0 a90e5922 a8b59ad8 08b36e98 926e1348 a8be7e4a
+Should equal g^h
+43b374ba 9296e148 135788f8 7ff53641 ee25a3e5 853d1632 072ee516 e475dcb7
+95359497 b4408c2f f34584a0 a90e5922 a8b59ad8 08b36e98 926e1348 a8be7e4a
+-----------------------------------------------------------------------
+Information for a sample run of DSA:
+2 is a primitive element. g = 2^(2*f) will have order q as required.
+g
+689b967d acf08055 69698747 29c6fe28 817ea51d 6262070d 6788431c 0d3a1cf9
+af67c036 ab46bf2d c18782d1 8eeea38f 950a2d17 32ad274f aacf9708 259b9912
+Big Endian:
+0x689b967d, 0xacf08055, 0x69698747, 0x29c6fe28,
+0x817ea51d, 0x6262070d, 0x6788431c, 0x0d3a1cf9,
+0xaf67c036, 0xab46bf2d, 0xc18782d1, 0x8eeea38f,
+0x950a2d17, 0x32ad274f, 0xaacf9708, 0x259b9912,
+Little Endian:
+0x259b9912, 0xaacf9708, 0x32ad274f, 0x950a2d17,
+0x8eeea38f, 0xc18782d1, 0xab46bf2d, 0xaf67c036,
+0x0d3a1cf9, 0x6788431c, 0x6262070d, 0x817ea51d,
+0x29c6fe28, 0x69698747, 0xacf08055, 0x689b967d,
+Make keys.
+x
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 2e7b63f6 8866d06c e7924f61 675ac266 ccb6f684
+Big Endian:
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x2e7b63f6,
+0x8866d06c, 0xe7924f61, 0x675ac266, 0xccb6f684,
+Little Endian:
+0xccb6f684, 0x675ac266, 0xe7924f61, 0x8866d06c,
+0x2e7b63f6, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+y
+41000a3b 3ba69725 0197a45f e725eed0 ef029c3d 311ff43a 17784bf8 f4579907
+7a5e6b69 07815d6f f523872a 7010d9bd d3ae7a98 48a9454e 35dcf912 1675e01f
+Now Sign H.
+H
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 2615c94b 736a7aa1 6faea1d2 f17b72fb 1f9873dd
+Big Endian:
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x2615c94b,
+0x736a7aa1, 0x6faea1d2, 0xf17b72fb, 0x1f9873dd,
+Little Endian:
+0x1f9873dd, 0xf17b72fb, 0x6faea1d2, 0x736a7aa1,
+0x2615c94b, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+k
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 4431b782 3ab50c2a 60b7acd9 10d63af1 000041a7
+Big Endian:
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x4431b782,
+0x3ab50c2a, 0x60b7acd9, 0x10d63af1, 0x000041a7,
+Little Endian:
+0x000041a7, 0x10d63af1, 0x60b7acd9, 0x3ab50c2a,
+0x4431b782, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+0x00000000, 0x00000000, 0x00000000, 0x00000000,
+g^k mod p
+194c1276 8b62b06d bd90813a 6ad0bed6 cabba445 c4a1ee58 adf63868 865073d1
+537d3f3a 7b0877c4 baf4dcad f918396a 6d82708e d498d455 d44e5d3c 943ae6fa
+r
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 1bec1190 79a8d585 253c4619 5d2f899d 90e38252
+k'
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 7d5f5e08 b46f64ec d41bce75 31795a1b 93efd4dc
+s
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 de036098 1985789e 2d65ec68 4bce4c61 af662aaa
+Now verify.
+w
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 532e26ee 10b60a7a 79a6280e 19ff7b4b 5b3515ef
+u1
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 d0ac4ced f2a667bb 8605165f d85d71e9 edf2b15e
+u2
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 8aabf1bb 8b1ecd3e 0c894756 4163ee60 82286bf1
+(g^u1)*(y^u2)
+194c1276 8b62b06d bd90813a 6ad0bed6 cabba445 c4a1ee58 adf63868 865073d1
+537d3f3a 7b0877c4 baf4dcad f918396a 6d82708e d498d455 d44e5d3c 943ae6fa
+v should equal r
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 1bec1190 79a8d585 253c4619 5d2f899d 90e38252
+-----------------------------------------------------------------------</PRE>
+</BODY>
+</HTML>

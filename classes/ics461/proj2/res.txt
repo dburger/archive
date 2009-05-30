@@ -1,0 +1,122 @@
+
+Results of DFID vs. IDA* for the 7 eight puzzle problems from the first
+homework (DFID on top, IDA* on bottom for each listed puzzle):
+
+           #1             #2             #3              #4              #5
+===============================================================================
+     1.000000       5.000000      14.000000       27.000000       46.000000
+     0.000006       0.000006       0.000012        0.000020        0.000036
+166666.666667  833333.333333  116666.666667  1285714.285714  1277777.777778
+
+     1.000000       5.000000       6.000000        6.000000        7.000000
+     0.000006       0.000008       0.000008        0.000007        0.000008
+166666.666667  635000.000000  750000.000000   857142.857143   875000.000000
+
+
+            #6              #7
+===============================================================================
+     99.000000   153290.000000  NODES GENERATED
+      0.000069        0.102851  EXECUTION TIME
+1434782.608696  1481657.932349  NODES GENERATED / SECOND
+
+      8.000000      311.000000
+      0.000009        0.000121
+ 888888.888889  2570247.933884
+
+As the data shows, for the extremely simple problems IDA* is making a slight
+difference by limiting the number of nodes that are generated.  As the
+problems get more complex, however, we can see the huge advantage that
+IDA* gives.  In the #7 puzzle IDA* performs 311 node generations
+compared to DFID's 153,290.  This makes for a much faster time rate
+for IDA* as it explores far fewer nodes.
+
+As the problems grow more complex, the advantage with IDA* becomes
+even more obvious.  As a matter of fact, the 15 puzzle problems that
+were provided are not even feasible with DFID.  Here is a result of
+IDA* working on puzzle #96:
+
+(EXTRA CREDIT #1)
+
+Start puzzle:
+01  07  15  14  
+02  06  04  09  
+12  11  13  03  
+00  08  05  10  
+
+Goal puzzle:
+00  01  02  03  
+04  05  06  07  
+08  09  10  11  
+12  13  14  15  
+
+RRURUULLDDRULDDLURRRUULLDLDRDRRUULULDLDRRDRUUULLL 
+Problem solved!
+Node generations:       7666242.000000
+Elapsed time:                 2.648693
+Nodes / Second:         2894349.024217
+========================================================
+
+As you can see the puzzle is solved in approximately 2.6 seconds with
+7,666,242 node generations, for a rate of nearly 2.9 million nodes per
+second.  (Obviously computers have gotten faster as this beats Korf's
+1989 time by about 270 times)
+
+I made many changes to my program after I had it in a finished state
+to acheive the speeds as indicated above.  Those changes include:
+
+(EXTRA CREDIT #2)
+
+1)  Calculating the child manhattan from the parent manhattan.
+2)  is_solved no longer needed as a separate function, just use
+    manhattan == 0.
+3)  When doing the reverse moves, avoid adjusting the manhattan value,
+    the via, and the blank_pos for the child as the child will be
+    thrown away.
+4)  Remove all null checks after mallocs, this is an unrecoverable
+    situation anyway.
+5)  Use gcc compiler directives for enhanced compiltion including -O3
+    and -march=i686.
+6)  Limit the passed variables to as few as possible and set the rest
+    as global variables.
+
+With these changes I approximately doubled the node generation rate of
+my program.
+
+The next thing I did with my program was to modify it so that it could
+use either the manhattan distance or counting the misplaced tiles as
+heuristic functions.  I then made comparisons on the number of nodes
+that were generated when using the different heuristic functions.  As
+an example, for the most difficult 8 puzzle problem shown above, the
+misplaced tile heuristic gives us:
+
+(EXTRA CREDIT #3)
+
+Start puzzle:
+02  01  06  
+04  00  08  
+07  05  03  
+
+Goal puzzle:
+01  02  03  
+08  00  04  
+07  06  05  
+
+RULDRDLULURRDLLURD 
+Problem solved!
+Node generations:          7383.000000
+Elapsed time:                 0.002677
+Nodes / Second:         2757937.990288
+========================================================
+
+This gives an interesting comparison as we have DFID generating
+153,290 nodes, IDA* misplaced generating 7383, and IDA* manhattan
+generating 311 nodes.  This shows that using  IDA* with the misplaced
+heuristic is far superior to a DFID, and IDA* with manhattan is far
+superior to IDA* with misplaced as the heuristic.  All my tests showed
+that the manhattan heuristic was far superior when it comes to pruning
+the tree down to a more manageable size.  This shows that the
+manhattan distance heuristic is a tighter lower bound, and therefore
+it spends less time generating nodes that are further from the solution.
+
+Lastly I tried to think of a heuristic that would beat the manhattan
+distance heuristic, and, I'm still thinking!

@@ -1,0 +1,94 @@
+David J. Burger
+ICS 321 Sec. 452
+6/26/01
+
+9.16)  Show the names and ages of salespeople who have an order with ABERNATHY 
+CONSTRUCTION, in descending order of age (use a subquery).
+
+SELECT Name, Age
+FROM SALESPERSON
+WHERE Name IN (
+SELECT SalesPersonName
+FROM [ORDER]
+WHERE CustName='Abernathy Construction';
+)
+ORDER BY Age DESC;
+
+9.17)  Show the names and ages of salespeople who have an order with ABERNATHY 
+CONSTRUCTION, in descending order of age (use a join).
+
+SELECT SALESPERSON.Name, SALESPERSON.Age
+FROM SALESPERSON, [ORDER]
+WHERE SALESPERSON.Name=ORDER.SalespersonName
+AND ORDER.CustName='Abernathy Construction'
+ORDER BY Age DESC;
+
+9.21)  Show the names of salespeople along with the names of the customers which have 
+ordered from them.  Include salespeople who have had no orders.  Use Microsoft Access 
+notation.
+
+SELECT SALESPERSON.Name, ORDER.CustName
+FROM SALESPERSON LEFT JOIN [ORDER]
+ON SALESPERSON.Name=ORDER.SalespersonName;
+
+9.23)  Show the names and ages of salespeople who have two or more orders.
+
+SELECT SALESPERSON.Name, SALESPERSON.Age, COUNT(*)
+FROM SALESPERSON, [ORDER]
+WHERE SALESPERSON.Name=ORDER.SalespersonName
+GROUP BY SALESPERSON.Name, SALESPERSON.Age
+HAVING COUNT(*)>=2;
+
+9.25)  Show an SQL statement to insert a new row into CUSTOMER.
+
+INSERT INTO CUSTOMER (Name, City, IndustryType)
+VALUES (‘ACME’,’Kapaa’,’F’);
+
+
+
+9.26)  Show an SQL statement to insert a new name and age into SALESPERSON; 
+assume that salary is not determined.
+
+INSERT INTO SALESPERSON (Name, Age)
+VALUES (‘David Burger’,32);
+
+9.27)  Show an SQL statement to insert rows into a new table, HIGH-ACHIEVER 
+(Name, Age), in which, to be included, a salesperson must have a salary of at least 
+100,000.
+
+INSERT INTO HIGH-ACHIEVER (Name, Age)
+VALUES (
+SELECT Name, Age
+FROM SALESPERSON
+WHERE Salary>=100000;
+);
+
+9.29)  Show an SQL statement to delete all orders for ABERNATHY CONSTRUCTION.
+
+DELETE [ORDER]
+WHERE CustName=’Abernathy Construction’;
+
+9.30)  Show an SQL statement to change the salary of salesperson JONES to 45,000.
+
+UPDATE SALESPERSON
+SET Salary=45000
+WHERE Name=’Jones’;
+
+9.31)  Show an SQL statement to give all salespeople a 10 percent pay increase.
+
+UPDATE SALESPERSON
+SET Salary=1.1*Salary;
+
+9.32)  Assume that salesperson JONES changes his name to PARKS.  Show the SQL 
+statements that make the appropriate changes.
+
+UPDATE SALESPERSON
+SET Name=’Parks’
+WHERE Name=’Jones’;
+
+UPDATE [ORDER]
+SET SalespersonName=’Parks’
+WHERE SalespersonName=’Jones’;
+
+(Note:  for 9.32, under DBMS systems capable of cascading updates, the second SQL 
+statement would be unnecessary)

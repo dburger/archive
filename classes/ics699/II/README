@@ -1,0 +1,6 @@
+To make a pdf from this *.tex files:
+
+latex whatever.tex        --> possibly multiple times to resolve references
+                              produces the .dvi file
+dvips -Ppdf whatever.dvi  --> produces the .ps file
+ps2pdf whatever.ps        --> produces the .pdf file

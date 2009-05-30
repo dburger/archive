@@ -1,0 +1,61 @@
+the priority queue holds triples of the form
+{airport, prev_flight, arrival_time} where the
+field used for priority queue ordering is
+arrival_time
+
+quick_route(s, d, t, G) {
+
+  E = G.E;
+  
+  pq.enqueue({s,null,t});
+  
+  pq.enqueue({all other airports,null, infinity});
+  
+  while (!pq.is_empty()) {
+  
+    a = pq.dequeue();
+    
+    if (a==d) break;
+    
+    for each e in E {
+    
+      if (departure(e)==a &&
+          (departure_time(e) >= transit(a.prev_flight,e) + a.arrival_time)) {
+      
+        b = hash_get(destination(e));
+        
+        if (arrival(e) < b.arrival_time) {
+        
+          b.arrival_time = arrival(e);
+          
+          b.prev_flight = e;
+          
+          E.remove(e);
+          
+        }
+        
+      }
+      
+    }
+    
+  }
+  
+  if (a==d) { //solution found
+  
+    current = d;
+  
+    while (current!=s) {
+    
+       c = hash_get(current);
+       
+       R.add_front(c.prev_flight);
+       
+       current = departure(c.prev_flight);
+       
+    }
+    
+  }       
+  
+  return R;
+  
+}

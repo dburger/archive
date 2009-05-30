@@ -1,0 +1,197 @@
+<html>
+<head>
+<title>Unit 2--DES and Modes of Operation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h2>Unit 2--DES</h2>
+<p>I would like to have you read the following, without trying to get a thorough 
+  understanding of details: Chapter 12. DES, pages 357-363 Triple DES, Chapter 
+  9 Modes of Operation, pages 191-193 Block Replay.</p>
+<p>I will give you the program that I wrote to do DES enciphering and deciphering, 
+  and I want you to program the 8-bit CFB mode, encipher and decipher. I will 
+  give you some ciphertext and I want you to decipher it and send me your program 
+  and the cleartext result that you get. (This can be a very simple program, roughly 
+  half a page.)</p>
+<p>I used as key, the hex number 843d0d08 34b2c4fa; and as the initial vector,<br>
+  cd647403 bc90c4c4; and the ciphertext is</p>
+<pre>   e8 d8 74 07 b3 37 2e c6 61 59 db 44 52 70 58 49 88 12 5b 8b 
+   bf ce 80 bd ac 3e 87 f2 1c a9 83 fd fc 87 c9 fa 39 44 48 44 
+   0b 08 03 a6 61 42 d0 e0 8a 89 b9 cd 98 db 06 48 f6 8a bb 1e 
+   b1 ea 4d bb 46 38 4d d5 f9 5a b0 17 03 64 47 38 fc ce 44 7d 
+   19 </pre>
+<p><br>
+  DES has been the most widely used encryption algorithm since it was first adopted 
+  as a standard in 1975. In 1987, it was considered increasingly likely that DES 
+  could be broken and it was not recertifiied, but no replacement was certified 
+  in its place. It is still being used now, although it has been broken. See <i>http://www.eff.org/descracker/</i> 
+  for details--it took 3 days with a computer built especially for breaking DES.) 
+  It is still safe for most purposes. The simplest way to break it seems to be 
+  to try all keys and see what you get. If you get something that looks like a 
+  message, you accept it. The key is 56 bits, so there are 2^56 keys. It takes 
+  a lot of computing to check that many keys, and for most purposes, it isn't 
+  worth that much effort. However, every year computers become more powerful and 
+  more plentiful, and it really is time to change. Now NIST (The National Institute 
+  for Standards and Technology) is in the process of adopting a new standard. 
+  I want to have you program that algorithm, and maybe it is time not to do DES. 
+  However, you should know about DES. Please read Chapter 12. Do not spend time 
+  on details--just aim for a feeling about what kind of algorithm this is. In 
+  particular, the section on Differential and Linear Cryptanalysis is difficult. 
+  (If you really want to understand that, let me give you something different 
+  to read.) To me, the important point there is that you need a lot of ciphertext 
+  to even try those methods, because they are based on a very subtle statical 
+  analysis. No one should, and probably no one does, make a lot of ciphertext 
+  with one kkey, and therefore those cryptanalysis methods are not practical threats. 
+  Other than the statistical analysis on which differential cryptanalysis and 
+  linear cryptanalysis are based, I don't know of any interesting theory about 
+  DES. There is a theorem that says that if you complement every bit in the key 
+  and the cleartext, then every bit <br>
+  in the ciphertext is complemented, also. A few weak keys ahve been found. That 
+  is all, although DES has been studied long and hard. </p>
+<p>There are a number of other symmetric algorithms that similarly have no appreciable 
+  supporting theory. They are probably strong, but they haven't been studied as 
+  hard as DES, so users are reluctant to trust them. The new AES certainly will 
+  be used and studied, but it seems to be in the same class--very little theory. 
+  I want to look at it carefully in class. However, it will be better to have 
+  more math background first.</p>
+<p>The DES algorithm has as input a 56-bit key and a 64-bit piece of cleartext, 
+  and the output is a 64-bit piece of ciphertext. (Actually, you give it a 64-bit 
+  key, but it simply ignores every eighth bit--the original idea was to use those 
+  as parity checks on bytes for error detection.) Now commercial users that are 
+  not satisfied with des are using &quot;triple des&quot;. In triple des, you 
+  encipher using a key, k1, then decipher using k2, and encipher again using k3. 
+  Of course the second step simply acts like enciphering, since you are not using 
+  the key that would decipher. At first, it was recommended that k1 and k3 be 
+  the same, but I believe it is more common now to use three different keys, so 
+  the key is essentially 3*56 = 168 bits. This is thought to be secure with present 
+  technology. Triple DES is discussed in Schneier on pages 357-363.</p>
+<p>I want you to understand &quot;modes of operation&quot;. (This is discussed 
+  in Chapter 9 of Schneier's book.) The obvious mode is called ECB (Electronic 
+  Code Book). You divide your ciphertext into blocks of 8 bytes (64 bits) and 
+  encipher each block to get eight-byte blocks of ciphertext. This has a couple 
+  of disadvantages. For one, it is relatively easy to cryptanalyze. You take a 
+  block of ciphertext and try all keys. One key will give you cleartext, which 
+  you can recognize as cleartext if it is really text, for example, orif it has 
+  any distinct form that you can recognize. Other keys will probably give you 
+  garbage. (We will look at this carefully when we study unicity distance.) This 
+  is what was done when des was &quot;broken&quot;. It is not easy to break des, 
+  but it is easier to break the ECB mode than the other modes. The other important 
+  problem with ECB is &quot;block replay&quot;--see pages 191-193.</p>
+<p>The description of des and the modes of operation in the textbook are a little 
+  too concise for you to use for writing a program. I have given you the standard 
+  document describing des modes of operation. That is not too clear, either, but 
+  the block diagram is quite clear, I think, and the document gives some debug 
+  output for each of the modes. Using that and the diagram, I believe that you 
+  can understand what is required and write the program without great difficulty. 
+  Do the case for the data that is given in that document first. If you can get 
+  that correct, you should be able to decode what I gave you with no great difficulty. 
+  My program for the des algorithm and for the ECB mode example given in the modes 
+  of operation document are in my unix account at ~wes/ics623/des and you should 
+  be able to copy them to your unix account and either write the program on unix 
+  or download those files and work on the PC. If you use my des program, the rest 
+  should be quite simple--half a page or so. </p>
+<h3>Notes on Chapter 12: Section 12.1</h3>
+<p>The history of DES is interesting and I think it will help give you some perspective 
+  on the overall security problem. I have only two notes to add to this excellent 
+  account of DES history. First, Prof. Alan Konheim, who is mentioned on page 
+  266 as one of the original designers of DES, was a visiting professor in our 
+  department spring 1999. The other is that DES has been broken. This made the 
+  national news, although the accounts on the newscasts were not particularly 
+  accurate. Here is an announcement that appeared on the internet and was forwarded 
+  to me by a former student of ICS623:</p>
+<p><i>Subject: DES cracked in 3 days</i></p>
+<p><i>A DES encrypted message was cracked in 3 days using a custom-built hardware 
+  cracker. See http://www.eff.org/descracker/ for more info and photos of the 
+  machine.</i></p>
+<p><i>Introduction</i></p>
+<p><i>To prove the insecurity of DES, EFF built the first unclassified hardware 
+  for cracking messages encoded with it. On Wednesday of this week the EFF DES 
+  Cracker, which was built for less than $250,000, easily won RSA Laboratory's 
+  &quot;DES Challenge II&quot; contest and a $10,000 cash prize. It took the machine 
+  less than 3 days to complete the challenge, shattering the previous record of 
+  39 days set by a massive network of tens of thousands of computers. The research 
+  results are fully documented in a book published this week by EFF and O'Reilly 
+  and Associates, entitled &quot;Cracking DES: Secrets of Encryption Research, 
+  Wiretap Politics, and Chip Design.&quot;</i></p>
+<p>The book is a little contraversial. Good encryption can keep foreign countries' 
+  secrets out of the NSA's hands. It can also keep terrorists' and criminals' 
+  plans and communications secret. Hence the NSA and the FBI would prefer that 
+  they be the only ones having good encryption techniques. I can understand that. 
+  There are a couple of problems, however. In the first place, good encryption 
+  techniques are now known throughout the world. The content of Schneier's book 
+  is public information, and almost none of that information came from the NSA 
+  or any other secret source. Many important developments have been done by scientists 
+  in foreign countries. The second problem is that good security is needed in 
+  ordinary commercial applications. The NSA has been hampering efforts to make 
+  secure commercial equipment in the United States and even more, for equipment 
+  intended for export. They have little influence outside the US, and therefore 
+  foreign competetors are free to make secure systems. That puts U. S. industry 
+  at a competetive disadvantage. Because of this, regulations have been loosened 
+  considerably lately. It is possible now to get a licence to export strong encryption.</p>
+<p>I must confess that I am not neutral on these matters. I have nothing to hide, 
+  but still I am very uncomfortable with the idea of having the federal government 
+  prevent me from sending a message to someone that they cannot read. Now we are 
+  free to use systems like PGP, which the NSA in all likelihood cannot break. 
+  I hope it will stay that way.</p>
+<h3>Section 12.2</h3>
+<p>Don't try to understand the details. Just try to understand what kind of algorithm 
+  it is that they are using. Think a little about how hard it might be to decipher.</p>
+<h3>Scetion 12.3</h3>
+<p>Now you know that DES can be broken, and you know about how hard it is. It 
+  is still interesting to compare these comments on security with what we know 
+  has been done. I think it is interesting to check the arithmetic on some of 
+  these guys' calculations.</p>
+<p>1) The cost of the machine that EFF used to crack DES is consistant with the 
+  data in Table 7.1 on page 153. That is closer than most estimates I have seen.</p>
+<p>2) Let's estimate how long it would take to break DES on your new computer 
+  assuming you have one block of known plaintext and the corresponding ciphertext. 
+  We will assume the brute force method--you simply try to decode it with every 
+  possible key and see which one works. There are 2^56 keys. (I will use ^ to 
+  mean exponentiation, so this means 2 to the power 56.) The figures in the book 
+  indicate that it is possible to decipher 43,000 blocks per second for an intel 
+  486-66. Maybe your new computer can work about ten times that fast, so let's 
+  estimate 2^19 = 524288 deciphers per second. (Actually I suspect that the figure 
+  given by Schneier is how fast you can decode after you have calculated the 16 
+  keys K1-K16, whereas with a different key for each step it will take longer.) 
+  So you will need 2^56/2^19 = 2^37 seconds. That comes out to about 4358 years.Of 
+  course, you can quit when you get a match, and on the average that would take 
+  you half that much time. You can reduce that time by a) using special DES deciphering 
+  hardware, b) using a faster computer, or c) using computers in parallel, or 
+  some combination. The machine actually used to break DES apparently used a lot 
+  of DES chips working in parallel and controlled by the main computer.</p>
+<p>3) Let's look at Hellman's proposal (p 289). This is a chosen-plaintext attack. 
+  He assumes he can always get the ciphertext for a certain plaintext block, and 
+  from that he wants to get the key. For every key K he computes the ciphertext 
+  C and then he stores the key in a table: Table[C] = K. After he has the table, 
+  he can find any key from the ciphertext for his chosen block by simply looking 
+  in the table for it. In the first place, it will take considerable time to make 
+  the table. If you do it on your PC, it will take a few thousand years, so you 
+  would need a good computer to do that. Then, let's see how much disk space you 
+  need and how much it might cost. For each of the 2^56 keys, you need to store 
+  8 = 2^3 bytes, so the total is 2^59. Roughly there are 2^30 bytes in a gigabyte. 
+  (Note that 1000 is approximately 2^10.) So we need 2^59/2^30 =2^29 gigabytes, 
+  That is about 500,000,000 gigabytes, and if we estimate $10 per gigabyte, the 
+  cost would be about $5 billion. It wouldn't be easy to build a machine like 
+  that, either.</p>
+<h3>Section 12.4</h3>
+<p>Read this section but don't worry about understanding it at all well. Differential 
+  cryptanalysis and linear cryptanalysis are quite difficult concepts, and I don't 
+  want to take the time for us to understand them well. They apply only to cryptosystems 
+  that are similar to DES. It seems to be important that DES was designed so that 
+  they are minimally effective. However, because that is true, these techniques 
+  cannot find a key any easier than a brute-force attack, i. e. trying all keys. 
+  Furthermore, to apply these techniques you need a lot of ciphertext--see Table 
+  12.14 on page 289. Schneier points out that the ciphertext you need to do differential 
+  cryptanalysis amounts to about 3 years of data at 1.5 megabytes per second. 
+  In practice, a key is used for a session, which generally will amount to anywhere 
+  from a fraction of a second to maybe an hour. How much ciphertext do you need 
+  to do a brute-force attack? That is the next subject we will study.</p>
+<h3>Skip Section 12.6.</h3>
+<h3>Sections 12.5 and 12.7</h3>
+<p>These sections add a little more information about the history and general 
+  situation.</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Win">
+  <TITLE>Unit 13</TITLE>
+</HEAD>
+<BODY>
+
+<H2>Unit 11--Key Exchange and Key Management</H2>
+
+<P>A) Read carefully Chapter 8 Key Management, and also Chapter 3, pages
+47-51. </P>
+
+<P>B) Use the Diffie-Hellman protocol to exchange keys with me. </P>
+
+<P>A) I think all of this material is quite easy to read, but I think that
+it is very important to be aware of this material. If you have questions,
+ask. I don't have practical experience with real problems, but I may be
+able to answer. Here are some questions to keep in mind:</P>
+
+<P>Where is the weakest point in a secure communications system?</P>
+
+<P>What is a &quot;dictionary attack&quot;?</P>
+
+<P>What does Schneier recommend as the best way to choose a password?</P>
+
+<P>How should you generate a session key?</P>
+
+<P>What problem does Schneier discuss in each of the following sections?
+Transferring keys, Verifying keys, Using keys, Backup keys, Compromised
+keys, Lifetime of keys.</P>
+
+<P>B) The time has come to do the Diffie-Hellman key exchange protocol.
+It is very simple. It is explained completely on the first page of Chapter
+22, actually page 513 and the top of page 514. I want you to try it. </P>
+
+<P>I decided to do it with GF(P) where P = 2s+1 is the same prime number as we 
+  used in Assignment 9. We have to choose a primitive element. There are a lot 
+  of them, phi(phi(P) = phi(2s) - s-1. Since the order of every element divides 
+  phi(P)=2s, the only possible orders are 1, 2, s, and 2s, and the ones that have 
+  order 2s are all primitive. The only element with order 1 is 1 and the only 
+  one with order 2 is -1 (or P-1). For all the others, a^s is either 1 or -1, 
+  and the a's for which x^s = -1 are the primitive elements. I verified that 23 
+  is primitive--let's use that as our primitive element. (Actually, I was surprised 
+  to find that 23 is the smallest primitive element, when I was trying to find 
+  a primitive element.) Now you should choose x and calculate X = 23^x and send 
+  it to me. Then I will choose y and calculate Y = 23^y. Then I will calculate 
+  Z = X^y--normally this (or part of it, at least) would be our session key. I 
+  will use it as I would a one-time pad. I will choose a short message M and I 
+  will send you Y and M+Z, where here + means bit-by-bit exclusive or. Then you 
+  are to find M and tell me what you found. Send me your program, too, of course. 
+<P> Let's agree that we will send X and Y and the ciphertext as hex numbers with 
+  the high order words first, and the message will be also starting with the high 
+  order word, and with the bytes in order with the first byte in the highest-order 
+  byte of the word. Thus, what we send should look like this: 
+<pre>53656372 65742064 65206465 75782c20 73656372 65742064 65204469 65752c20<br>73656372 65742064 65207472 6f69732c 20736563 72657420 64652074 6f75732e<br>20202020 20202020 20202020 00000000 00000000 00000000 00000000 00000000<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+
+</pre>
+<p>This actually contains plain text, in the order in which it should be after 
+  you decode it, but I will use different plain text from this.<br>
+</p>
+</BODY>
+</HTML>

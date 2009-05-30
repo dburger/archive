@@ -1,0 +1,8 @@
+do {
+    x = x+5;
+	y = f(x, 17);
+} while(p(x));
+while(p(x+5)) {
+	y = g(a, b, c);
+	x = h(y);
+}

@@ -1,0 +1,352 @@
+<html>
+<head>
+<title>PYTHON: A language analysis</title>
+</head>
+<body>
+<h1 align = center>PYTHON: A language analysis</h1>
+<h3 align = center>  David Burger (dburger@hawaii.edu) and Bruce Harris (bharris@hawaii.edu)<br />
+ICS 313 Spring 2003<br />
+Project 2</h3>
+<p />&nbsp;&nbsp;
+<h3>Introduction:</h3>
+
+<p>We chose Python for implementing this project because it is a fairly new and popular language that neither of us had used previously, but both wanted to learn.  The transition of the assignment from Emacs Lisp (from now on referred to as just Lisp) to Python was reasonably simple and changes in the overall structure of the program were trivial.  The only major change required was the need to implement an equivalent of the Lisp read function in Python.  This was handled by writing a lexer and a simple recursive descent parser.  This paper is both a discussion of our experiences using Python and an overview of the language with comparisons to Lisp and Java.  An assumption is made that the reader is already familiar with both Lisp and Java.  Throughout this paper you will see many more similarities to Java than to Lisp, although some features from Lisp have been adapted to meet Python's syntax.</p>
+
+<h3>Language Background:</h3>
+
+<p>Python was developed by Guido van Rossum, and released around 1991; making it
+  a fairly new language like Java. Python has some foundation in a language called
+  ABC, which Rossum was helping to develop at CWI in the Netherlands, and Modula-3,
+  which was the basis for Exception handling; as well as an obvious influence
+  from C, which was used to write it. Rossum defines Python as "an interpreted, object-oriented, high-level programming language with dynamic
+  semantics" [2].  Unlike Java and Lisp, Python was initially developed to be an intermediary
+  language to go between/connect other components developed in other languages;
+  but because of its good overall design it was adopted for use in many other
+  areas.</p>
+
+<h3>Programming Overview:</h3>
+
+<p>We would consider Python as an Object Oriented language, but with a stronger
+  historical imperative language base than Java, and syntactically different
+  from Lisp (as a functional language). Python is primarily an interpreted language,
+  even though it does have an intermediary compiled code (making it more of a
+  hybrid implementation like Java and Lisp), the compiled code does not run any
+  faster (only saving the conversion time, as opposed to Java and Lisp optimized
+  byte code). Python is a simple language, and while I would say it is not as
+  orthogonal as Lisp, it is much more orthogonal (from a programmers perspective)
+  than Java, primarily due to the automatic type casting and handling of everything
+  as objects. Python is also a very writable language; it has a flexible programming
+  structure, allowing  functions and variables to exist standalone in a file,
+  or even to be tested in interactive mode from the command line (like Lisp).
+  On the other hand, it also allows for modules (basically Python files containing
+  functions and/or classes) and packages (directories containing either sub-packages
+  or modules). This is generally like the use of packages and classes in Java
+  and allows for better data abstraction. Even the referencing scheme is similar,
+  using dot notation:</p>
+
+<pre>
+  package.subpackage.module
+</pre>
+
+<p>Python has many features that help a programmer develop software quickly
+  (such as dynamic type casting, built-in lists, dictionaries and many other
+  useful global objects and functions). Similar to Java, but unlike Lisp, Python
+  has explicitly reserved keywords that can't be used as variable names. This
+  protects the programmer from overwriting required functionality, but in the
+  rare case where this was the intent of the program, it is not allowed. Variables
+  do not need to be declared, which allows for quicker programming; but the type
+  must be determined at runtime, which results in a higher execution cost. This
+  also can result in bugs in the code (especially large programs), by inadvertently
+  overwriting or changing a previously defined variable, when intending to create
+  a new one.</p>
+
+<p>Readability can be argued either way; I believe it is inherently more readable than Lisp, but not Java.  However, following OOP conventions, very readable code can be produced; thus also increasing reusability, maintainability and reliability.  These properties are also improved by the ability to create and handle exceptions as in both Java and Lisp.</p>
+
+<h3>Data types and Data Structures:</h3>
+
+<p>All data types in Python are objects; there are no primitive data types (although
+  there are built-in objects which are differentiated from user defined classes).
+  This implies that all variables are dynamically cast to the appropriate type;
+  and as an object of that type, they have associated attributes and/or methods
+  which are all accessible using dot notation (object.attribute). This is very
+  different from Java, where both primitive and object data types must be declared;
+  and Emacs Lisp, where types do not need to be declared, but only atoms (numbers,
+  symbols or strings), lists (containing atoms or lists) and arrays exist as
+  data types. With any instance of an object in Python, you can determine the
+  associated attributes
+  by using the dir() function call. A string for example has the following:</p>
+
+<pre>
+  >>> dir ('x')
+  ['__add__', '__class__', '__contains__', '__delattr__', '__eq__',
+  '__ge__', '__getattribute__', '__getitem__', '__getslice__',
+  '__gt__', '__hash__', '__init__', '__le__', '__len__', '__lt__',
+  '__mul__', '__ne__', '__new__', '__reduce__', '__repr__', '__rmul__',
+  '__setattr__', '__str__', 'capitalize', 'center', 'count', 'decode',
+  'encode', 'endswith', 'expandtabs', 'find', 'index', 'isalnum',
+  'isalpha', 'isdigit', 'islower', 'isspace', 'istitle', 'isupper',
+  'join', 'ljust', 'lower', 'lstrip', 'replace', 'rfind', 'rindex',
+  'rjust', 'rstrip', 'split', 'splitlines', 'startswith', 'strip',
+  'swapcase', 'title', 'translate', 'upper']
+</pre>
+
+<p>This can be very helpful when programming.</p>
+
+<p>Built in types include numbers, strings, lists, tuples and dictionaries; as well as a multitude of built-in system objects accessible to the programmer without importing.  Some of the basic ones include:</p>
+<ul>
+  <li>
+    <p><b>Numbers</b> - built in functionality for integer and float (which is available via primitives in Java and atoms in Lisp), as well as complex numbers (which is available via a class in Java, and unavailable in Emacs Lisp).</p>
+
+    int and float:<br />
+    <pre>
+      >>> 234
+      234
+      >>> 345.5
+      345.5
+    </pre>
+    complex:<br />
+    <pre>
+      >>> a = 37+3j
+      >>> a.real
+      37.0
+      >>> a.imag
+      3.0
+    </pre>
+  </li>
+  <li>
+    <b>Strings</b> - strings are declared with single or double
+    quotes and are immutable objects (as are Java and, in a sense, Lisp strings).
+    Raw (r) and Unicode (u) strings are also implemented. As opposed to Java
+    and Lisp, a very interesting feature of strings is that they are handled
+    as an array of characters (although Lisp does have a character array implementation);
+    and portions of any string are accessible via index references, which also
+    includes
+    ranges
+    of
+    indices,
+    both
+    positive
+    and
+    negative (counting back from the end). The following is an example:
+    <pre>
+      >>> a = 'this is a python string'
+      >>> a[0]
+      't'
+      >>> a[10:16]
+      'python'
+      >>> a[:len(a)]
+      'this is a python string'
+      >>> a[:]
+      'this is a python string'
+      >>> a[10:]
+      'python string'
+      >>> a[:-10]
+      'this is a pyt'
+</pre>
+  </li>
+  <li>
+    <b>Lists</b> - are comma separated elements enclosed in square brackets.  As opposed to Java arrays, and similar to Lisp lists, a given list may contain objects of multiple types, as well as other lists.  List elements may also be referenced as demonstrated with strings above; but unlike strings, lists are mutable.  Elements may be replaced, removed, or inserted (even in the middle and/or as a new range with dynamic shifting of existing elements).
+    <pre>
+      >>> x = [123, 234, 345]
+</pre>
+  </li>
+  <li>
+    <b>Tuples</b> - are sequences of comma delimited elements (optionally enclosed in parenthesis).  They can be nested, but are immutable (although they can contain mutable objects).  An interesting feature of tuples is that they can be �unpacked� and each element assigned to a new variable (with the constraint that the number of variables must equal the number of elements in the tuple).
+    <pre>
+      >>> t = x, 1, 2
+      >>> t
+      ([123, 234, 345], 1, (2, 3))
+      >>> t[0][1] = 432 # change a list element
+      >>> t
+      ([123, 432, 345], 1, (2, 3))
+      >>> a, b, c = t
+      >>> a
+      [123, 432, 345]
+      >>> b
+      1</pre>
+  </li>
+  <li>
+    <b>Dictionaries</b> - are represented by comma separated key:value pairs enclosed in curly braces.  A key can be any immutable data type, associated with any object as value.  In programming, we found this to be more intuitive and easier to use than the Lisp hashtable, and simpler to use than the java.util.HashMap class.  Many methods are built in to the dict class: sort(), keys(), haskey(), items(), copy(), get() and clear().  You can get the value of a given key by using either the get() method, or use the key as an index into the dictionary.
+    <pre>
+      >>> myDict = { 'a':1 , 'b':2}
+      >>> myDict
+      {'a': 1, 'b': 2}
+      >>> myDict.get('a')
+      1
+      >>> myDict['b']
+      2
+    </pre>
+  </li>
+</ul>
+
+<h3>Control Structures:</h3>
+
+<p>Python has most of the expected control structures found in any substantial programming language, with the exception of switch and case.  The overall structure is much more closely related to Java than to Lisp, but you can emulate a lot of the same features that are in Lisp with a slightly different syntax.</p>
+
+<p>Blocks of code in Python are identified by indentation, with a block followed by an empty line to indicate the end of the block.  This is analogous to curly braces used in Java, but dissimilar to Lisp list structure.</p>
+
+<p>Assignment is performed using = (as in Java) with the ability to assign multiple values in a single statement as in:</p>
+
+<pre>
+  a = b = c = 1
+</pre>
+or
+<pre>
+  a, b, c = 1, 'b', [1,3] #(unavailable in Java)
+</pre>
+
+This a different in syntax, but closer in sematics to Lisp:
+<pre>
+  (let ((x 10) (y 11))
+     ...)
+</pre>
+or
+<pre>
+  (setq x '(1, 2))
+</pre>
+
+<p>if, elif, else conditional blocks are also available, with elif and else statement blocks being optional (as with Java if else, and similar to Lisp cond special form).</p>
+
+<p>while is relatively standard and other than the block syntax has the same functionality
+  as Java and Lisp. This is an example from the assignment illustrating while
+  and if structures: (a \ (backslash) denotes continuation of same line on the
+next line)
+<pre>
+  form = lispReader.read()
+  while form != LispReader.SYNTAX_ERROR and \
+      form != LispReader.END_OF_INPUT:
+      if isList(form) and form[0] == "defun":
+          self.__parseDefun(form, filename)
+          num_defuns = num_defuns + 1
+      form = lispReader.read()
+  f.close()
+</pre>
+
+<p>for is one of the more interesting structures, it does not have a condition clause and is an iteration through a sequence (which can include a dictionary, as demonstrated here).</p>
+
+<pre>
+  >>> languages = { 'lisp': 'is functional', 'java': 'is object oriented'}
+  >>> for k, v in languages.items():
+	  print k,v
+</pre>
+
+<p>Loop structures can also include an else statement used when the loop condition is initially false and execution falls through, as well as break and continue statements (same as in Java).  A pass statement is used to indicate no action (as with a solitary semicolon (;) in Java).</p>
+
+<p>Conditional statements, such as and/or/(not) are short-circuited, as with Java's && and || operators and Lisp's special forms, so additional condition statements are only checked when necessary (i.e. false and ? returns false without evaluating what follows).  Python currently does not have a built in boolean type like Java, however, Python 2.3 is slated to have a boolean type.  In Python the following values are considered false: None, False, zero of any numeric type, an empty sequence, an empty mapping, and instances of a user defined class with a __nonzero__() or __len__() method that returns the integer zero.  Any other values are considered true.  This is different from Lisp which uses nil for false and anything else for true; and Java which uses a primitive boolean data type (true/false).</p>
+
+
+<h3>Functions:</h3>
+
+Functions in Python are defined as blocks of code with the following syntax (from the assignment):
+
+<pre>
+  def demo():
+      "Used to demonstrate the functionality of the cross referencer."
+      if len(sys.argv) != 2:
+          print "Proper usage is %s file" % sys.argv[0]
+          print "where file is the file to process"
+          sys.exit(1)
+      lispXrefer = LispXrefer()
+      result = lispXrefer.xrefFile(sys.argv[1])
+      if result == -1:
+          print "An error occurred while parsing %s" % sys.argv[1]
+      else:
+          print "%d defuns processed from %s" % (result, sys.argv[1])
+</pre>
+
+<p>Functions in Python are first class objects as in Emacs Lisp.  This makes it possible to pass functions as arguments.  Java does not have this capability.</p>
+
+<p>Parameters are always passed by value, where the value is a reference to an object, this is just like Java, and Lisp (I believe, but was unable to determine definitely).  When an application is initially run, any parameters sent in are placed in the sys.argv[] array, and made accessible to the program (as demonstrated above). Parameters are also checked at run time for the correct type, as with Lisp, but opposed to Java, where they are checked at compile time.</p>
+
+<p>A good feature, which is not present in either Lisp or Java, is the ability to set default values for parameters and to pass parameter values by using the parameter name when calling the function.  Another good feature, also in Lisp but not Java, is the ability to pass an arbitrary number of arguments to a function.  In addition, you can pass additional parameters as name = value pairs and have them placed in a dictionary for access by the function. Ex. as taken from [1]:</p>
+
+<pre>
+  >>> def cheeseshop(kind, *arguments, **keywords):
+      print "-- Do you have any", kind, '?'
+      print "-- I'm sorry, we're all out of", kind
+      for arg in arguments: print arg
+      print '-'*40
+      keys = keywords.keys()
+      keys.sort()
+      for kw in keys: print kw, ':', keywords[kw]
+
+  >>> cheeseshop('Limburger', "It's very runny, sir.",
+             "It's really very, VERY runny, sir.",
+             client='John Cleese',
+             shopkeeper='Michael Palin',
+             sketch='Cheese Shop Sketch')
+  -- Do you have any Limburger ?
+  -- I'm sorry, we're all out of Limburger
+  It's very runny, sir.
+  It's really very, VERY runny, sir.
+  ----------------------------------------
+  client : John Cleese
+  shopkeeper : Michael Palin
+  sketch : Cheese Shop Sketch
+</pre>
+
+<p>Another feature adapted from Lisp is the lambda form for an unnamed function; however, with Python the function is limited to only one expression, making it much less powerful than in Lisp.</p>
+
+<p>After the first declarative line of a function, an optional documentation string
+  can be used (very much as in Lisp). The standard for formatting this string
+  is to have one concise line stating the purpose of the function, then if further
+  clarification
+  is
+  needed follow it with a blank line, then the rest of the documentation (in
+  an extended case, a multi-line comment would be used. This format is used by
+  programs to generate documentation, as well as by the built in help() function.</p>
+
+<p>As with Java and Lisp, there are no procedures, only functions, and when a return
+  is not explicitly declared, the Python keyword None is returned.</p>
+
+<h3>Object Oriented Programming:</h3>
+
+<p>Python supports object oriented programming but does not mandate it like Java.  Emacs Lisp, of course, does not support object oriented programming.  The Python approach allows a programmer to take a very flexible approach to programming, using more of a C style for smaller scripting projects but still having the ability to use object hierarchies in more complex projects.  The syntax for a Python class will feel somewhat familiar to the Java programmer:</p>
+
+<pre>
+  class Person:
+    
+      def __init__(self, name, age):
+          self.__name = name
+          self.__age = age
+
+      def sayHello(self):
+          print "Hello from %s, I am %d years old." % (self.__name, self.__age)
+</pre>
+
+<p>The beginning of the definition of the class starts with the class reserved word followed by the name of the class.  To subclass another class this is followed by the name of the superclass in parenthesis.  Python does not support interfaces like Java but does support a form of multiple inheritance.  Conflicts between member names are resolved in a depth-first, left-to-right resolution from the ordering of the superclasses in the class definition.</p>
+
+<p>Unlike Java, the creation of an object of a certain class does not require the use of the new reserved word as follows:</p>
+
+<pre>
+  myPerson = Person("Foo", 17)
+</pre>
+
+<p>This code will automatically cause the constructor to be called.  In Python the constructor is a special method with the name __init__.  This method must be overridden if you desire any special initialization code to occur.  In this example we merely pass in the name and age of the person object that we wish to instantiate.  Java programmers will notice that the __name and __age member variables are assigned to but aren't declared anywhere.  This is how instance variables come into existence in python.  If a variable is assigned to within the class definition but outside any method it becomes a class variable.</p>
+
+<p>One thing that the Java programmer will instantly notice is the use of the self reserved word in each method that belongs to the object.  This reminds us that object oriented programming for Java is implemented by the implicit passing of the reference to the object in question, while in Python this process is made explicit.</p>
+
+<p>Another major difference between classes in Python in Java is Python's lack of access control constructs such as public, private, and protected in Java.  Python does, however, provide a way to get some of the benefits of private variables.  Any name in a class that is preceded by two underscores automatically gets name mangled by the Python interpreter.  The name mangling is accomplished by the appending of an underscore followed by the class name.  While these names are still publicly accessible, it makes it very obvious when a client programming is accessing a class in an undesired way.  In addition, it eliminates the possibility of getting naming conflicts with other private instance variables and methods in subclasses.</p>
+
+<h3>Conclusion:</h3>
+
+<p>From our perspective, Python is an easy to learn, easy to use programming language.  However, even though it has been designed to allow for programming on a large scale, I would not recommend using it for large or runtime sensitive applications, because it is an interpreted language without much/if any compilation optimizations (the only time saved by using compiled code, is the time it takes to compile).  On the other hand, like Java, python is essentially platform independent (as long as there is a c compiler on the given platform), even in the compiled state, making it potentially very portable.  From our perspective, however, we found our program, written and tested on Linux, had problems running on Windows.  This aside, we both really enjoyed learning python and both see some practical uses for this language; for example, when developing and testing on a restricted time scale for prototyping and such, it would be a really good language to use; or when programming a small "shell script" program that needs a little more functionality than a usual script.  </p>
+
+<h3>References:</h3>
+
+1. Python Tutorial: by Guido van Rossum   
+Release 2.2.2  October 14, 2002<br />
+      http://www.python.org/doc/current/tut/tut.html<br /><br />
+
+2. What is Python? Executive Summary by Guido van Rossum<br />
+      http://www.python.org/doc/essays/blurb.html<br /><br />
+
+3. Comparing Python to Other Languages by Guido van Rossum<br />
+      http://www.python.org/doc/essays/comparisons.html<br /><br />
+
+4. GNU Emacs Lisp Reference Manual: Revision 2.5, May 1998
+      by Bil Lewis, Dan LaLiberte, and Richard Stallman<br /> 
+            http://www.gnu.org/manual/elisp-manual-20-2.5/elisp.html<br /><br />
+</body>
+</html>
+

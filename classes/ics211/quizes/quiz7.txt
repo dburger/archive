@@ -1,0 +1,139 @@
+Chapter 11 Exercises
+
+4.>  I feel that a balanced binary search tree would be the best implementation for the spell checker’s dictionary.  
+This would allow for very fast lookups.  The dictionary could obviously be delivered in a balanced state and the key 
+decision would be on how to handle additions to the dictionary.  A tree that maintains its balance, such as a 2-3, 2-
+3-4, or AVL tree could be used.  However, because additions to the dictionary are infrequent, other possibilities 
+could also be considered.  Instead of using a binary search tree that maintains its shape, the tree could be rebalanced 
+every time the word processing program is terminated by doing a in-order traversal and then loading the data in 
+using the method described in the book.  Because of the large size of the dictionary, this may cause a delay that is 
+unacceptable.  Another possible choice would be to leave the original delivered dictionary alone and maintain a 
+separate data structure, such as a binary search tree, for the user defined words.  This would result in a small 
+performance delay when a word isn’t found in the original dictionary because a lookup would then commence in 
+the user defined binary search tree of words.  Because this user defined binary search tree of words is likely to 
+remain very small and it would only be used when a word wasn’t found in the original dictionary, this performance 
+hit shouldn’t be that noticeable.  In addition, by saving the user defined words in a separate data structure it should 
+be much easier to keep a backup of the words that an individual has added to the dictionary.
+
+6.>  Although using pre and post conditions to warn the user of the ADT not to add data items with duplicate search 
+keys is one option, a stronger option is to throw an exception when an attempt at adding an item with a duplicate 
+search key is made.  This will insure that the data structure is kept in a valid state.
+
+The table implementations would need to check for duplicates in their tableInsert routines throwing an exception if 
+it is found that adding the item would result in a duplicate search key.  The implementations shown on pages 513 of 
+a sorted array based implementation and page 515 of a binary search tree implementation do throw exceptions if a 
+duplicate is added to the data structure..
+
+11.>  The order that items are added to a heap may effect the organization of the data within the data structure that 
+defines the heap, however, to the client programmer, after the data has been added the retrieval of the data will be 
+identical no matter what order the data was added.  This is because the heap has a very concise specification that 
+says that the largest (or smallest in the case of a minHeap) item is to be retrieved and deleted in a heapDelete 
+operation.
+
+13.>  
+
+public class Heap {
+
+    private int MAX_HEAP = 100;
+    private KeyedItem[] items;
+    private int size;
+
+    //Purpose:  to create and return a Heap object
+    //Preconditions:  none
+    //Postconditions:  a Heap object is created and returned
+    Heap() {
+        items = new KeyedItem[MAX_HEAP];
+        size = 0;
+    }
+
+    //Purpose:  to return whether or not the Heap is empty
+    //Preconditions:  none
+    //Postconditions:  if the Heap is empty true is returned, otherwise false
+    public boolean heapIsEmpty() {
+        return size==0;
+    }
+
+    //Purpose:  to insert a new item into the heap
+    //Preconditions:  this return is passed a KeyedItem
+    //Postconditions:  the new item is added to the heap in its proper heap
+    //    position.  If the Heap was full when the insert was attempted, a
+    //    HeapException is thrown
+    public void heapInsert(KeyedItem newItem) throws HeapException {
+        if (heapIsEmpty()) {
+            items[size++] = newItem;
+        } else if (size<MAX_HEAP) {
+            items[size] = newItem;
+            int place = size;
+            int parent = (place - 1)/2;
+            while ((parent>=0) && 
+(items[place].getKey().compareTo(items[parent].getKey())<0)) {
+                KeyedItem temp = items[parent];
+                items[parent] = items[place];
+                items[place] = temp;
+                place = parent;
+                parent = (place - 1)/2;
+            }
+            size++;
+        } else {
+            throw new HeapException("Heap full on add");
+        }
+    }
+
+    //Purpose:  to retrieve and remove the top item of the Heap
+    //Preconditions:  none
+    //Postconditions:  the top item of the Heap is returned and removed
+    //    from the Heap.  The Heap is maintained in its proper state.  If
+    //    the Heap was empty when this method was called, a null is returned
+    public KeyedItem heapDelete() {
+        KeyedItem rootItem = null;
+        if (!heapIsEmpty()) {
+            rootItem = items[0];
+            items[0] = items[--size];
+            heapRebuild(0);
+        }
+        return rootItem;
+    }
+
+    //Purpose:  to put the Heap back into its proper state after Heap
+    //    manipulations
+    //Preconditions:  the Heap has at least one item
+    //Postconditions:  the Heap is put back into its proper order
+    protected void heapRebuild(int root) {
+        int child = 2*root + 1;
+        if (child<size) {
+            int rightChild = 2*root + 2;
+                ///which child is smaller
+            if (rightChild<size) {
+                if 
+(items[child].getKey().compareTo(items[rightChild].getKey())>0) {
+                    child = rightChild;
+                }
+            }
+                //compare to the smaller child
+            if (items[root].getKey().compareTo(items[child].getKey())>0) {
+                KeyedItem temp = items[root];
+                items[root] = items[child];
+                items[child] = temp;
+                heapRebuild(child);
+            }
+        }
+    }
+
+
+}
+
+class HeapException extends RuntimeException {
+
+    //Purpose:  an exception used when working with Heaps
+    //Preconditions:  this method is passed a String s
+    //Postconditions:  a HeapException is created and returned
+    HeapException(String s) {
+        super(s);
+    }
+
+}
+David J. Burger
+                                                                                     Burger, David
+                                                                                     ICS 211
+                                                                                     Quiz Recommended
+                                                                                     Due: 11/28/2000

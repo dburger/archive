@@ -1,0 +1,74 @@
+David J. Burger
+ICS 321 Sec. 452
+5/28/01
+
+2.2)  Give an example, other than the one given in this chapter, of a relation that is likely 
+to have problems when it is updated.  Use relation R1 as an example.
+
+Suppose we have a reservation management application that contains a table, called 
+Reservations, which store the reservations scheduled for a particular tour company.  Also 
+suppose that the designers decided to include in that table fields that store the Name, 
+PhoneNumber, and EmailAddress of the agent that booked the reservation.  Now if an 
+agent were to change his Name, PhoneNumber, or EmailAddress we have the problem of 
+updating all the records in the Reservations table that refer to that agent.  Another 
+problem is the potential for a large amount of duplicated data in the Reservations table.
+
+2.3)  Transpose the relation in your answer to Question 2.2 into two or more relations that 
+do not have update problems.  Use relations R2 and R3 as examples.
+
+The above problem stated in 2.2 can be solved by creating a new table that we will call 
+Agents.  In the Agents table we will store the data about an agent that books for our tour 
+company, such as Name, PhoneNumber, and EmailAddress.  An additional field, 
+AgentID, will be used as the primary key to uniquely identify the agents.  The 
+Reservations table will now keep track of the agent booking a reservation by having a 
+field called AgentID in its table to hold the foreign key AgentID from the Agents table.  
+Now, if the information about an agent changes, only one record in the Agents table 
+needs to be modified.  In addition, only the foreign key AgentID is required in the 
+Reservations table so the duplication of data problem is eliminated.
+
+2.13)  What are business rules?  Give an example of possible business rules for the 
+relations in your answer to Question 2.11.
+
+Business rules are restrictions on a business’s activities that need to be enforced in the 
+database and database applications.
+
+Once again suppose we are working with a reservation management system.  Let’s say 
+that the reservations that we are tracking are reservations for helicopter tour flights.  An 
+example of a 1:N relationship between two tables would be the relationship between a 
+Reservations table and a Passengers table.  Each individual reservation can contain many 
+passengers.  In addition, we could have a table called Flights with a 1:N relationship to 
+Reservations.  Each flight can contain many reservations.  With this type of data schema, 
+two very obvious business rule that would need to be enforced would be that a flight is 
+limited to a certain number of passengers and a certain weight.
+
+2.17)  What is the first important task in developing a database and related applications?
+
+The first important task in developing a database and related applications is the learning 
+and recording of the users’ model of the data.  After this data model is recorded it 
+becomes the foundation for all development.  The data model is inferred from users’ 
+statements, forms, reports, and the queries that users need to execute against the data.
+
+2.24)  Consider the statement “A database is a model of the users’ model of reality.”  
+How does it differ from “A database is a model of reality”?  Suppose two developers 
+disagree about a data model, and one of them asserts, “My model is a better 
+representation of reality.”  What does this person really mean?  What differences are 
+likely to result when a developer believes the first statement more than the second 
+statement?
+
+In the second statement we are led to believe that a proper database design involves 
+trying to use a database to make a model of reality while the first statement asserts that a 
+database should model the users’ model of reality.  Obviously these goals are quite 
+different.  A true model of reality involves a tremendous amount of detail and 
+unnecessary effort.  Designing with the users’ model of reality in mind should result in 
+the proper amount of detail with a design that solves the problems that the business needs 
+to solve.
+
+Hopefully, if one developer says “My model is a better representation of reality,” he 
+really means that his model is a better representation of the users’ model.  Otherwise his 
+design goals are based on the misguided premise of attempting to model reality.  If two 
+developers are working together on a project and they have different viewpoints on this 
+issue it is highly likely that they will have a tough time agreeing on later development 
+issues.  This question reminds us that philosophical methods used in the design process 
+should be discussed before starting a project to avoid inevitable delays from contrasting 
+viewpoints.
+

@@ -1,0 +1,61 @@
+Project Write Up
+David J. Burger
+ICS 321
+07/29/01
+
+
+	My first semantic object model and entity relation diagrams assumed a 
+deployment over the Internet with “stat managers” connecting to the application.  
+Although I see this as a good idea, I decided to do my project using the features built into 
+Access and therefore removed the stat manager features.  Instead, I created a system more 
+suited to being used by a single team or a league keeping track of all conference games.  
+Because proper normalization techniques have been used in the design, it would be easy 
+to re-implement the stat manager features for web deployment.
+       The other changes to the system were small due to a solid original design.  I 
+attribute this to some previous database experience, what I have learned in class, and the 
+materials in chapters 3, 4, and 5 of the book.  One small change I did make was adding a 
+couple of fields to the STAT_LINE table to enable coaches to keep track of the amount 
+of time a player plays the way they want to, that is, by keeping track of minutes, quarters, 
+or simply a boolean value played.
+       The toughest decision in the original design was how to handle a team’s 
+opponents.  The options were to have a separate opponents table, create a super/subtypes, 
+or to create one table and use a recursive relationship between teams and opponents.  I 
+chose the latter, and while this made for a simplified overall design with fewer tables, it 
+made some of the queries more complex to construct.  Thankfully, the visual query 
+design tools of Access can come in handy in this area.
+       Implementing the business rules was one of the more difficult aspects of the 
+application.  One business rule was that when a new player is added to a team, that player 
+should automatically get STAT_LINE records for all previously played games with the 
+default values.  The values would indicate that the player had not played and would have 
+zeros for each stat.  In this way when a player was only on the team for the last few 
+games his stat reports would still show all the games indicating that he hadn’t played in 
+most of them resulting in more uniform and attractive stat reports for all players.  The 
+code necessary to implement this business rule has been enclosed on enclosure A code 
+snippet 1.
+       A second important rule was that when a new game is added STAT_LINE records 
+have to be added for each player on both teams and the screen needs to be refreshed so 
+that stats can be entered into the resulting grid.  The code necessary to implement this 
+business rule has been enclosed on enclosure A code snippet 2.
+       I have included three sample printouts with this write up as I had trouble with the 
+reports switching to portrait mode in spite of the fact that I had saved them to print in 
+landscape mode.  Therefore, one of the first thing I would like to do in the future with this 
+project is figure out why I am getting this behavior.
+       Another improvement I would like to make would be to create more high quality 
+reports.  While I was very satisfied with the quality of reports I was able to create, I 
+quickly discovered the problem the book mentioned, that is the difficulty of creating 
+reports that follow more than one path through the database schema.  In order to work 
+around this problem I created a report that sends its output to Word instead of using a 
+standard Access report.  You can access this report from the Individual Stats Leaders 
+button on the player form.  I used OLE Automation code to control Word from within 
+Access to make this report.
+       A final thing I am interested in doing with this project is to use ASP to deploy it 
+as a web application.  The major challenge in doing this would be to handle the data entry 
+for the STAT_LINE records using HTML forms.
+       You can find all the main forms of my application accessible from the favorites 
+group.  The application consists of three forms, six queries, four tables, and some VBA 
+code.  I learned a lot about the power of Access while doing this report.  Most of the time 
+the features of Access were very powerful and helpful in constructing the application.  
+Sometimes, however, it seemed as if Access got in the way of doing more complicated 
+things.  It became clear that to be a good Access programmer a lot of skills and Access 
+knowledge are necessary.  All in all I enjoyed doing this project and I learned a lot from 
+it.

@@ -1,0 +1,55 @@
+Depth First Iterative Deepening
+David J. Burger
+ICS 461, Curt Powley
+
+My program uses recursion to solve the M x N puzzles using DFID.  The
+implementation is fairly straightforward and centers around the creation of
+Nodes which represent the configurations of the puzzle states.  The start
+node is created, children are created, and recursive calls are used to
+explore down to the maximum depth of the search.  The first round does a
+search depth of zero, the second one, the third two, ..., until the maximum
+depth is reached, at which time if a solution is not found a message is
+printed indicating that a solution was not found.
+
+In the results file you will see the results of running:
+
+./puzzle data
+
+data contains the puzzle configurations specified in the assignment
+instructions.  My solution prints out the moves that are necessary for the
+blank to make to go from the start state to the goal state.  That is R, L, U,
+and D for right, left, up, and down.
+
+The solution is fairly straightforward, with the following notable features:
+
+1. Only one state of the puzzle is kept.  That is the *grid pointer of a child
+is set to that of its parent, and when the recursion has to "back up," the
+move of the child is undone.  This is much more efficient in terms of time and
+space in practice because the allocation and deallocation of a tremendous
+number of grid configurations can be completely avoided.
+
+2. My program reads the puzzle data from an input file.  Please see puzzle.c
+or the data file itself to learn how the data is laid out.
+
+3. My program can solve to any goal state.  The data file provides both the
+start and goal states, so any goal state can be specified. (EXTRA CREDIT #1)
+
+4. My program can solve for any puzzle size.  The data file provides the
+puzzles and any puzzle size can be specified. (EXTRA CREDIT #2)
+
+5. As I learned from the book "The Moment of Proof, Mathematicl Epiphanies,"
+only puzzle with the same parity can be transformed into one another.  Parity
+is either odd or even and is the number of "inversions," or the number of times
+a larger number precedes a smaller number in the grid.  In addition to reading
+the puzzle data from a data file my program actually checks for a parity match
+before attempting to solve the puzzle.  This lets the program avoid working on
+puzzles which are in fact not solvable.
+
+6. When solving this problem with recursion, the printing of the solution can
+be a bit awkward as the natural printing mechanism will print the solution
+backwards.  Instead of using an auxillary data structure to hold the solution
+and print it in the proper order, I decided to use backward chaining.  With
+backward chaining I solve from the goal state to the start state.  With this
+method I can easily print the solution in the proper order by printing the
+inverse of the move that was required in backward chaining.  Please see the
+code for full details.

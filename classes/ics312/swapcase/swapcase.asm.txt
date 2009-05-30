@@ -1,0 +1,59 @@
+title swapcase
+
+.model small
+.stack 100h
+.data
+    string db "lower UPPER",0Ah,0Dh
+           db "01234567890",0Ah,0Dh
+           db "~!@#$%^&*()"
+    slength = ($ - string)
+.code
+main proc
+    mov ax,@data
+    mov ds,ax                  ;ds contains the address of the data
+
+    mov cx,slength             ;move the length of the string into the cx
+                               ;register for use with loop instruction
+                                                              
+    mov si,offset string       ;move the offset of the string to the si
+                               ;register
+                               
+    mov ah,2                   ;int21h function to display the character in dl
+
+    LoopStart:
+    
+        mov dl,[si]            ;move the character si points at to dl        
+        
+        cmp dl,65              ;compare the character value to 'A'
+        jb Done                ;if lower it isn't something to change
+        
+        cmp dl,122             ;compare the character value to 'z'
+        ja Done                ;if higher it isn't something to change
+        
+        
+        cmp dl,90              ;compare the character value to 'Z'
+        jbe IsUpper            ;if <= we found an upper case character
+        
+        cmp dl,97              ;compare the character value to 'a'
+        jae IsLower            ;if >= we found a lower case character
+        
+        jmp Done               ;don't let it fall through
+
+    IsUpper:
+        add dl,32              ;change the upper case to lower case
+        jmp Done
+        
+    IsLower:
+        sub dl,32              ;change the lower case to upper case
+        jmp Done
+        
+    Done:    
+        int 21h                ;display the character
+        inc si                 ;point at the next character
+    loop LoopStart    
+
+    mov ax, 4C00h
+    int 21h
+main endp
+
+end main

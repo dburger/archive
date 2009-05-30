@@ -1,0 +1,74 @@
+#!/bin/sh
+
+# some of these techniques were learned in:
+# Linux Device Drivers, Second Edition page 59,
+# especially awking for the major number
+
+# this must be run as root to run insmod and rmmod
+if [ $UID -ne 0 ]; then
+  echo "You must run this script as root, it uses insmod and rmmod."
+  exit 1
+fi
+
+fifo_cnt=4
+MAX_FIFOS=100
+module="fifo"
+device="fifo"
+
+# this mode line is dangerous because it will let anyone
+# write to the device, and this could be used for memory
+# starvation, but, it will let ordinary users read and
+# write to the fifo
+mode="666"
+
+if [ $# -lt 1 -o $# -gt 2 ]; then
+    echo "Usage: fifoctl [ create | delete ] count"
+    exit 1
+fi
+
+# need to find a way to tell whether or not numeric
+if [ $# -eq 2 ]; then
+  fifo_cnt=$2
+fi
+
+if [ $fifo_cnt -lt 1 -o $fifo_cnt -gt $MAX_FIFOS ]; then
+  echo "Number of fifos, $fifo_cnt, is invalid,"
+  echo "acceptable range is 1 to $MAX_FIFOS."
+  exit 1
+fi
+
+counter=0
+
+# need to find a way to echo the commands as they
+# are executed
+if [ "$1" = "up" ]; then
+    /sbin/insmod $module.o fifo_cnt=$fifo_cnt
+    major_number=`awk "\\$2==\"$module\" {print \\$1}" /proc/devices`
+    echo $major_number
+    exit 0
+    while [ $counter -lt $fifo_cnt ]
+      do
+        let temp=2*$counter
+        mknod /dev/$device$temp c $major_number $temp
+        chmod $mode /dev/$device$temp
+        let temp=$temp+1
+        mknod /dev/$device$temp c $major_number $temp
+        chmod $mode /dev/$device$temp
+        let counter=$counter+1
+      done
+    exit 0
+  elif [ "$1" = "down" ]; then
+    /sbin/rmmod $module
+    while [ $counter -lt $fifo_cnt ]
+      do
+        let temp=2*$counter
+        rm /dev/$device$temp
+        let temp=$temp+1
+        rm /dev/$device$temp
+        let counter=$counter+1
+      done
+    exit 0
+  else
+    echo "Usage: fifoctl [ create | delete ] count"
+    exit 1
+fi

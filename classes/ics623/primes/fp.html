@@ -1,0 +1,272 @@
+<html>
+<head>
+<title>Finding Large Prime Numbers</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h2>(See Note at the End of this Page.)</h2>
+<h2>Finding Large Prime Numbers</h2>
+<p>First, at various points in the text and other writing on security, 
+    you will find statements that ask you to find a prime number 
+    satisfying certain conditions. With a little thought, you 
+    can go about it a little differently from what the statement 
+    suggests and make life a lot easier for yourself. Here are 
+    some examples:</p>
+<p>&quot;Choose a prime P = 2a+1 such that a is also prime.&quot; It is far easier 
+  to choose a first, and then calculate P = 2a+1 and see whether that is prime 
+  also.</p>
+<p>&quot;Choose a prime P = 2ab+1, where a is a large prime.&quot; Choose a first, 
+  and then try various choices for b until you find one for which P = 2ab+1 is 
+  prime.</p>
+<p>If you are going to have to factor phi(p) = p-1, then if you choose p first 
+  and try to factor you won't succeed. On the other hand, if you choose factors 
+  first and then multiply them together to get a, and set p = 2a+1, then you can 
+  check whether p is prime.</p>
+<p>In particular, in looking for a prime number, first choose s and then let p 
+  = 2s+1 and check whether p is prime. That is easier than choosing p first and 
+  then calculating s.</p>
+<h2>Lehman Method for Testing for Primality</h2>
+<p>I recommend using the Lehman test for prime numbers. The Lehman test is simple 
+  and I believe at least as fast as any presented in the text. Most people seem 
+  to think the Rabin test is better. I am convinced that the Lehman test is faster 
+  and simpler and just as reliable. If you want to test whether n = 2s+1 is a 
+  prime, you calculate b = x^s for a number of &quot;randomly chosen&quot; numbers 
+  x. (I have been trying ten values of x that are small prime numbers.) If all 
+  the resulting values are 1 or -1, but they are not all 1, then you accept n 
+  as a prime. </p>
+<p>If n is a prime, then x^(n-1) =1. Let b = x^((n-1)/2). Then 
+    b^2- 1 = 0. In any field, this equation has exactly two solutions, 
+    and they must be 1 and -1. If b is not either 1 or -1, then 
+    n is not prime. What happens if n is not prime? One rare possibility 
+    is that you always get 1. I will show that otherwise if n 
+    is not prime, then for at least half the possible value of 
+    x, x^((n-1)/2) is neither 1 nor -1, and thus if you try enough 
+    values of x it is very unlikely that you will not discover 
+    that n is not prime.</p>
+<p>I have never found a large number n for which for one x, x^((p-1)/2) 
+    = 1 or -1 and yet n was not prime. At least earlier versions 
+    of PGP simply calculated x^(p-1) for one x, and if the result 
+    was 1, they assumed that n was a prime. However, I think it 
+    is prudent to be more careful than that. There do exist numbers 
+    n called Carmichael numbers that have the property that x^(n-1) 
+    = 1 mod n for all x and yet they are not prime. They are called 
+    Carmichael numbers. They are rare, althoug it has been proven 
+    that there are an infinite number of them. The smallest one 
+    is 561 = 3*11*17. Carmicahel lists several of them in his 
+    research paper on the subject. He shows that they have at 
+    least three factors. Those are the only ones I have seen. 
+    I guess I have tested a few million numbers for primality 
+    and have never come across one. There may exist non-prime 
+    numbers n for which x^((n-1)/2) = 1 for all x, and hence the 
+    precaution of accepting a number n as prime only if values 
+    of x are found for which x^((n-1)/2) is in some cases -1. 
+    I will give a proof that if n is not prime and if values of 
+    x occur for which x^((n-1)/2) is 1 and is -1, then at least 
+    half the possible values of x will give other values, too. 
+    Then if n is not prime and if you try k randomly chosen values 
+    of x, the probability is at least 1 - 2^(-k) that you will 
+    get other values besides 1 and -1. By choosing k large, you 
+    may make this probability as near to 1 as you wish. In fact, 
+    a very careful analysis of the problem shows that if n is 
+    not a prime, even if 1 and -1 occur as values of x^((n-1)/2), 
+    many more than half the values of x will give other values 
+    than 1 and -1.</p>
+<p>Let me give a proof. I will try to keep it simple. First, let us consider the 
+  possiblilty that n = p^m. Then we know phi(n) = (p-1)*p^(m-1). n-1 = p^k - 1 
+  is divisible by p-1, but since p^k-1 is not divisible by p, the GCD((n-1)/2, 
+  phi(n)/2) is (p-1)/2. This group is cyclic, so there is an element, say a, that 
+  is primitive. All the elements of the group are powers of a, and a^phi(n) = 
+  1 and no smaller power of a is equal to 1. Actually, a^(phi(n)/2) = -1. If x 
+  = a^(i*p^(m-1)) then x^(n-1) = 1 and x^((n-1)/2) is 1 or -1, but those are the 
+  only values of x for which that is true. These are only a fraction 1/(p^(m-1)) 
+  of the possible x. (This formula says that if m=1, then for all x, x^((n-1)/2) 
+  = 1 or -1, which is correct, of course.)</p>
+<p>Now suppose that n = a*b and a and b are relatively prime. (If n is not prime 
+  and not a power of a prime, then there must exist such a and b.) Now suppose 
+  that for some value of k, there exists x such that x^k = 1 and y such that y^k 
+  = -1. What I am going to show is that there exist z and w such that z^k and 
+  w^k are not either 1 or -1, and then we can conclude that the kth powers of 
+  all elements cannot be more than half 1's and -1's. Suppose that x = x1 mod 
+  a and x = x2 mod b and y = y1 mod a and y = y2 mod b. Then x1^k = 1 mod a and 
+  x2^k = 1 mod b because x^k = 1 mod n. Also, y1^k = -1 mod a and y2^k = -1 mod 
+  b, because we assumed that y^k = -1 mod n. Let z be the solution mod n of z 
+  = x1 mod a and z = y2 mod b, and let w be the solution mod n of w = y1 mod a 
+  and w = x2 mod b. Then z^k = 1 mod a and z^k = -1 mod b, and so z^k is not either 
+  1 or -1 mod n. (If z^k = 1 mod n, then z^k = 1 mod a and z^k = 1 mod b, and 
+  similarly, if z^k = -1 mod n, then z^k = -1 mod a and z^k = -1 mod b.) Similarly 
+  w^k is not equal to 1 or -1. And thus of all possible values of x, no more than 
+  half the values of x^k can be 1 or -1.</p>
+<h2>Some Practical Suggestions</h2>
+<p>First, generate a random number to use as s. Make the first and last bits 1, 
+  so that you have a number with the right number of bits and it is odd. You can 
+  do that with an or instruction, for example s[0] |= 1 for the low bit (assuming 
+  little endian format). For the purposes of this class, I suggest just using 
+  a random number generator.</p>
+<p>(However, note that if Mallory wants to break into your system or find your 
+  key, one approach he can use is to guess how you are generating random numbers 
+  and finding prime numbers. Therefore, if you truly want a secure system, your 
+  method of choosing random numbers as candidates for keys, etc. must be secure. 
+  That is a very difficult problem. But note how PGP handled that.)</p>
+<p>Probably that first random number will not make p = 2s+1 prime, so you need 
+  another. You can generate another the same way. I don't see any problem in simply 
+  adding 2 to the previous s, however. </p>
+<p>First you choose s and then calculate p = 2s+1, and then you choose a number 
+  x at random and calculate x^s mod p. I don't see a need for great security in 
+  your choice of x. I made a list of ten three-digit prime numbers and used those 
+  same ten numbers for all my tests, and that worked very satisfactorily. </p>
+<p>To find a prime number p = 2s+1 for which s is also prime, I started by choosing 
+  a 1021-bit number q, and set s = 2q+1 and tested s for primality. Then s would 
+  be a 1022-bit number. Then each time I found a prime number s, I tried p = 2s+1. 
+  Eventually I found some prime numbers of this form. Actually, I ran my program 
+  on a 1 GHz. pentium for about 48 hours and found 8 prime numbers--an average 
+  of six hours per prime number. One thing you will soon figure out is that you 
+  don't want to start your program and get no output at all for six hours. You 
+  want to know what is going on. What I did was to print a few characters each 
+  time I tested a candidate. I printed the total number of candidates tested, 
+  the total number of s's that were prime, and the total number of p = 2s+1 that 
+  were found to be prime, and I also printed each prime number that I found, with 
+  a note identifying it. </p>
+<p>Almost all of the computing associated with each test is raising 
+    x to the power q. My experience has been that if s = 2q+1 
+    is not prime, this has to be done once, so usually that is 
+    how long it takes for a test. On my 200 MHz computer, that 
+    took about 2 seconds with my program. On the 1 GHz. computer, 
+    it was about half a second. You should see whether your program 
+    is consistant with that.</p>
+<p>There is an approximate formula in number theory stating that the number of 
+  prime numbers less than n is about n/ln(n). The number of 1023 or fewer bit 
+  prime numbers is about 2^1023/ln(2^1023 = 2^1023/(1023*ln(2)). The number of 
+  primes of 1022 digits or fewer is 2^1022/(1022*ln(2)). The difference is the 
+  number of prime numbers of exactly 1023 bits. This is approximately (2^1023-2^1022)/(1023*ln(2)). 
+  Since there are 2^1023-2^1022 numbers altogether, about one number in 1023*ln(2) 
+  = 709 numbers is prime. You look at only the odd numbers, and half of the numbers 
+  are even, so you should expect to find about one in 355 numbers that you test 
+  to be prime. </p>
+<p>How long is it going to take to find a value of s that is prime? 
+    How long is it going to take to find a number p = 2s+1 such 
+    that p and s are both prime? On my 200 Mhz computer, testing 
+    one number required 4 seconds. On the average, I should find 
+    one prime every 355 tests or every 4*355 = 1420 seconds, or 
+    about 24 minutes. On the average, for one of every 355 of 
+    those primes s, p = 2s+1 will also be prime. That will require 
+    24*355 = 8520 minutes or about 142 hours. That is on Visual 
+    C++ in debug mode. When I tell it to make a &quot;Release&quot; 
+    version, it is twice as fast. On my other machine, each test 
+    required about 0.5 second on the release version. That gets 
+    the time down to about 18 hours. Estimate your time, and if 
+    it is unreasonable, discuss it with me and we will find out 
+    why your program is slower than mine and either change the 
+    program or change the problem a little.</p>
+<p>There is one other thing that you can do to speed things up. 
+    You can divide by some of the smallest primes and eliminate 
+    some of the candidates very quickly. Throwing away candidates 
+    that are divisible by three eliminates 1/3 of the candidates, 
+    and dividing by 5 eliminates 1/5 of the remaining ones, etc. 
+    I divided by all the primes up to 31, and that eliminates 
+    about 69% of the candidates very quickly. That reduces the 
+    time required to 31% of what is required if I don't do that. 
+    That is how I actually achieved an average of about 6 hours 
+    per prime that I found. </p>
+<p>Dividing a 1024-bit number by a small integer is not completely trivial, but 
+  it can be done very efficiently. The computer divide instruction divides two 
+  words by a single word and gives you a single word quotient and single word 
+  remainder. You can use that instruction and the algorithm that you use for decimal 
+  division by a single digit, but in the computer consider each word to be like 
+  a digit. At the first step, use zero and the first word in the dividend as the 
+  dividend for the divide instruction, and use your chosed divisor. store the 
+  quotient and put the remainder followed by the next word as the next dividend 
+  and divide. Store the quotiient, and repeat until you have done all the words. 
+  (Try doing a decimal division with a one digit divisor and multiple digit dividend 
+  to see how that works.) </p>
+<p>I wrote an assembler language function for dividing a dividend consisting of 
+  a word, r, plus 512 bits.</p>
+<pre>int dd(UL *q, UL *dn, UL dv, UL r);
+</pre>
+<p>Here q is a pointer to the quotient, dn a pointer to the dividend, dv the value 
+  of the one-word divisor, and r is the remainder to put in at the first step. 
+  The resulting remainder is returned as the function value. Putting r in there 
+  allows me to link this function for doing divisions for dividents of any multiple 
+  of 512 bits. Thus, in my program, I divided by the first ten primes as follows:</p>
+<pre>   for(j = 0; j&lt;10; j++) if(dd(u, P, prime[j], dd(u+16, P+16, prime[j], 0))==0) {<br>	   scount++;<br>	   return 0;<br>   }<br></pre>
+<p>Here, I tried dividing by each of the first ten primes, which are in the array 
+  prime[]. I counted how many times this eliminated a candidate using scount. 
+  I found that the ratio of this to the total number of candidates tried was very 
+  close to the theoretical value of 1-2/3*4/5*6/7*10/11*12/13*16/17*18/19*22/23*28/29*30/31 
+  = 69%.</p>
+<p>I have put dd.asm and dd.obj in my unix account, ~wes/ics623/longa.</p>
+<p>Note:<br>
+    (I sent this by email to everyone in ICS623 on November 4.)</p>
+<p>1) Several students have asked me about dividing. You can do 
+    Assignment 9 without dividing, and that is what I want you 
+    to do. Also, I want you to do Assignment 9 without using Montgomery's 
+    method-I want you to have that experience. After you make 
+    the multiply and exponentiation functions work using only 
+    the shift and add functions, then if you want to use Montgomery's 
+    method, i. e. for doing other assignments including finding 
+    prime numbers, that is fine.<br>
+    If you make a mod n add function and a mod n shift function 
+    and use them in your multiply function, and use that multiply 
+    function in your exponentiation function, then you never have 
+    to divide. Note that the add and shift functions do not need 
+    to divide or do the C mod function--they need to subtract. 
+    You will also need a mod n subtract function, which also doesn't 
+    need any divide.<br>
+    The SPARC processor does not have built-in integer multiply 
+    and divide instructions. Therefore, I don't think that you 
+    can gain any speed using Montgomery's method with that machine. 
+    What Montgomery's method does for you is to make it possible 
+    to use the power of the built-in multiply instruction to compute 
+    faster.</p>
+<p>2) I never said exactly what I would like you to do with respect 
+    to finding prime numbers. I would like to have your find at 
+    least one prime number that satisfies an additional condition. 
+    Here are several possibilities:<br>
+    1) Find a 1023-bit prime P = 2a+1 such that a is also prime. 
+    (It is actually a little easier to find a prime a first and 
+    then test 2a+1.)<br>
+    2) Find a 1023-bit prime P = 2ab+1 such that a and b are large 
+    primes.<br>
+    3) Find a 1023-bit prime suitable for the Digital Signature 
+    Algorithm. This requires a prime P = 2aq+1 where q is a 160-bit 
+    prime. If you want to do it really correctly, follow the algorithm 
+    on page 489. (For step 9) you can calculate X mod q using 
+    the programs that you have by multiplying X by 1 mod q. X 
+    has to be the multiplier, i. e. the one in which you test 
+    each bit, determining whether to add or not, and when you 
+    add, you add the 1.)<br>
+    Finding a prime of type 1) will take the most time. Testing 
+    one prime takes essentially the time to do exponentiation. 
+    You can estimate that by looking at your watch while the program 
+    is running. In the note on finding prime numbers, there is 
+    an estimate of how many numbers you have to test. For 1023-bit 
+    prime numbers, the average is 355 odd numbers. Of course you 
+    can be lucky and find one soon, or you could be unlucky and 
+    it could take much longer than that. If you want p = 2a+1 
+    where a is also prime, you have to test on the average 355 
+    candidates to find a suitable a, and you have to test 355 
+    a's on the average to find a suitable p, and so you have to 
+    do 355*355 tests on the average. That can take a lot of time. 
+    For 2) if you generate a and b and then test p = 2ab+1, then 
+    find a new a and new b and test the new 2ab+1, this will take 
+    about the same amount of time as 1). However, if you do the 
+    following, it is significantly faster. Generate a and b and 
+    test p = 2ab+1. Then generate c and test 2ac+1 and 2bc+1. 
+    Then generate d and test 2ad+1, 2bd+1, and 2cd+1, etc. For 
+    3) find a suitable q and then you can use various randomly 
+    chosen 1023-160 = 863-bit numbers for a. This would be fast. 
+    Even using the algorithm on page 489 should be quite fast, 
+    because SHA1 is fast. (Use SHA1, not the old SHA, if you do 
+    this.)</p>
+<p> <br>
+</p>
+<p><br>
+    <br>
+</p>
+<p>&nbsp;</p>
+<pre>&nbsp;   
+   
+ </pre>
+<p>&nbsp;</p>
+</body>
+</html>

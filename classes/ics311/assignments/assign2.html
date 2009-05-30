@@ -1,0 +1,291 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+
+<b>
+David J. Burger<br>
+ICS 311<br>
+Assignment 2<p>
+</b>
+
+<b>
+Problem 1:  Iterative reversal of a Linked List (C-3.8)<p>
+</b>
+
+a.  <i>The reverse it algorithm in java:</i>
+<pre>
+    //Purpose:  to reverse a singly linked list.
+    //Preconditions:  the method is passed the head node
+    //   to a singly linked list.
+    //Postconditions:  the linked list is reversed and the
+    //   the returned Node is the new head node of the list,
+    //   previously the tail Node.
+    public Node reverseIt(Node n) {
+        Node prev, next, temp;
+        prev = null;
+        next = n;
+        while (next!=null) {
+            temp = next.getNext();
+            next.setNext(prev);
+            prev = next;
+            next = temp;
+        }
+        return prev;
+    }
+</pre>
+b.  <i>Time complexity analysis of reverseIt:</i><p>
+
+The assignment statement prev = null and next = n result in 2 primitive operations
+before the while loop.  The while loop executes once for each node in the linked
+list.  The while loop has a comparison next!= null, an assignment and method call
+from temp = next.getNext(), an assignment and method call from
+next.setNext(prev), and 2 assignments from prev = next and next = temp.  That makes
+a total of 7 primitive operations for each iteration of the loop.  The failure of the while
+loop results from one more comparison of next!=null and the return statement results in
+one last primitive operation.<p>
+
+That makes for 2 (before the loop) + 7n (during the loop) + 2 (failure comparison and return)
+primitive operations for each Node n in the list.<p>
+
+2 + 7n + 2 = 7n + 4 <= 7n + 4n = 11n for n>=1.  Therefore the algorithm is O(n) by the
+definition of Big-Oh notation with c=11 and n<sub>0</sub>=1.<p>
+
+c.  <i>Space complexity analysis of reverseIt:</i><p>
+
+reverseIt is passed the head Node to a linked list and reverses the list.  In doing so,
+no new Node objects are allocated and only 3 reference variables are used.  Let the space
+needed for a reference variable to a Node object be some constant c<sub>0</sub>.  Then, our
+algorithm uses 3c<sub>0</sub> space plus the overhead for a method call o.<p>
+
+3c<sub>0</sub> + o <= (3c<sub>0</sub> + o)(1) for n>=1.  Therefore, the space complexity for this
+algorithm is O(1) by the definition of Big-Oh with c=3c<sub>0</sub> + o and n<sub>0</sub>=1.<p>
+
+<b>
+Problem 2:  Implementing a Stack with Queues (C-3.10)<p>
+</b>
+
+a.  <i>Describe (with pseudocode) how to implement the stack ADT using two
+queues.</i><p>
+
+To implement a stack using two queues I would have a class that has
+a queue, call it Q, as a private variable.  The interface algorithms
+for the stack implemented with two queues would then look like this:
+
+<pre>
+Algorithm size():
+    Input:  nothing
+    Output:  the number of elements in the stack
+    return Q.size()
+
+Algorithm isEmpty():
+    Input:  nothing
+    Output:  true if the Stack is empty, false otherwise
+    return Q.isEmpty()
+    
+Algorithm push(e):
+    Input:  a new Object e to push onto the stack
+    Output:  nothing
+    Q.enqueue(e)
+
+Algorithm pop():
+    Input:  nothing
+    Output:  the top Object from the stack
+    if Q.isEmpty() then
+        throw a StackEmptyException
+    else
+        create a queue tempQ
+        while Q.size()>1 do
+            tempQ.enqueue(q.dequeue())
+        while !tempQ.isEmpty()
+            Q.enqueue(tempQ.dequeue())
+        return Q.dequeue();
+
+Algorithm top():
+    Input:  nothing
+    Output:  the top Object from the stack
+    if Q.isEmpty() then
+        throw a StackEmptyException
+    else
+        create a queue tempQ
+        while Q.size()>1 do
+            tempQ.enqueue(Q.dequeue())
+        while !tempQ.isEmpty() do
+            Q.enqueue(tempQ.dequeue())
+        Object e = q.front()
+        Q.enqueue(Q.dequeue)            
+        return e
+</pre>
+<i>Can you do it without any instance variables other than the two
+queues?</i><p>
+Yes, as you can see my implementation used only one private instance variable, the queue
+Q.  In addition, a temporary queue tempQ was used in the methods pop() and top().<p>
+
+b.  <i>Give the big-O running time of the push() and pop() methods for your
+implementation.</i><p>
+
+With my implementation of a Stack using Queues, the push() method will store the
+pushed Object by adding it to the end of the queue.  Therefore, the push method
+will have the same big-O running time as the enqueue(Object e) method of the
+queue implementation.  The enqueue method is O(1) be it implemented with a circular
+array or linked list with head and tail pointers, therefore, my push method is also
+O(1).<p>
+
+The pop() method is a little more complex for my implementation of a stack using
+queues and is where the real work is done in simulating a stack.  The method works
+by dequeueing all but the last item from queue Q into temporary queue tempQ.  Then,
+all the items in tempQ are enqueued back into Q.  This leaves the "last in" item at
+the front of Q and a simple return Q.dequeue() returns it as desired.  The creation
+of the temporary queue executes in a constant amount of time independant of n, the
+number of items in the stack, and is therefore O(1).  The first loop executes n-1
+times and the operation in the loop is O(1) so the first loop is O(n).  The second
+loop also executes n-1 times and the operation in the loop is O(1) therefore it
+is O(n).  Lastly the return line executes which calls Q.dequeue() which is an O(1)
+operation.  The total running time of pop() is characterized by the sum of the four
+terms, O(1) (for the creation of the temporary queue), O(n) (for the first loop), O(n)
+(for the last loop), and O(1) (for the return statement.  Overall this makes the
+algorithm O(n).<p>
+
+<b>
+Problem 3:  Searching a sequence recursively (R-4.6)<p>
+</b>
+a.  <i>Using the Sequence ADT, write a Java method public boolean member(int
+k, Sequence s) for determining whether a sequence S of n integer objects
+contains a given integer k.  Your method should not contain any loops.</i>
+<pre>
+    //Purpose:  determine whether a Sequence contains an Integer object with
+    //    intValue() k
+    //Preconditions:  this method is passed an int k and a Sequence S
+    //Postconditions:  if an Integer object with intValue() k is found, true
+    //    is returned, otherwise, false is returned
+    public boolean member(int k, Sequence S) {
+        if (S.isEmpty())
+            return false;
+        else if (((Integer)S.first()).intValue()==k)
+            return true;
+        else {
+            Integer n = (Integer)S.first();
+            S.removeElemAtRank(1);
+            boolean found = member(k,S);
+            S.insertFirst(n);
+            return found;
+        }
+    }
+</pre>
+b.  <i>What is the time complexity of your algorithm?  Give big-O in terms of n.</i><p>
+
+The worst case time complexity for this algorithm occurs when the int k is not found in
+the sequence.  In this case the algorithm will recursively check each element in the
+sequence and then be called one more time for the base case of the sequence being empty.
+Therefore, given n elements in the sequence the method will be called n+1 times.<p>
+
+In each of the first n calls before the base case is reached, it can be shown that the
+execution path will flow to the else clause and only primitive operations or method
+calls that are O(1) are executed.  Therefore each of the n calls performs a constant
+number of primitive operations j>1, resulting in jn total primitive operations.<p>
+
+The final recursive call will occur when the base case is reached in which the method is
+called with an empty sequence.  In this call the first branch of the if statement will
+execute.  Once again only an O(1) operation (.isEmpty()) and 1 primitive operation (return false)
+will be performed.  Therefore the base case recursive call of the algorithm contributes
+a constant number of primitive operations k>1.<p>
+
+jn + k <= jn + kn = (j + k)n for n>=1, therefore, this algorithm is O(n) by the definition
+of Big-Oh notation with c = j + k and n<sub>0</sub>=1.<p>
+
+c.  <i>How much space does your method use in addition to the space used for S?  Give
+big-O in terms of n.</i><p>
+
+My method works by testing to see if the first element in the sequence is a match, and if not,
+strips the first element into a temporary variable and then makes a recursive call with the
+reduced sequence.  After returning from the recursive call, the element is put back in its
+proper place.  In the worst case a match will not be found and the entire sequence will
+need to be examined resulting in n + 1 total calls, that is, n calls for the n elements in the
+sequence and 1 last call as the base case is reached.  Therefore my method will end up
+allocating a temporary variable for every element in the sequence and will have the overhead
+of the activation frames in Java for the n + 1 method calls.  The temporary variable space and
+activation frame overhead are both O(n) space complexity and therefore the overall space complexity
+is O(n).<p>
+It is interesting to note that the temporary variable space used by my method is offset by the
+decrease in the size of the sequence, however, even when you look at the algorithm from that
+perspective the overhead for the activation frames of the recursive calls still causes the space
+complexity of the algorithm to be O(n).<p>
+
+<b>
+Problem 4:  An iterative tree traversal (C-5.17)<p>
+</b>
+a.  <i>Describe in pseudo-code a non-recursive method for performing an in-order
+traversal of a binary tree in linear time.</i><p>
+
+<pre>
+Algorithm inorder(rootNode):
+    Input:  a reference to the root node of the tree
+    Output:  an in-order traversal of the tree is performed
+    create a Stack S
+    curr = rootNode
+    done = false
+    while !done do
+       if curr!=null
+           S.push(curr)
+           curr = curr.getLeft()
+       else
+           if !S.isEmpty()
+               curr = S.pop()
+               //visit S
+               curr = curr.getRight()
+           else
+               done = true
+</pre>
+
+b.  <i>Show that your algorithm runs in linear time.</i><p>
+The major work for this algorithm is done in the while loop.  The algorithm works by
+maintaining a stack of nodes.  A node is pushed onto the stack and then its left subtree
+is followed in the next iteration of the loop.  When that node is returned to in the
+stack it is then visited, removed from the stack, and then the its right subtree
+is followed in the next iteration of the loop.  Therefore, for every node in the binary
+tree we have 2 iterations of the while loop.  One for when it is pushed on and curr is
+set to its left reference, and one for when it is popped off and curr is set to its right
+reference.  In addition there will be one iteration of the while loop when the stack is
+completely empty and the traversal is over.  Therefore, given the 2n + 1 iterations of the
+loop plus the constant time operation of creating the stack S and two primitive operations
+before the loop make for an algorithm that has a time complexity of O(n), which shows that
+it runs in linear time.<p>
+
+c.  <i>Also analyze the space complexity.</i><p>
+
+Because nodes are removed before visiting the right subtree, the worst case space
+complexity will result when all n nodes of the binary tree are left nodes descending
+in a linear manner from the head node.  In this case, the stack will grow to size n
+to accomodate every node in the binary tree before any pop() methods will be called.
+Therefore the worst case space complexity for this algorithm is O(n).<p>
+
+<b>
+Problem 5:  Deletion from a heap in the sequence representation<p>
+</b>
+
+a.  <i>Write out the sequence representation of the heap in Figure 6.8g (also shown
+in 6.9).</i><p>
+<blockquote>
+4, 5, 6, 15, 9, 7, 20, 16, 25, 14, 12, 11, 8, 23, 27
+</blockquote>
+b.  <i>Show, in the sequence representation, all the steps of the algorithm for doing
+removeMinElement() on this heap.</i><p>
+
+The first step in performing removeMinElement() will remove and return
+the minimum element while copying the last element into the first position:<p>
+<blockquote>
+27, 5, 6, 15, 9, 7, 20, 16, 25, 14, 12, 11, 8, 23
+</blockquote>
+Now the process of down-heap bubbling will continue until 27 has fallen
+to its proper location:<p>
+<blockquote>
+5, 27, 6, 15, 9, 7, 20, 16, 25, 14, 12, 11, 8, 23<br>
+5, 9, 6, 15, 27, 7, 20, 16, 25, 14, 12, 11, 8, 23<br>
+5, 9, 6, 15, 12, 7, 20, 16, 25, 14, 27, 11, 8, 23
+</blockquote>
+
+
+
+</body>
+</html>

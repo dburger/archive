@@ -1,0 +1,225 @@
+Web Security via SSL
+By David J. Burger
+07/01/2002
+For Dr. Martin – ICS 415
+
+The Transmission Control Protocol over Internet Protocol (TCP/IP) was a
+fundamental part of the success and development of the World Wide Web (WWW).
+Later, as the WWW continued to evolve into a public network supporting a
+variety of applications, it became apparent that increased security and
+authentication was needed.  It is not acceptable, for example, to have credit
+card numbers transported across the internet in plain text messages available
+to any sniffer along the route.  In a similar manner, it is quite important
+that an online shopper have his credit card information sent to Amazon.com and
+not Joe Scam Artist.  These are the types of problems that the Secure Sockets
+Layer (SSL) was designed to solve.  SSL was originally developed by Netscape
+and is the technology that has been universally accepted for encrypted and
+authenticated communication over the WWW.  In this paper I will give an
+overview of how SSL works.  This will be followed by an explanation of some of
+the technologies involved in the SSL protocol.  These include many of the
+major topics of cryptography including public and private key cryptographic
+techniques, message digests, digital signatures, and authentication.
+
+The SSL Protocol
+
+As a protocol SSL runs above the TCP/IP layer and below the application layer
+protocols such as the Hyper-Text Transfer Protocol (HTTP) used to transmit web
+pages over the Internet.  The SSL protocol consists of two sub-protocols known
+as the SSL handshake protocol and the SSL record protocol.  The SSL record
+protocol defines the process and message format for secure data exchange.
+Data is encrypted using a shared session key and a symmetric encryption
+algorithm.  The SSL handshake protocol is the mechanism by which a server and
+client establish an SSL session.  This exchange of messages includes client
+and server authentication, agreement on a suitable encryption algorithm, and
+the use of public-key encryption techniques to generate a shared session key.
+The following is a simplified outline of the messages that are exchanged
+during the SSL handshake:
+
+SSL handshake outline
+ 
+1.) The client sends its SSL version number, cipher settings, and some
+randomly generated data to the server.
+
+This message contains information that the server will use to decide which
+ciphers will be used for key exchange and also data exchange during the SSL
+session.  This allows the server great flexibility in handling an SSL
+connection request.  Different SSL implementations with different versions /
+cipher suites can interoperate by choosing shared ciphers.  Presumably the
+server will choose the strongest encryption techniques that both the client
+and server understand, however, the server may refuse a connection if the
+client's level of encryption is considered too weak.  The random data sent
+will be used to create the pre-master and master secrets that eventually lead
+to the creation of a session key.
+
+2.) The server sends its SSL version number, cipher settings, some randomly
+generated data, and its certificate to the client.  If the client will also be
+authenticated the server will include a request for the client's certificate.
+
+Here the server responds by indicating which ciphers will be used during the
+SSL session for both key exchange and data exchange.  The server sends its
+random data which will be used along with the client's random data for
+eventual creation of a session key.  This message also includes the
+certificate of the server which will be used by the client for authentication
+purposes.
+
+3.) The client authenticates the server and then creates the pre-master
+secret.  The client uses the server's public key (assuming RSA as the public
+key algorithm) to encrypt and send the pre-master secret to the server.  If
+the client is being authenticated, the client sends to the server its
+certificate along with a signed piece of data available to the client and
+server from the previous handshake messages.
+
+The method for exchanging the pre-master secret is determined by the selection
+of the public key encryption algorithm in the previous steps.  While RSA is
+the most commonly used public key encryption algorithm with SSL,
+Diffie-Hellman and Fortezza key exchange techniques can also be used as
+determined in steps 1 and 2 above.  A more thorough discussion of the
+authentication process follows below.
+ 
+4.) The server uses its private key (once again assuming RSA as the public key
+algorithm) to decrypt the pre-master secret and authenticates the client if
+needed.  The client and server both perform a series of steps to create the
+master secret from the pre-master secret.  The master secret is used by the
+client and server to generate the session key.
+
+The exchange of the pre-master secret via a public-key algorithm allows the
+client and server to arrive at the same session key independently.
+
+5.) The client and server exchange two final handshake messages.  The first
+message states that all further messages will be encrypted with the session
+key.  The next, and final message of the handshake, is an encrypted message
+that indicates that the handshake is finished.
+
+The final message of the handshake is encrypted with the previously selected
+symmetric cipher.  Possible symmetric key ciphers are RC2, RC4, DES, triple
+DES, and RC4 with Skipjack.  Upon successful completion of the handshake the
+SSL record protocol takes over and all subsequent messages are encrypted with
+the symmetric key cipher.
+
+
+Authentication
+
+One of the key components of the SSL handshake protocol is server, and
+possibly client, authentication.  The server authentication process begins
+with the server sending its certificate to the client.  Key components of the
+server's certificate include the valid date range, the server's public key,
+the issuer's distinguished name, and the digital signature for the server
+signed by a certificate authority.  First, the client checks to see if the
+current date falls within the valid date range for the certificate.  If it
+does, the authentication process continues, otherwise, authentication fails.
+The client next checks to see if the issuer of the certificate matches up with
+a certificate authority on the clients trusted certificate authority list.  If
+it does, the client uses the certificate authority's public key to decrypt the
+server's digital signature.  The digital signature contains both the public
+key of the server along with the domain name of the server.  If the
+certificate authority’s public key decrypts the signature to the server's
+public key and current domain name then the server is authenticated as the
+signature could only have been created with the certificate authority’s
+private key.  Client authentication, if used, occurs in a similar manner.
+
+Cryptographic Techniques
+
+The basis for SSL is obviously the cryptographic protocols involved.  These
+protocols come in two flavors, symmetric and asymmetric.  Symmetric encryption
+algorithms are the classic encryption algorithms in which the key for
+encryption can be calculated from the decryption key and vice versa.  Often
+these keys are one and the same.  The number of symmetric key algorithms is
+quite large, with DES, IDEA, RC4, Blowfish, and AES being some of the more
+popular algorithms.  Symmetric key algorithms work by accepting the encryption
+key and plain text as input and "mix the bits" until the resultant cipher text
+has no apparent relationship to the original plain text.  The decryption key
+is then used with the algorithm and the cipher text to produce the original
+document.  Symmetric key algorithms require that the key be kept private.
+This makes the secure distribution of keys a very important and difficult
+task.  SSL uses asymmetric algorithms for symmetric key exchange.
+
+Asymmetric algorithms are more commonly known as public key algorithms.  They
+are called public because the encryption key can be made public and asymmetric
+because the decryption key cannot be easily calculated from the decryption key
+and vice versa.  The security of public key algorithms requires that the
+private key be kept secure but allow anyone to use the public key to initiate
+secure communications without requiring a previous secure key exchange.
+
+Public key cryptography is a relatively new technique compared to symmetric key
+cryptography.  The first public key algorithm was the Diffie-Hellman algorithm
+developed by Whitfield Diffie and Martin Hellman in 1976.  Mathematically
+public key algorithms rely on what is called a trap door one way function.  A
+trap door one way function is a function that is easy to compute in one
+direction but difficult, almost impossible, to compute in the other direction
+without the secret trap door.  In terms of public key cryptography the
+encryption is mapped to the easy part and uses the public key and decryption
+to the difficult part with the secret private key providing the trap door.
+Diffie-Hellman uses the difficulty of calculating discrete logarithms in a
+finite field as opposed to the ease of calculating exponentiation in the same
+field for its security.
+
+The most well known public key algorithm is RSA developed by Ron Rivest, Adi
+Shamir, and Leonard Adleman.  This is also the algorithm most commonly used in
+SSL for the exchange of the pre-master secret using public key encryption
+techniques.  RSA gets its security from the difficulty of factoring large
+numbers.  RSA is regarded as the easiest to understand and implement of the
+public key encryption algorithms.  RSA has the added benefit that it can also
+be used for the creation of digital signatures.
+
+After looking at the SSL handshake protocol one obvious question is why so much
+work is done to produce and exchange a symmetric session key when the client
+and server have already shown that they have the ability to communicate
+securely using a public key encryption algorithm.  This is done for two
+reasons.  The first is that public key algorithms are slow compared to
+symmetric algorithms.  In the classic work "Applied Cryptography" Bruce
+Schneier states that symmetric key algorithms are at least 1000 times faster
+than public-key algorithms.  This is, of course, a major concern for high
+bandwidth applications.  The second reason is that public key algorithms are
+susceptible to a chosen plain text attack.  In this type of attack the attacker
+can use the public key to encrypt the possible plain text messages.  If the
+resultant cipher text matches the actual cipher text then the original plain
+text is known.
+
+Digital Signatures
+
+The authentication process used in SSL relies heavily upon a technique known
+as a digital signature.  A digital signature can be thought of as serving a
+similar purpose, albeit much less forgeable, to a written signature on a check.
+That is it guarantees the originator of a document.  Digital signature
+technology can be understood quite easily by analyzing how RSA is used to
+create digital signatures.  In RSA the public key is usually used for
+encryption and the private key for decryption, however, this process can also
+be reversed.  Therefore if one wants to guarantee the authenticity of a
+document it can be encrypted with the private RSA key.  Now the public key can
+be used to decrypt the document proving that it was encrypted by the holder of
+the private key.  One drawback of signing a document in this manner is that it
+results in a signature that is as large as the document itself.  This drawback
+can be eliminated by signing the message digest for the document instead of the
+document itself.
+
+Message Digests
+
+A message digest is like a "fingerprint" for a message.  A message digest is
+created by a one way hash function.  A one way hash function takes an
+arbitrary length message as input and produces a fixed length hash value.
+Current popular hash lengths are 128 and 160 bits.  The function is one way in
+that given the hash value h it is difficult to recreate the message used to
+arrive at h.  For security purposes it must be difficult to produce a message
+that hashes to a given hash value.  The uniqueness of the message digest
+allows it to be digitally signed in place of the original message and then
+sent along with the message.  The recipient authenticates the document by
+performing two computations.  First, the message digest is produced for the
+document.  Second, the signature is decrypted using the sender's public key.
+If these two values match the document must have been sent by the holder of
+the private key.
+
+SSL uses either Message Digest 5 (MD5) or the Secure Hash Algorithm (SHA)
+during the SSL handshake for certificate authentication.  Message digests are
+also involved in the computations that generate the shared secret that will be
+used as a session key.
+
+Summary
+
+SSL has proven itself to be the solution for secure and authenticated
+communications on the Internet.  As I have shown, SSL uses several important
+cryptographic techniques in its implementation.  These include public and
+private key cryptography, message digests, digital signatures, and
+authentication.  While it doesn’t appear that any technology will be
+displacing SSL for secure and authenticated Internet communications anytime
+soon, one thing is clear, the need for such technology will only increase in
+the future.

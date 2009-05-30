@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.4
+by Lorenzo Bettini, bettini@gnu.org
+http://w3.newnet.it/bettini
+http://www.gnu.org/software/src-highlite">
+<title>main.cpp</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;stdio.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>"GF64.h"</font>
+
+<font color=#009900>void</font> <b><font color=#000000>main</font></b><font color=#990000>(</font><font color=#990000>)</font>
+<font color=#FF0000>{</font>
+    GF64 a <font color=#990000>=</font> <font color=#993399>0x27</font><font color=#990000>,</font> b <font color=#990000>=</font> <font color=#993399>0x19</font><font color=#990000>,</font> one <font color=#990000>=</font> <font color=#993399>0x01</font><font color=#990000>,</font> zero <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font>
+    GF64 u<font color=#990000>,</font> v<font color=#990000>,</font> w<font color=#990000>;</font>
+
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a=%02x  b=%02x  one=%02x\n\n"</font><font color=#990000>,</font> 
+        a<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> b<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> one<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    u <font color=#990000>=</font> a<font color=#990000>+</font>b<font color=#990000>;</font> v <font color=#990000>=</font> a<font color=#990000>+</font>one<font color=#990000>;</font> w <font color=#990000>=</font> b<font color=#990000>+</font>zero<font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a+b=%02x  a+one=%02x  b+zero=%02x\n\n"</font><font color=#990000>,</font> 
+        u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> v<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> w<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    u <font color=#990000>=</font> a<font color=#990000>*</font>b<font color=#990000>;</font> v <font color=#990000>=</font> a<font color=#990000>*</font>one<font color=#990000>;</font> w <font color=#990000>=</font> b<font color=#990000>*</font>zero<font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a*b=%02x  a*one=%02x  b*zero=%02x\n\n"</font><font color=#990000>,</font> 
+        u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> v<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> w<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    u <font color=#990000>=</font> a<font color=#990000>.</font><b><font color=#000000>inv</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font> v <font color=#990000>=</font> b<font color=#990000>.</font><b><font color=#000000>inv</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font> w <font color=#990000>=</font> one<font color=#990000>.</font><b><font color=#000000>inv</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a.inv()=%02x  b.inv()=%02x  one.inv()=%02x\n\n"</font><font color=#990000>,</font> 
+        u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> v<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> w<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    w <font color=#990000>=</font> a<font color=#990000>*</font>b<font color=#990000>*</font>u<font color=#990000>*</font>v<font color=#990000>;</font> u <font color=#990000>*</font><font color=#990000>=</font> a<font color=#990000>;</font> v <font color=#990000>*</font><font color=#990000>=</font> b<font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a*a.inv()=%02x  b*b.inv()=%02x  a*b*a.inv()*b.inv()=%02x\n\n"</font><font color=#990000>,</font> 
+        u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> v<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> w<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    u <font color=#990000>=</font> a<font color=#990000>/</font>b<font color=#990000>;</font> v <font color=#990000>=</font> b<font color=#990000>/</font>a<font color=#990000>;</font> w <font color=#990000>=</font> u<font color=#990000>*</font>v<font color=#990000>;</font> 
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a/b=%02x  b/a=%02x  (a/b)*(b/a)=%02x\n\n"</font><font color=#990000>,</font> 
+        u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> v<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> w<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    u <font color=#990000>=</font> v<font color=#990000>=</font> w <font color=#990000>=</font> a<font color=#990000>;</font>
+    u <font color=#990000>+</font><font color=#990000>=</font> b<font color=#990000>;</font> v <font color=#990000>*</font><font color=#990000>=</font> b<font color=#990000>;</font> w <font color=#990000>/</font><font color=#990000>=</font> b<font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a+=b =%02x  a*=b =%02x  a/=b =%02x\n\n"</font><font color=#990000>,</font> 
+        u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> v<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> w<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    u <font color=#990000>=</font> a<font color=#990000>.</font><b><font color=#000000>power</font></b><font color=#990000>(</font><font color=#993399>30</font><font color=#990000>)</font><font color=#990000>;</font> v <font color=#990000>=</font> a<font color=#990000>.</font><b><font color=#000000>power</font></b><font color=#990000>(</font><font color=#993399>33</font><font color=#990000>)</font><font color=#990000>;</font> w <font color=#990000>=</font> u<font color=#990000>.</font><b><font color=#000000>inv</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a.power(30)=%02x  a.power(33)=%02x  a.power(30).inv()=%02x\n\n"</font><font color=#990000>,</font> 
+        u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> v<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font> w<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    u <font color=#990000>=</font> a<font color=#990000>.</font><b><font color=#000000>power</font></b><font color=#990000>(</font><font color=#993399>63</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"a to power 63 = %02x\n\n"</font><font color=#990000>,</font> u<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    GF64 h<font color=#990000>,</font> sum <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>,</font> sumsq <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>,</font>  product <font color=#990000>=</font> <font color=#993399>1</font> <font color=#990000>;</font>  
+    <b><font color=#0000FF>for</font></b><font color=#990000>(</font>h <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font> h<font color=#990000>!</font><font color=#990000>=</font><font color=#993399>64</font><font color=#990000>;</font> h<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> sum <font color=#990000>+</font><font color=#990000>=</font> h<font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"Sum of all elements=%02x\n\n"</font><font color=#990000>,</font> sum<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>for</font></b><font color=#990000>(</font>h <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font> h<font color=#990000>!</font><font color=#990000>=</font><font color=#993399>64</font><font color=#990000>;</font> h<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> sumsq <font color=#990000>+</font><font color=#990000>=</font> h<font color=#990000>*</font>h<font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"Sum of squares=%02x\n\n"</font><font color=#990000>,</font> sumsq<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>for</font></b><font color=#990000>(</font>h <font color=#990000>=</font> <font color=#993399>1</font><font color=#990000>;</font> h<font color=#990000>!</font><font color=#990000>=</font><font color=#993399>64</font><font color=#990000>;</font> h<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> product <font color=#990000>*</font><font color=#990000>=</font> h<font color=#990000>;</font>
+    <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"Product of all non-zero elements=%02x\n\n"</font><font color=#990000>,</font> product<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+
+
+    <i><font color=#9A1900>/* root checks for Dr. Peterson */</font></i>
+    GF64 checkForRoot<font color=#990000>,</font> p<font color=#990000>;</font>
+    <b><font color=#0000FF>for</font></b> <font color=#990000>(</font>h<font color=#990000>=</font><font color=#993399>1</font><font color=#990000>;</font>h<font color=#990000>!</font><font color=#990000>=</font><font color=#993399>64</font><font color=#990000>;</font>h<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+        checkForRoot <font color=#990000>=</font> h<font color=#990000>;</font>
+        p <font color=#990000>=</font> h<font color=#990000>.</font><b><font color=#000000>power</font></b><font color=#990000>(</font><font color=#993399>3</font><font color=#990000>)</font> <font color=#990000>+</font> h <font color=#990000>+</font> <font color=#993399>1</font><font color=#990000>;</font>
+        <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"%d:  %d\n"</font><font color=#990000>,</font> h<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>,</font>p<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <font color=#FF0000>}</font>
+    GF64 x1 <font color=#990000>=</font> <font color=#993399>7</font><font color=#990000>;</font>
+    GF64 x2 <font color=#990000>=</font> <font color=#993399>18</font><font color=#990000>;</font>
+    GF64 x3 <font color=#990000>=</font> <font color=#993399>21</font><font color=#990000>;</font>
+    GF64 res<font color=#990000>;</font>
+    res <font color=#990000>=</font> x1 <font color=#990000>+</font> x2 <font color=#990000>+</font> x3<font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>res<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>=</font><font color=#990000>=</font><font color=#993399>0</font><font color=#990000>)</font>
+        <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"First test worked.\n"</font><font color=#990000>)</font><font color=#990000>;</font>
+    res <font color=#990000>=</font> x1<font color=#990000>*</font>x2 <font color=#990000>+</font> x1<font color=#990000>*</font>x3 <font color=#990000>+</font> x2<font color=#990000>*</font>x3<font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>res<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>=</font><font color=#990000>=</font><font color=#993399>1</font><font color=#990000>)</font>
+        <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"Second test worked.\n"</font><font color=#990000>)</font><font color=#990000>;</font>
+    res <font color=#990000>=</font> x1<font color=#990000>*</font>x2<font color=#990000>*</font>x3<font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>res<font color=#990000>.</font><b><font color=#000000>GetE</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>=</font><font color=#990000>=</font><font color=#993399>1</font><font color=#990000>)</font>
+        <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"Third test worked.\n"</font><font color=#990000>)</font><font color=#990000>;</font>
+
+<font color=#FF0000>}</font>
+
+</tt>
+</pre>
+</body>
+</html>

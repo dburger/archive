@@ -1,0 +1,322 @@
+Question 1.
+============================================================================
+
+   11 12
+   AB ED
+   07 14
+   92 A7
+   C2 FF
++  00 00
+========
+   19 B9
++      2 (carry)
+========
+   19 BB = 0001 1001 1011 1011
+Inverted = 1110 0110 0100 0100 = E6 44 Checksum!
+
+Checking my work:
+
+   11 12
+   AB ED
+   07 14
+   92 A7
+   C2 FF
+   00 00
++  E6 44
+========
+   FF FD
++      2 (carry)
+========
+   FF FF Verified!
+
+Question 2.
+============================================================================
+Server programs are programs that are designed to provide specific
+services to client programs.  In the typical server scenario, the
+server will be providing services to clients at times dictated by
+the client.  From the servers perspective, it must be designed to
+handle arbitrary clients requesting services at arbitrary times.
+This necessitates the server calling accept and waiting for
+connections in a passive state while the client calls connect when
+it desires the services of the server.
+
+A prime example of these issues can be seen in the interaction of
+a web server and a web browser (a client).  The web server will
+have no way of knowing in advance which users will be
+requesting web pages via their browsers nor will it know at what
+times these requests will be made.  Therefore it becomes obvious
+that it is the web server that must call accept and wait for
+requests while the client program, the browser, calls connect
+when it desires the resources of a particular server.
+The nature of the interaction between a client and a server makes
+it so that reversing this process, with the client calling accept
+and the server calling connect, would require the server to know
+in advance which clients would need which services at what times.
+This is, of course, impossible in normal client/server situations
+and is why the server typically calls accept while the client
+calls connect.
+
+Question 3.
+============================================================================
+The Aloha protocol is a wireless protocol that uses one frequency to
+carry data from end systems to the hub, and a second frequency to
+rebroadcast data that arrives at the hub back to the end systems.
+Therefore, the only way a collision will occur is when two end
+systems transmit data at the same time, or, close enough to the
+same time to cause an overlap of the arriving data at the hub.  This
+results in the overlapping data being garbled and therefore corrupts
+the entire packet.  Because the hub rebroadcasts each packet, the
+Aloha protocol has each sender listen for the transmission of its own
+packets.  If something is wrong with the packet during the
+rebroadcast, such as a missing packet or data corruption, the sender
+will wait a random amount of time and transmit the packet again.
+
+Question 4.
+============================================================================
+A cable modem is a device that modulates and demodulates a data
+signal that travels over the unused channels of a cable system.
+They are typically connected to home computers via copper wire, and
+specifically twisted pair Ethernet (10BaseT).  Twisted pair Ethernet
+connecting to a network interface card would most likely be used
+because it has become the defacto standard for such connections
+(although other technologies, such as USB cable modems do exist).
+Twisted pair has gained this position because of its low cost, high
+reliability, ease of working with, and prevalence and low price of
+network interface cards with RJ-45 jacks.
+
+For a connection from the U.S. Antarctic base at McMurdo to UH
+ITS in Keller the choices would be very limited.  Traditional
+data lines that could be leased from a telephone company do not exist
+to the base and laying your own would obviously be cost prohibitive.
+It would be necessary to use radio frequencies over a satellite channel
+capable of 200Kb/s as the transimission media.  Radio frequencies
+without the satellite would not be an option because radio transmissions
+do not bend around the curvature of the earth.  In this situation each
+network segment would be connected to a bridge connected to a ground
+station.  The bridge would allow data destined for computers on the
+other segment to be forwarded via the ground station.  The ground
+station would use radio frequencies as the transmission media to send
+the data to the satellite, which the satellite would in turn send to
+the other ground station using radio frequencies as well.  The receiving
+ground station would pass the data to its local bridge which would
+then be forwarded to the local segment.
+
+Question 5.
+============================================================================
+A channel that can be reliably sampled 8000 times per second is said
+to have a bandwidth of 8000 Hertz (Hz), or cycles per second.  Nyquist's
+theorem expresses the maximum data rate in bits per second that a
+transmission system is capable as:
+
+D = 2Blog(K)      (a base 2 logarithm)
+
+Where D is the rate in bits per second, B is the bandwidth in Hertz, and
+K represents the number of possible values the system can send.
+Therefore, the above system has a maximum data rate of:
+
+D = 2(8000)log(K) = 16000log(K) b/s   (a base 2 logarithm)
+
+While Nyquist's theorem provides us guidance on the maximum theoretical
+data rate, in real systems interference called noise makes this rate
+unachievable.  Claude Shannon developed a theorem that expressed the
+maximum capacity of a communications channel as:
+
+C = Blog(1 + S/N)   (a base 2 logarithm)
+
+Where C is the capacity of the channel in bits per second, B is the
+bandwidth in Hertz, and S/N represent the signal-to-noise ratio.  In
+the above scenario the signal-to-noise ratio is represented by 20db.
+A formula can be used to retrieve the corresponding S/N as follows:
+
+20dB = 10log(S/N)   (a base 10 logarithm)
+
+ 2   =   log(S/N)   (divided by sides by 10)
+
+ S/N = 100          (the log of 100 base 10 is 2)
+
+Using this value in Shannon's theorem we can calculate the capacity
+of our channel with the given noise as:
+
+C = 8000log(1 + 100)    (a base 2 logarithm)
+
+C = 8000log(101)
+
+C = 53265.692 b/s       (approximately)
+
+Question 6.
+============================================================================
+Here is a traceroute that I ran tracing the route to www.pixi.com:
+
+uhunix2:/home/23/dburger% traceroute www.pixi.com
+traceroute: Warning: Multiple interfaces found; using 128.171.44.7 @ hme0
+traceroute to www.pixi.com (206.127.224.33), 30 hops max, 40 byte packets
+ 1  keller-44-200.gw.hawaii.net (128.171.44.200)  0.942 ms  0.931 ms  1.068
+ ms
+ 2  128.171.3.254 (128.171.3.254)  2.705 ms  3.320 ms  3.744 ms
+ 3  hssi-to-manoa.uhnet.net (128.171.64.222)  2.204 ms  3.428 ms  2.090 ms
+ 4  atm-from-manoa.uhnet.net (128.171.64.217)  2.377 ms  2.956 ms  3.533 ms
+ 5  4.24.132.117 (4.24.132.117)  3.169 ms  4.718 ms  4.691 ms
+ 6  p0-0-0.hnllhi1-cr2.bbnplanet.net (4.24.5.170)  8.528 ms  5.416 ms  4.968
+ ms
+ 7  s0.pie.bbnplanet.net (4.24.134.2)  8.324 ms  6.487 ms  4.750 ms
+ 8  cr02-fast6-0.fht.netenterprise.net (207.26.208.44)  5.989 ms  4.843 ms  
+4.699 ms
+ 9  pixi-colo.cust.fht.netenterprise.net (64.29.82.18)  5.032 ms  8.594 ms  
+8.019 ms
+10  www.pixi.com (206.127.224.33)  6.996 ms  6.074 ms  15.809 ms
+
+The first nine lines of the above output show the intermediate hosts
+(the routers) that data packets are traveling through to get from the
+computer upon which traceroute was executed to the target of the
+traceroute.  In this case traceroute was executed on uhunix2 and
+the target of the traceroute was www.pixi.com.  The final line of
+the traceroute, line number 10, shows the last host in the route from
+uhunix2 to www.pixi.com, which is, of course www.pixi.com.  Each line
+of the output begins with a number that indicates which hop that a
+particular host is.  After that we see the name of the host, if it
+can be determined, followed by the IP address of that host in
+parenthesis.  Following that are three different numeric values given
+in milliseconds.  These numbers represent round trips times for the
+packets that are being used to do the traceroute.
+
+Traceroute is an interesting tool in that it will show you the path
+that your data is taking to a specific host, however, traceroute's real
+utility is in its usage as a network diagnostic tool.  Specifically,
+traceroute can be used when the ping utility indicates that a host
+is unreachable.  In this case traceroute will help pinpoint
+the source of the problem.  You can, for example, see that your packets
+are making it to host D but no further.  This will save you a lot of
+trouble shooting time as you can focus your efforts on the network
+past host D.  It should be noted, however, that some network administrators
+choose to configure their network so that they won't function properly
+with traceroute for security purposes.
+
+Question 7.
+============================================================================
+TDM (time division multiplexing) facilitates the sharing of a medium by
+having the sources sharing the medium take turns.  TDM is the most
+commonly used technology in Local Area Networks such as Ethernet.  TDM
+is the best fit for LAN technology because it provides the necessary
+bandwidth (that is, each pair of computers having an exclusive connection is
+usually overkill) and connectivity of all the computers on the network at a
+reduced cost.  In addition, the limited size of a LAN makes the coordination
+of the use of the network (the sharing) possible by using various methods of
+avoiding and recovering from collisions.
+
+FDM (frequency division multiplexing) allows multiple independent signals
+to travel through a medium at the same time by using different frequencies
+that don't interfere with each other.  FDM is useful in situations that
+require high throughput.  It achieves this by using a broader range of the
+electromagnetic spectrum and is therefore called broadband technology.  One
+major example of FDM is cable television.  Cable television transfers many
+channels over a single wire at the same time by sending them at different
+frequencies.  Another example of FDM would be operating two wireless
+networks within the same vicinity by having the two networks communicate
+at different frequencies.  This is a great solution because it allows each
+network to operate without interference with the other network such as the
+slow down that might occur if both networks attempted to time division
+multiplex together on the same medium.
+
+Spread Spectrum is a technology that improves reliability by having
+senders send on multiple frequencies and receivers listen on multiple
+frequencies.  This provides redundancy in the signal such that receivers
+can extract data from frequencies that get through without interference.
+Some dial up modems use this technology.  This is an ideal solution because
+a poor quality phone line that has interference at sporadic frequencies can
+still be used as the receiver can use the frequencies that get through
+without interference.
+
+Question 8.
+============================================================================
+The bit encoding standard used on a serial line is known as
+RS-232.  One of the major ways in which RS-232 differs from Manchester
+encoding is the manner in which voltages are used to encode digital
+values.  RS-232 uses a voltage range of +15 volts to -15 volts.  A
+positive voltage is used to indicate a 0 bit while a negative voltage
+is used to indicate a 1 bit.  The designers of Manchester encoding
+used the fact that it is easier for hardware to detect a change in
+voltage than it is for it to detect a fixed value.  Therefore,
+Manchester encoding uses a falling voltage to indicate a 0 bit, and a
+rising voltage to indicate a 1 bit.  Of course this means that if
+consecutive bits are to be sent with the same value they must have a
+voltage change between them so that the corresponding rising or falling
+voltage can be repeated.
+
+Both of the encoding schemes require the receiver to determine the start of
+a transmission so that a timer can be used to know when to sample the
+voltage.  This synchronization is handled in different ways on the systems.
+For RS-232, an idle line is indicated with a negative voltage that
+corresponds to bit value 1.  Therefore when it is ready to send information
+it first sends a 0 bit, indicated by a positive voltage, before sending the
+data.  This bit is known as the start bit and every bit of a character must
+be sent with no delay after the start bit is sent.  The receiver can start
+a timer when the first bit of a character arrives and can easily stay
+synchronized through the 7 or 8 bits of the character data.  The RS-232
+standard also specifies that the line must be held idle for a minimum period
+of time between characters equal to the time necessary to send one bit.
+Therefore at least one 1 bit occurs at the end of a character known as the
+stop bit.  With Manchester encoding a preamble is used for synchronization.
+The preamble consists of 64 alternating 1's and 0's sent before the frame
+that the receiving hardware uses to synchronize with the signal and
+determine the times slots.  Then Manchester encoding will use the voltage
+change that occurs exactly half way through a time slot to determine bit
+values.  Because there is at least one transition per bit, the receiver will
+be able to keep its clock synchronized throughout the sending of the frame.
+
+Question 9.
+============================================================================
+HyperText Transfer Protocol is the protocol that web servers and web
+browsers use to communicate with one another.  A typical interaction 
+begins with a browsers generating an HTTP request to retrieve the
+resources of a web server.  The HTTP request header consists of text
+encoded in the ASCII format.  The first line of the request specifies
+the type of request which could be GET, HEAD, POST, or PUT.  The most
+commonly used of these are GET, which is used to request a resource such
+as an HTML page or image file from the server.  Data included on the GET
+line would be the resource that is being requested followed by the
+version of HTTP.  The line is terminated with a carriage return line
+feed combination.  Additional request fields may be included to provide
+the server further clarification on the nature of the request.  These
+header fields consist of the name of the field, followed by a colon,
+followed by the value being passed for that field.  Once again the
+line is terminated with a carriage return line feed combination.
+In most cases the server detects the end of the request header, and thus
+the end of the request, by a line that consists of only the carriage return
+line feed combination which is equivalent to a blank line, however,
+requests such as POST requests may follow this with data known as the
+entity body.  In this case the request header is required to contain the
+Content-length field which will indicate the number of bytes that the
+entity body following the request header will contain.  Therefore the server
+can continue reading data until it has read the number of bytes indicated
+in the Content-length field.
+
+The server receives the request and parses it to determine the type
+of response to send to the browser.  The response also begins with
+a response header in the ASCII format.  The first line of the response
+is known as the status line and consists of an HTTP version followed by
+a status code followed by text representing the meaning of the status code.
+Once again lines are terminated with the carriage return line feed
+combination.  If there is a problem with the request such as requesting
+a resource that doesn't exist one of the standard errors is returned.  A
+successful request has a status line that consists of status code 200.
+Following the status line additional response fields may be included.  These
+fields use the same format as the request fields described above. The
+fields are used to provide information to the client about the response.
+Two of the most commonly used response fields are Content-type and
+Content-length.  Content-type is a field that will specify the data type
+of the data that will be returned following the response header called the
+entity body.  Many standard Content-types have been defined such as
+text/html and image/gif.  Content-length is a numeric value that indicates
+the number of bytes of data in the entity body.  Many more fields are
+available to provide information about the nature of the response and how
+the response should be handled.  The response header is terminated exactly
+like the request header indicated by a line that contains only the carriage
+return line feed combination, that is a blank line.  If the response does
+not require an entity body the client will detect the end of the response
+header as the end of the response, however, if the response requires an
+entity body, it follows the response header.  The entity body consists of
+the data corresponding to the request such as the text of an html page or
+the binary data of an image file.  When an entity body is present the
+response header should have included a Content-length field and the client
+will continue to read the entity body until it has read the number of
+bytes as specified in the content length.

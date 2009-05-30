@@ -1,0 +1,205 @@
+David J. Burger
+ICS 321 Sec. 452
+7/05/01
+
+10.3)  Define the term view as used in this chapter.
+
+A view was defined to be a structured list of attributes taken from the entities or semantic 
+objects of a data model.
+
+10.4)  What is a view instance?
+
+A view instance is a specific instance of a view, that is, it is a view populated with data 
+from a particular entity or semantic object.
+
+10.5)  Explain how a view is different from a materialization.
+
+While a view is the structured list of attributes, a materialization is the formatted 
+presentation of the view data in a form, report, or some other materialization.
+
+10.6)  Can an attribute appear more than once in a view?  Why?
+
+Yes.  Because it is structured, the attributes may appear more than once in a view as they 
+relate to different aspects of the view.
+
+10.10)  Define the term recordset.
+
+The result of an SQL statement is referred to as a recordset in the context of application 
+development.
+
+10.13)  What technique can be used to obtain the value of a surrogate key when inserting 
+new rows into a table?
+
+After the new row has been inserted, an SQL select statement can be executed against the 
+table to retrieve the newly inserted row and its key.  Because matching attributes may 
+exist in other rows, the SQL statement may return more than one row and it may be 
+necessary to compare several attribute values to determine the correct record and key.
+
+10.19)  What are cascading deletions, and why are they important?
+
+Cascading deletions refer to the automatic deletion of dependent tuples when the tuple 
+that they depend upon is deleted.  Cascading deletes are important because they can help 
+to increase data integrity by removing orphaned records.  They can also ease the 
+programming burden on the applications programmer by automatically removing 
+dependent records that the programmer would have to remove.
+
+
+
+10.22)  How can forms be designed to encourage appropriate action?
+
+The structure and layout of a form can help the user understand how to use the form.  
+Semantically related items can be group together on a form.  The flow from control to 
+control can be designed in a logical manner that assists the user.  Forms can be designed 
+using controls, such as list boxes, option buttons, and check boxes, that limit the data 
+entry domains to valid values.
+
+10.23)  Explain the role of drop-down list boxes, option groups, and check boxes in form 
+design.
+
+List boxes present the user with a list of items from which the user can choose.  Some of 
+them are fixed lists and some of them allow the user to add to the list.  List boxes are 
+beneficial because users are better at recognizing than recalling.  Option buttons provide 
+a way to present a set of mutually exclusive choices to the user.  When one option in a set 
+of option buttons is selected the previously selected on is shut off.  Check boxes are like 
+option buttons but the selection is not mutually exclusive.  All of these controls can assist 
+the user in data entry and provide a form of data validation.
+ 
+10.24)  What limitation exists for report materialization of views?
+
+Many reports are produced with report writers such as the very popular Crystal Reports 
+or the report writer built into Access.  These products have difficulty producing reports in 
+which the view necessary for construction consists of more than one path through the 
+database schema.
+
+10.25)  Explain why the calculated values on reports should normally not be stored in the 
+database.
+
+Inexperienced designers may be inclined to store values that can be calculated from other 
+values in the database.  In most cases this is a bad idea.  The reason is that the values 
+upon which the calculations are derived may change and the application designer will 
+have to be very careful to insure that the calculated field is updated to reflect this change 
+or data integrity errors will result.  In addition, the time necessary for updating calculated 
+fields may be restrictive.  For this reason it is often best to perform such calculations on 
+the fly rather than storing them in the database.
+
+10.27)  Why should constraints normally be enforced by the DBMS and not by a 
+particular form, report, or application?
+
+When the capabilities of the DBMS are used to enforce constraints, any attached 
+application that attempts to violate the constraints will be rejected with an error message.  
+In this way the constraints are centralized.  If the DBMS does not have such capabilities, 
+or if the applications designer chooses not to centralize such constraints in the DBMS, all 
+applications that connect to the database will need to implement code that enforces the 
+constraints.  This not only increases the amount of work to be done when developing 
+applications but also opens up the possibility that some application will be deployed 
+without the proper constraints in place.
+10.30)  Describe the ambiguity that arises when values are null.  Describe two ways such 
+values can be eliminated.
+
+When a null value is allowed for a database field it could mean that the value is unknown, 
+that it is inappropriate, or something else.  To avoid this ambiguity fields can be set so the 
+value is required.  Another possible solution is to define subtypes that remove the 
+possibility of value inappropriate nulls.  An entity for which the value is inappropriate 
+would be of the subtype that does not contain that attribute.
+
+10.36)  Explain why the center column of Figure 10-19(a) is unnecessary when surrogate 
+keys are used.
+
+When surrogate keys are used the key has no meaning other than its usage as the key for 
+relationships.  For this reason it should not need to be changed, and therefore, situations 
+in which keys need to be updated to maintain proper relationships should not occur.
+
+10.42)  Define horizontal and vertical security.
+
+Horizontal and vertical security are terms that refer to security as relates to a table of 
+data.  Horizontal security limits access to certain rows of the table and vertical security 
+limits access to certain columns of the table.
+
+10.43)  Which type of security is supported by user name and password?
+
+Vertical security, access limited to certain columns, is the type of security that is 
+supported by user name and password access.
+
+10.44)  Which type of security must be supported by application code?
+
+Horizontal security, access limited to certain rows, is the type of security that must be 
+supported by application code.
+
+10.47)  Code SQL statements for reading the “Mark Tobey” instance of this view.
+
+//to get the data about the artist
+SELECT ARTIST.Name, ARTIST.Nationality
+FROM ARTIST
+WHERE ARTIST.Name=’Mark Tobey’;
+
+//to get the data about the artists works that have been sold
+SELECT TRANSACATION.PurchaseDate, TRANSACTION.SalesPrice, 
+CUSTOMER.Name, CUSTOMER.AreaCode, CUSTOMER.LocalNumber
+FROM TRANSACTION, CUSTOMER
+WHERE TRANSACTION.CustNumber = CUSTOMER.CustNumber
+AND TRANSACTION.ArtistName=’Mark Tobey’;
+
+
+
+//to get the list of customers interested in Tobey
+SELECT CUSTOMER.Name
+FROM CUSTOMER, CUSTOMER-ARTIST-INT
+WHERE CUSTOMER.CustNumber = CUSTOMER-ARTIST-INT.CustNumber
+AND CUSTOMER-ARTIST-INT.ArtistName=’Mark Tobey’
+
+10.49)  Code SQL statements to update this view as follows:
+
+A.  Change the spelling of Mark Tobey to Mark Toby.
+
+//note a lot of this work is unnecessary if cascading updates are in place
+UPDATE ARTIST SET Name=’Mark Toby’ WHERE NAME=’Mark Tobey’;
+UPDATE WORK SET ArtistName=’Mark Toby’ WHERE ArtistName=’Mark Tobey’;
+UPDATE TRANSACTION SET ArtistName=’Mark Toby’ WHERE ArtistName=’Mark 
+Tobey’;
+UPDATE CUSTOMER-ARTIST-INT SET ArtistName=’Mark Toby’ WHERE 
+ArtistName=’Mark Tobey’;
+
+B.  Create a new Transaction for Mark Toby.  Assume you have the necessary 
+transaction, work, and customer data in a structure named NewTrans.
+
+INSERT INTO TRANSACTION (ArtistName, Title, Copy, DateAcquired, 
+AcquisitionPrice, PurchaseDate, CustNumber, SalesPrice)
+VALUES (‘Mark 
+Toby’,NewTrans.WORK.Title,NewTrans.WORK.Copy,NewTrans.TRANSACTION.Dat
+eAcquired,NewTrans.TRANSACTION.AcquisitionPrice,NewTrans.TRANSACTION.Pu
+rchaseDate,NewTrans.CUSTOMER.CustNumber,NewTrans.TRANSACTION.SalesPric
+e);
+
+C.  Add new interested customers for Mark Toby.  Assume they are stored in a collection 
+that you can access with the command “For Each NewCust.Name.”
+
+//if you assume that they already exist as customers it could be done like this
+For Each NewCust.Name {
+INSERT INTO CUSTOMER-ARTIST-INT (CustNumber,ArtistName)
+VALUES (NewCust.CustNumber,’Mark Toby’);
+}
+
+
+
+//if we assume they are not in the customer list
+For Each NewCust.Name {
+INSERT INTO CUSTOMER (Name, AreaCode, LocalNumber, Street, City, State, Zip)
+VALUES (NewCust.Name, NewCust.PHONE.AreaCode, 
+NewCust.PHONE.LocalNumber, NewCust.ADDRESS.Street, 
+NewCust.ADDRESS.State,NewCust.ADDRESS.Zip);
+//assuming that the names are unique, otherwise would have to analyze to make sure
+//we get the right id
+NewID = SELECT CustNumber FROM CUSTOMER WHERE Name=NewCust.Name;
+INSERT INTO CUSTOMER-ARTIST-INT (CustNumber,ArtistName)
+VALUES (NewID,’Mark Toby’);
+}
+
+10.50)  Code SQL statements to delete the row for Mark Toby and all related WORK and 
+TRANSACTION rows.
+
+//note with cascading deletes most of this would be unnecessary
+DELETE FROM ARTIST WHERE Name=’Mark Toby’;
+DELETE FROM WORK WHERE ArtistName=’Mark Toby’;
+DELETE FROM TRANSACTION WHERE ArtistName=’Mark Toby’;
+//and although they didn’t ask, orphans in the interest table need to be handled as well
+DELETE FROM CUSTOMER-ARTIST-INT WHERE ArtistName=’Mark Toby’;

@@ -1,0 +1,196 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Win">
+  <TITLE>Unit 7</TITLE>
+</HEAD>
+<BODY>
+
+<H2>Unit 7--Doing Calculations</H2>
+<p>Read the following section and do the calculation 1) at the end of it. Also, 
+  write the programs and do the calculations requested in 2), 3), 4), and 5). 
+  I would like to see your programs and calculated results for 2) through 5).</p>
+
+<H3>Order of Multiplicative Groups mod n</H3>
+<p>Theorem 7 on page 20 of the notes on algebra states that the group that you 
+  get modulo n keeping only elements relatively prime to n is cyclic for the following 
+  n: 1, 2, 4, p^k, and (2p)^k where p is an odd prime and k is any positive integer. 
+  Furthermore, in the proof it is shown that if a is primitive mod p, then either 
+  a or a+p is primitive mod p^2 and that same element is primitive mod p^k for 
+  all k.</p>
+
+<P>First, for completeness, I want to investigate the situation for even primes, 
+  namely 2. I will show that mod 2^k, (k&gt;=3) the maximum order of any element 
+  is 2^(k-2) (which is phi(2^k)/2), and 5 has that order. Note that since phi(2^k) 
+  = 2^(k-1), the order of every element must be a power of 2. If a^m = 1 mod 2^k 
+  a^m = 1+c*2^k for some c. Then a^(2*m)= (a^m)^2 = 1+2*c*2^k+2^(2*k)^2, and this 
+  is equal to 1 mod 2^(k+1). Thus the order of an element mod 2^(k+1) is not more 
+  than twice the order mod 2^k. Mod 8, all the elements except 1 (i. e. 3, 5, 
+  and 7) have order 2, so the order mod 16 cannot exceed 4, the order mod 32 cannot 
+  exceed 8, etc. In general, the order af an element cannot exceed 2^(k-2).</P>
+
+<P>Now I will prove by induction that 5^(2^m)-1 is divisible by 2^(m+2)
+but not by 2^(m+3). This is obviously true if m=0. Let us assume that it
+is true for some value of m=a and try to show that it is true for m=a+1.
+5^(2^(a+1))-1 = (5^(2^a))^2-1 = (5^(2^a)-1)*(5^(2^a)+1). With the assmuptions,
+the first of those two factors is divisible by 2^(a+2) but not by 2^(a+3).
+Therefore the other factor is divisible by 2, but not by 4 (because x-1
+and x+1 cannot both be divisible by 4). Therefore the product is divisible
+by 2^(a+3) but not by 2^(a+4). Therefore the order of 5 mod 2^k is 2^k-2),
+because (taking m = k-2) 2^(k-2) = 1 mod 2^k, but (taking m=k-3) 2^(k-3)
+is not equal to 1 mod 2^k.</P>
+
+<P>The most common (but not very good) random number generators are variations
+of this:</P>
+
+<PRE>double random()
+{
+     static long rn = 17;
+     static long A = 1220703125;
+    
+     rn = A*rn;
+     return rn/4.294967296e9;
+}</PRE>
+
+<P>This gives you 17*A^n mod 2^32 for the nth value of rn. It is mod 2^32 because 
+  the computer has 32-bit precision for integers and simply loses any multiple 
+  of 2^32. Now you know the period of this random number generator. It is the 
+  order of A--after that many steps, the value of rn will be 17. We would like 
+  to maximize the order, so we could choose A=5, but that would result in numbers 
+  that don't look very random. We should choose some larger number that has the 
+  same order as A. Here I chose 5^13. There are many other choices, such as 2^16+5, 
+  that give the same period. The order then is 2^30 which is about a billion.</P>
+<P>The random number generator in many C implementations works mod 2^16, so their 
+  period is only 2^14 = 16384.</P>
+
+<P>Now, we can make use of the theorem to tell what orders are possible
+mod n for any n, and we can even get some help in finding an element of
+a specified order, if that order is possible. The notes explain how. Let
+me do a few examples.</P>
+
+<P>Let's do mod 5^20. phi(5^20) = 4*5^19, and the theorem states that this
+group is cyclic, i. e. there is an element whose order is this value, and
+all of its powers are all the elements of the group. In the proof of the
+theorem, we find that if a is primitive mod 5, then either a or a+5 is primitive
+mod 5^2, and that same element is primitive mod any power of 5. 2 has order
+4 and therefore is primitive mod 5, and it is easy to check that 2 has order
+20, and therefore is primitive, mod 25. (Actually, 2+5 is also primitive
+modulo 25.) Then by the theorem we know that 2 is primitive mod any power
+of 5.</P>
+
+<P>2^31-1 = 2147483647 is a prime number. We know from the theorem that
+the group mod 2^31-1 is cyclic, so we know that a primitive element exists.
+In this case, I don't know any way to find a primitive element except by
+trial and error. (There are some shortcuts in testing whether a chosen number
+is primitive--the order of every element mod n divides phi(n). If an element
+<I>a</I> is not primitive, its order divides phi(n) but is less than phi(n),
+so you have to check only powers of <I>a</I> that divide phi(n), and if
+none of these is 1, you know <I>a</I> must be primitive.)</P>
+
+<P>With RSA we use the product of two large prime numbers. Let's consider
+the product of two small prime numbers, say 127*149 = 18923. We know that
+there is a primitive element a (of order 126) mod 127 and there is a primitive
+element b (of order 148) mod 149. By the Chinese remainder theorem, there
+is an element c mod 18923 such that c=a mod 127 and c=b mod 149. Then c^n=a^n
+mod 127 and c^n=b^n mod 149. c^n = 1 mod 18923 if and only if c^n=1 mod
+127 and c^n=1 mod 149, and therefore c^n=1 mod 18923 if and only if a^n=1
+mod 127 and b^n=1 mod 149, and these will both be true only if n is a multiple
+of both 126 and 148. The smallest n satisfying those conditions is the least
+common multiple of 126 and 148 (LCM(126,148)) which is 126*148/GCD(126,148)
+= 126*148/2 = 9324. That is the highest order possible. You can find an
+element of this order by finding a and b by trial and error and solving
+for c using the Chinese Remainder Theorem. Actually, every element mod 18923
+must have order that divides this number. Sometimes this number is called
+psi(n).</P>
+
+<P>A problem for you:</P>
+
+<P>1) How many elements are there in the group of elements modulo 40000
+that are relatively prime to 40000? What is the maximum possible order of
+a number in this group? Calculate an element of this maximum order using
+the Chinese remainder theorem and elements of maximum order modulo 2^6 and
+5^4. (There are a lot of such elements.)</P>
+
+<H3>Doing Arithmetic mod n in C</H3>
+
+<P>There is a pretty good explanation in the printed notes. Let's try doing arithmetic 
+  modulo p=2147483629, which is a 31-bit prime number.. Write functions to do 
+  addition, subtraction, multiplication by 2 (which is the same as shift left 
+  1 place), multiplication of any two numbers (less than p, of course), and raising 
+  a number ot a power by fast exponentiation where the exponent is a 32-bit unsigned 
+  integer, all modulo p, of course.</P>
+
+<P>Let me try to explain how to write a program to multiply, relating it
+to the formula that starts ab =. Look at the formula in the printed notes
+as you read this. Now I want to write this as a loop. Since 2^31-1 has 31
+binary digits (the leftmost of the 32 binary digits being zero), the loop
+will be repeated 31 times, once for each binary digit in the multiplier.
+If you study that formula you will find that you add a or nothing 31 times,
+and you multiply by 2 only 30 times. To make my program simple, I multiplied
+by 2 at the beginning one extra time to make things come out even. Then
+it goes like this. I initialize the answer ab to zero. Then I multiply ab
+by 2 (which does nothing this time). Then I check the leftmost binary digit
+of the multiplier, and if it is 1, I add a to ab. Then I multiply ab by
+2 again, and then check the second multiplier digit, and if it is 1, I add
+a to ab. Then I multiply ab by 2 again, and then check whether the next
+multiplier digit is 1, and if it is add a to ab. This is repeated until
+the last multiplier digit is used, and then you have your answer.</P>
+
+<P>Fast exponentiation is very similar to multiplication. Instead of adding,
+you multiply, and instead of doubling, you square. In my program I do one
+useless squaring to make the program as simple as possible. Initialize the
+answer (let's call it r) to 1 this time, and then go through the loop 31
+times. The first time, square r (using your multiply function), and check
+the first exponent digit. If it is 1, multiply r by a. Then square r and
+check the second exponent digit, and if it is 1, multiply r by a. Then square
+r again and check the third expponent digit and multiply by a if it is not
+zero. You repeat until you have used all 31 exponent binary digits. Then
+you have the answer.</P>
+
+<P>Both these programs are very simple. My version has a couple of initialization
+statements and a while loop with 3 short lines of code inside, and the multiply
+function and the exponentiation are the same size and look almost identical.</P>
+
+<P>I think it is worth while for you to write programs to do these operations,
+because then you will understand them better. I suggest that you test them
+first with some very small numbers so that arithmetic is the same just plain
+or mod p. Then you can go to some larger numbers. Try calculating this table:
+(In general, hex is more convenient for large numbers.)</P>
+
+<PRE>23^1 = 00000017<br>23^2 = 00000211<br>23^3 = 00002f87<br>23^4 = 00044521<br>23^5 = 006235f7<br>23^6 = 08d2d931<br>23^7 = 4af1837a<br>23^8 = 3bb2d0ed<br>23^9 = 5d10c609<br>23^10 = 5c81cbff<br>23^11 = 4fa95519<br>23^12 = 2836a649<br>23^13 = 1ce8f114<br>23^14 = 18eda92b<br>23^15 = 3d5a3329<br>23^16 = 031a9980<br>23^17 = 4763ca80<br>23^18 = 69f73264<br>23^19 = 05358865<br>23^20 = 77cf4113<br>23^21 = 439eda44<br>23^22 = 13459d00<br>23^23 = 3b411b39<br>23^24 = 52d972dd<br>23^25 = 718952e5<br>23^26 = 3356740f<br>23^27 = 1cc46e04<br>23^28 = 15a5e2bb<br>23^29 = 71e75f06<br></PRE>
+<p>2) Do it first by multiplying each of these by 23 to get the next one.<br>
+  Now try multiplying 23^15 and 23^14 and see whether you get 23^29. Then try 
+  to do this table using your fast exponentiation function.</p>
+<P>3) Pick a number from that table and raise it to the power p-1 = 2147483628. 
+  What answer do you expect to get? (phi(p) = p-1) Now pick a number and raise 
+  it to the power p-2 = 2147483627. Then multiply that result by the original 
+  number. This is another way to get the inverse of a number.</P>
+
+<h3>Doing GF(2^31) Arithmetic in C</h3>
+<p>Now I want you to write similar programs and do similar calculations for GF(2^31). 
+  Use the polynomial p(x) = x^31 + x^3 + 1. You should be able to make add and 
+  subtract functions that are much simpler than the simple ones for mod p arithmetic, 
+  and make slight changes in the function that multiplies by 2 mod p to make a 
+  function that multiplies by x mod p(x). Then I found that I didn't have to change 
+  the multiply or exponentiation functions. </p>
+<p>Try doing calculations similar to 2) and 3). Let us let b = x^12 + x^2 + x 
+  + 1. Then calculate the following table first by multiplying over and over by 
+  b, and then by using the exponentiation function. Here are the results that 
+  I got:</p>
+<pre>b^1 = 00001007<br>b^2 = 01000015<br>b^3 = 0701514b<br>b^4 = 00120111<br>b^5 = 206f1765<br>b^6 = 107b1057<br>b^7 = 406413d2<br>b^8 = 00011349<br>b^9 = 1133e8ff<br>b^10 = 491479eb<br>b^11 = 38f39db8<br>b^12 = 13016fcf<br>b^13 = 6ffaee0d<br>b^14 = 21043836<br>b^15 = 249fedab<br>b^16 = 01051053<br>b^17 = 561e4099<br>b^18 = 46520f0f<br>b^19 = 734e93ac<br>b^20 = 31d34777<br>b^21 = 214f93a6<br>b^22 = 1fd4bf1a<br>b^23 = 14de816c<br>b^24 = 060f5047<br>b^25 = 6728c71c<br>b^26 = 39abfe8b<br>b^27 = 13bb7725<br>b^28 = 4d520434<br>b^29 = 42fd186d
+</pre>
+<p><br>
+  4) Do this first by multiplying each of these by b to get the next one. Now 
+  try multiplying b^15 and b^14 and see whether you get b^29. Then try to do this 
+  table using your fast exponentiation function.</p>
+<p>5) Pick a number from that table and raise it to the power 2^31-1 = 2147483648. 
+  What answer do you expect to get? (Note that the set of all elements of GF(2^31) 
+  except zero is a group and it has 2^31 - 1 elements.) Now pick a number and 
+  raise it to the power p-2 = 2147483647. Then multiply that result by the original 
+  number. This is another way to get the inverse of a number.</p>
+<p>I would like to see your programs and the results of running them.</p>
+<pre>&nbsp;
+
+</pre>
+
+</BODY>
+</HTML>

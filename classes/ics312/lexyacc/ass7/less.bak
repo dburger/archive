@@ -1,0 +1,224 @@
+%{
+#include <stdio.h>
+#define MAX_EXPR_VARIABLES 10
+extern FILE *yyin, *yyout;
+/* counter for c code variables */
+int varCounter = 65;
+/* number of variables from expression */
+int numVars = 0;
+/* array containing variable string */
+char *vars[10];
+/* parrallel array containing the c code
+   variable that represents the string
+   variable */
+int varSymbol[10];
+/* prototypes of functions that determine if
+   given string variable has been used before
+   and that add another string variable to
+   the list */
+int varExists(char *s);
+void addVar(char *v,int t);
+char *strdupx(char *s);
+%}
+%token CONSTANT VARIABLE
+
+%%
+
+fullexpr:
+          expr '\n' 
+            {
+              fprintf(yyout,"  printf(\"Result: %%d\\n\", %c);\n"
+                      ,varCounter -1);
+              fprintf(yyout,"}\n");
+              fprintf(yyout,"int getVar(char *varName) {\n");
+              fprintf(yyout,"  char s[MAX_VAR_LENGTH];\n");
+              fprintf(yyout,"  printf(\"Value for var %%s:  \",varName);\n");
+              fprintf(yyout,"  fgets(s,MAX_VAR_LENGTH,stdin);\n");
+              fprintf(yyout,"  return atoi(s);\n");
+              fprintf(yyout,"}\n");
+              exit(0);
+            }
+
+expr:     term
+          | expr '+' term
+            { 
+              fprintf(yyout,"  int %c = %c + %c;\n",varCounter++,$$
+                      ,varCounter-2);
+              $$ = varCounter-1;
+            }
+          | expr '-' term
+            {
+              fprintf(yyout,"  int %c = %c - %c;\n",varCounter++,$$
+                      ,varCounter-2);
+              $$ = varCounter-1;
+            }
+
+term:     factor
+          | term '*' factor
+            {
+              fprintf(yyout,"  int %c = %c * %c;\n",varCounter++,$$
+                      ,varCounter-2);
+              $$ = varCounter-1;
+            }
+          | term '/' factor
+            { 
+              fprintf(yyout,"  int %c = %c / %c;\n",varCounter++,$$
+                      ,varCounter-2);
+              $$ = varCounter-1;
+            }
+
+factor:   primary
+          | factor '%' primary
+            {
+              fprintf(yyout,"  int %c = %c %% %c;\n",varCounter++,$$
+              ,varCounter-2);
+              $$ = varCounter-1;
+            }
+/*
+not implementing this
+          | factor '^' primary
+            {
+              fprintf(yyout,"  int %c = pow(%c,%c);\n",varCounter++,$$
+                      ,varCounter-2);
+              $$ = varCounter-1;
+            }
+*/
+
+primary:  CONSTANT
+            {
+              if (strchr((char *)$1,'.')==NULL)
+                  fprintf(yyout,"  int %c = %s;\n",varCounter++,$1);
+              else
+                  fprintf(yyout,"  float %c = %s;\n",varCounter++,$1);
+              $$ = varCounter-1;
+            }
+          | '+' CONSTANT
+            {
+              if (strchr((char *)$2,'.')==NULL)
+                  fprintf(yyout,"  int %c = %s;\n",varCounter++,$2);
+              else
+                  fprintf(yyout,"  float %c = %s;\n",varCounter++,$2);
+              $$ = varCounter-1;
+            }
+          | '-' CONSTANT
+            {
+              if (strchr((char *)$2,'.')==NULL)
+                  fprintf(yyout,"  int %c = -%s;\n",varCounter++,$2);
+              else
+                  fprintf(yyout,"  float %c = %s;\n",varCounter++,$2);
+              $$ = varCounter-1;
+            }
+          | VARIABLE
+            { 
+              int varValue;
+              if ((varValue=varExists((char *)$1))!=0)
+                fprintf(yyout,"  int %c = %c;\n",varCounter++,varValue);
+              else {
+                addVar((char *)$1, varCounter);
+                fprintf(yyout,"  float %c = getVar(\"%s\");\n"
+                        ,varCounter++,$1);
+              }
+              $$ = varCounter-1;
+            }
+          | '-' VARIABLE
+            { 
+              int varValue;
+              if ((varValue=varExists((char *)$2))!=0)
+                fprintf(yyout,"  int %c = %c;\n",varCounter++,varValue);
+              else {
+                addVar((char *)$2, varCounter);
+                fprintf(yyout,"  int %c = getVar(\"%s\");\n"
+                        ,varCounter++,$2);
+                fprintf(yyout,"  int %c = -%c;\n",varCounter++,varCounter-2);
+              }
+              $$ = varCounter-1;
+            }
+          | '+' VARIABLE
+            { 
+              int varValue;
+              if ((varValue=varExists((char *)$2))!=0)
+                fprintf(yyout,"  int %c = %c;\n",varCounter++,varValue);
+              else {
+                addVar((char *)$2, varCounter);
+                fprintf(yyout,"  int %c = getVar(\"%s\");\n"
+                        ,varCounter++,$2);
+              }
+              $$ = varCounter-1;
+            }
+          | '(' expr ')'
+            {
+              $$ = varCounter-1;
+            }
+
+%%
+
+int yyerror(char *s) {
+    fprintf(stderr, "%s\n",s);
+    return 0;
+}
+
+
+int main(int argc, char *argv[]) {
+
+    if(argc<3) {
+        printf("Proper usage is %s expr-file c-file.\n",argv[0]);
+        exit(0);
+    }
+
+    if ((yyin=fopen(argv[1],"r"))==NULL) {
+        printf("Unable to open %s.\n",argv[1]);
+        exit(0);
+    }
+
+    if ((yyout=fopen(argv[2],"w"))==NULL) {
+        printf("Unable to create %s.\n",argv[2]);
+        exit(0);
+    }
+    fprintf(yyout,"#include <stdio.h>\n");
+    fprintf(yyout,"#include <math.h>\n");
+    fprintf(yyout,"#define MAX_VAR_LENGTH 20\n");
+    fprintf(yyout,"int main() {\n");
+    yyparse();
+    fclose(yyin);
+    fclose(yyout);
+    return 0;
+}
+
+
+/*
+int main() {
+    printf("#include <stdio.h>\n");
+    printf("#include <math.h>\n");
+    printf("#define MAX_VAR_LENGTH 20\n");
+    printf("int main() {\n");
+    yyparse();
+    return 0;
+}          
+*/
+
+int varExists(char *s) {
+  int i;
+  for(i=0;i<numVars;i++)
+    if (strcmp(s,vars[i])==0)
+      return varSymbol[i];
+  return 0;
+}
+
+void addVar(char *v, int t) {
+  vars[numVars] = strdupx(v);
+  varSymbol[numVars++] = t;
+}
+
+char *strdupx(char *s) {
+  return strcpy((char *)malloc(strlen(s)+1),s);
+}
+
+
+
+
+
+
+
+
+
+

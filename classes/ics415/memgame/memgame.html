@@ -1,0 +1,150 @@
+<html>
+<head>
+<title>Memory Game Project</title>
+<script language="javascript">
+<!--
+
+// Memory Game by David J. Burger
+// for ICS 415, Dr. Martin
+// 06/10/2002
+// This web page contains javascript that allows
+// the web surfer to play the "Memory Game."
+// Known to work on IE 5+, Netscape 6, Mozilla 1.0
+
+// several of the global variables are declared here
+var cardsUp = 0;
+var cardIDOne = -1; // -1 is used to indicate no card selected for card IDs
+var cardIDTwo = -1;
+var currentPlayer = 0;
+
+// get the grid size to be used for the game  
+for (var gridSize=0;gridSize!=2 && gridSize!=4 && gridSize!=6 && gridSize!=8;)
+  gridSize = window.prompt("Enter the number of columns, 2, 4, 6, or 8.","6");
+
+var totalCards = gridSize*gridSize;
+
+// get the number of players for the game
+for (var numPlayers=0;numPlayers<2 || numPlayers>gridSize;)
+  numPlayers=window.prompt("Enter the number of players from 2 to " + gridSize + ".","2");
+
+// create the array to hold players names and scores and get the names
+var players = new Array(numPlayers);
+for (var i=0;i<numPlayers;i++) {
+  players[i] = new Object();
+  players[i].name = window.prompt("Enter name of player " + (i+1) + ".","");
+  players[i].score = 0;
+}
+
+// write out the top of the page...title, paragraph, top of cards table
+document.writeln("<h1 style='text-align:center'>Memory Game</h1>");
+document.writeln("<p align='center'><table><tr>");
+
+// loop through creating the the rows of the card table, the handleClick(index) method is
+// written out for each card with cards index position in the document.images[] array
+for (i=0;i<totalCards;i++) {
+  document.write("<td align='center'><img src='back.gif' id='" + 
+                 i + "' onclick='if (cardsUp <" + (totalCards) +
+                 ") handleClick(" + i + ");'/></td>");
+  if ((i+1) % gridSize == 0) {
+    document.write("</tr>");
+    if (i != totalCards-1) document.write("<tr>");
+  }
+}
+
+// write out the ending of card the table
+document.writeln("</table>");
+
+// create the array to hold the offscreen card images and load the images
+var cardImages = new Array(totalCards);
+for (i=0;i<totalCards/2;i++) {
+  cardImages[i*2 + 0] = new Image(32,22);
+  cardImages[i*2 + 1] = new Image(32,22);
+  cardImages[i*2 + 0].src = cardImages[i*2 + 1].src = "f" + (i+1) + ".gif";
+}
+
+// "shuffle" the cards
+randomizeArray(cardImages);
+
+// write out line to indicate current player, id playerUp will be used to refer to it
+document.writeln("Player up: <span id='playerUp'>" + players[0].name + "</span>");
+
+// write out the top portion of the players names/scores table with header row
+document.writeln("<table border='1' cellspacing='0' id='scoreTable'>");
+document.writeln("<tr><th>Name</th><th>Score</th></tr>");
+
+// loop through creating rows of players in names/scores table
+// scoreCell# used as id for later reference
+for (i=0;i<numPlayers;i++)
+  document.writeln("<tr><td>" + players[i].name + "</td><td id='scoreCell" + i +
+                   "' align='right'>0</td></tr>");
+
+// write out the ending portion of the players names/scores table and end of paragraph
+document.writeln("</tr></table></p>");
+
+// this function returns the file portion of a full path by finding the last /
+function getFilename(fullPath) {
+  return fullPath.substring(fullPath.lastIndexOf("/")+1);
+}
+
+// this function takes care of the clicks on the cards
+function handleClick(id) {
+  // first we check to see if we need to turn the cards over from previous play
+  if (cardIDTwo!=-1) {
+    document.images[cardIDOne].src = document.images[cardIDTwo].src = "back.gif";
+    cardIDOne = cardIDTwo = -1;
+  }
+  // now we see if they click on the back of a card
+  if (getFilename(document.images[id].src)=="back.gif") {
+    document.images[id].src = cardImages[id].src;
+    if (cardIDOne==-1) // first selection
+      cardIDOne = id;
+    else { // second selection
+      cardIDTwo = id;
+      // see if there is a match between selection one and two
+      if (getFilename(document.images[cardIDOne].src)==
+                      getFilename(document.images[cardIDTwo].src)) {        
+        cardIDOne = cardIDTwo = -1; // so won't be turned over during next play
+        cardsUp+=2;
+        // add and display the score for this player
+        document.getElementById('scoreCell' + currentPlayer).innerHTML =
+          ++players[currentPlayer].score;
+        // there was a match, so see if the game is over
+        if (cardsUp==totalCards) {
+          if (window.confirm("Would you like to play again?")==true) {
+            // "shuffle" the cards
+            randomizeArray(cardImages);
+            // show the backs of the cards again
+            for (i=0;i<totalCards;i++)
+              document.images[i].src = "back.gif";
+            cardsUp = 0;
+            currentPlayer = -1; // player increment below takes back to 0
+          } else {
+            return;
+          }
+        }
+      }
+      // move to next player and update the playerUp indicator
+      currentPlayer = (currentPlayer + 1) % numPlayers;
+      document.getElementById('playerUp').innerHTML = players[currentPlayer].name;
+    }
+  } else {
+    window.alert("Please choose card which hasn't already been flipped.");
+  }
+}
+
+// this is a function to randomize the values in an array, it works by randomly picking
+// a position to swap with position 0, then position 1, and so on...
+function randomizeArray(theArray) {
+  var newPosition, oldValue;
+  for (var i=0;i<theArray.length-1;i++) {
+    newPosition = Math.round(Math.random() * (theArray.length-i-1))+i;
+    oldValue = theArray[newPosition];
+    theArray[newPosition] = theArray[i];
+    theArray[i] = oldValue;
+  }
+}
+//-->
+</script>
+</head>
+<body></body>
+</html>

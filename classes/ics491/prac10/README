@@ -1,0 +1,26 @@
+This program runs in MIMD mode.  In order to get it to run that way on the
+RS6000, in addition to the environment variables set as in the previous
+program, you need to set:
+
+export MP_PGMMODEL=mpmd
+
+Also, to launch the program it is done like this:
+
+poe -procs n
+
+Then it will ask you which programs to put on which nodes, this program is
+set up to put the manager on node zero (include the command line parameter
+for the range), supervisor on node one, and worker on the rest of the nodes.
+
+This program is not an example of optimization of finding primes, but is an
+example of agenda parallelism using MIMD.
+
+It works by having the manager first tell the supervisor the range for
+determining primes which is sqrt(input).  Workers will request work from the
+supervisor and the supervisor will hand out CHUNK_SIZE chunks to each worker.
+When the worker finishes his chunk he passes the results back to the manager.
+The manager uses these results to eliminate all multiples of the determined
+primes in the entire input.  Workers then queue up for more work, and when
+the work is depleted they receive a quit message.  After the supervisor has
+sent all the workers a quit message he will send the manager a quit message.
+The manager will then print out the determined primes.

@@ -1,0 +1,76 @@
+This is a guide to the changes that were necessary to convert the linux ipc
+system from using its dynamic array implementation to using a linked list.
+Notice that all changes are marked with "dburger" in the code, and things
+removed have merely been commented out.  The mentioned files can be found on
+this web site, and a tester program called shmtest.c is also present.  This
+program can effectively test if shm and sem are working well with the list
+implemenation.  For a real kicker run four or more than one copy of the program
+at the same time.
+
+1.  Added:
+    
+    struct list_head list;
+    int lid;
+
+    to the struct kern_ipc_perm in /usr/src/linux-2.4/include/linux/ipc.h.
+
+util.h = /usr/src/linux-2.4/ipc/util.h
+
+2.  Removed the entire struct ipc_id in util.h.
+
+3.  Removed struct ipc_id *entries in the struct ipc_ids in util.h.
+
+4.  Added struct list_head entries to the struct ipc_ids in util.h.
+
+5.  Removed bounds check and array reference in ipc_get in util.h.
+
+6.  Added a block that uses lists in ipc_get in util.h.  Changed return below
+    the block to return NULL; instead of return out;.
+
+7.  Removed bounds check and array reference in ipc_lock in util.h.  Also
+    moved spin_lock before this commented out block.
+
+8.  Added a block that uses lists in ipc_lock in util.h.  Removed the NULL test
+    below the block and changed to unlocking and then returning NULL.
+
+util.c = /usr/src/linux-2.4/ipc/util.c
+
+9.  Removed alloc of entries in ipc_init_ids in util.c.
+
+10. Added INIT_LIST_HEAD to ipc_init_ids in util.c and removed the NULL check
+    directly below.
+
+11. Removed the initialization of array to NULL loop in ipc_init_ids in util.c.
+
+12. Removed int id and array iteration loop in ipc_find_key in util.c.
+
+13. Changed the struct kern_ipc_perm *p to *perm in ipc_find_key in util.c.
+
+14. Added list iteration block to ipc_findkey in util.c.  Changed ipc_findkey
+    to return the lid added above and not an array index.
+
+15. Removed the entire grow_ary function in util.c.
+
+16. Removed resizing and array iteration block in ipc_addid in util.c.  Also
+    removed return -1;.
+
+17. Added ids->size++ to ipc_addid in util.c.
+
+18. Removed ids->entries[id].p = new in ipc_addid in util.c.
+
+19. Added a block that does an in order add of the new id looking for the first
+    gap.  Moved the max_id check and assignment to the bottom of this block.
+
+20. Removed bounds check, array reference, and NULL out in ipc_rmid in util.c.
+
+21. Added list iteration and list member removal block in ipc_rmid in util.c.
+
+22. Changed struct kern_ipc_perm *p to *perm in ipc_rmid in util.c.
+
+23. Added ids->size--; to ipc_rmid in util.c.
+
+24. Removed max_id adjustment in ipc_rmid in util.c.
+
+25. Added new max_id adjustment block to ipc_rmid in util.c.
+
+26. Added #include <linux/list.h> to util.c.

@@ -1,0 +1,108 @@
+<html>
+<head>
+<title>a4 - PageCheck</title>
+</head>
+<body>
+Assignment 4 - PageCheck<br />
+ICS 613, Dr. Johnson<br />
+David J. Burger<br />
+09/07/2003
+
+<hr />
+
+I have completed V1 - V5 of the PageCheck subtasks.  The final version
+of the program that I am submitting is V5, the get creative subtask.
+<p />
+
+After completing subtasks V1 - V4 I wasn't entirely satisified with
+the functionality of the program.  The reason was that many web
+servers do not return the header corresponding to the last
+time the page was modified.  This made the program return the Unix
+epoch, Jan. 1, 1970, as the last modified date for these pages.  This
+made the program ineffectual for many web pages depending on the
+configuration of the hosting web server.  Interestingly enough the web
+server which hosts the www2.hawaii.edu domain does not return this
+header and therefore I couldn't use my original PageCheck program on
+my own web pages.
+<p />
+
+I decided to resurrect an idea I had used in a Perl program that
+checks for changes in web pages by storing the algorithmic hash of the
+contents of the web page and then compares that hash to the latest
+hash when the program is run again.  This avoids the problem with the
+last modified header not being supplied and can therefore be applied
+to a wider range of web pages.
+<p />
+
+It was interesting to write this program in Java, as my Java version
+relies on the extensive class libraries while my Perl version pipes
+data through other programs (such as md5sum for the hash and mail for
+mailing).
+<p />
+
+So in summary my V5 version:<br />
+<ul>
+  <li>accepts command line input of one or more files</li>
+  <li>each file contains PageCheck job information that can specify
+  multiple urls to check with multiple recipients</li>
+  <li>changes are indicated by a change in the algorithmic hash</li>
+</ul>
+
+I have tried to think of all the exceptional conditions that can exist
+and program accordingly.  These include:
+<p />
+
+<table border="1">
+  <tr>
+    <td>problem</td><td>reaction</td>
+  </tr>
+  <tr>
+    <td>input file or files not provided</td>
+    <td>program outputs proper usage</td>
+  </tr>
+  <tr>
+    <td>input file cannot be read</td>
+    <td>program outputs message</td>
+  </tr>
+  <tr>
+    <td>input file not in correct format / missing data</td>
+    <td>program displays what is missing from the input file</td>
+  </tr>
+  <tr>
+    <td>data file not in correct format</td>
+    <td>program outputs message</td>
+  <tr>
+    <td>url cannot be fetched</td>
+    <td>programs sends failed: url in message</td>
+  </tr>
+  <tr>
+    <td>hash data cannot be saved</td>
+    <td>message includes failure to save new hash values</td>
+  </tr>
+</table>
+<p />
+
+Of course the only true test of this would be to have a substantial
+number of users bang on the program for a while.
+<p />
+
+Sources / Input Files:<p />
+<a href="613/PageCheck.java">PageCheck.java</a><br />
+<a href="613/UrlInfo.java">UrlInfo.java</a><br />
+<a href="613/Mailer.java">Mailer.java</a><br />
+<a href="613/input">input</a><br />
+<a href="613/.classpath">.classpath</a><br />
+<a href="613/.project">.project</a><br />
+<a href="613/pagecheck.zip">pagecheck.zip</a> (zipped up Eclipse workspace)<br />
+<a href="613/pagechecker">pagechecker</a> (my old Perl program that
+does something similar)
+<p />
+
+If you have any questions or problems with the assignment submission,
+please let me know.  (Especially with that zip file, Linux zip seems
+a little quirky.)
+<p />
+thanks,<br />
+djb
+</body>
+</html>

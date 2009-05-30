@@ -1,0 +1,55 @@
+David J. Burger
+ICS 321 Sec. 452
+6/25/01
+Take Home Quiz
+
+Using the material we covered about physical data storage and retrieval, as well as 
+material in your textbook, discuss potential strategies for allocating media space so as to 
+improve database performance.  Be sure to include some discussion about distributing 
+data and files between primary storage and secondary storage.
+
+In many database applications, such as personal and smaller workgroup applications, the 
+allocation of the media space can be as simple as selecting a directory and letting the 
+DBMS handle the rest.  In these cases the database developer is more concerned with the 
+structure of the data, normalization, and the indexing of the proper fields.  In other 
+database applications, such as large systems deployed in a client-server or mainframe 
+environment, critical decisions are made in the allocation of media space.  The speed and 
+capacity of a disk, the frequency of data access to a relation or join of relations, the 
+amount of data processed in a typical retrieval, the likelihood of queried records being 
+clustered together; these factors and more come into play when deciding how to properly 
+allocate a database to the available media.
+
+The speed of a disk is determined by many factors that need to be known by the database 
+designer.  The speed is characterized by the equation:
+
+Data retrieval time = seek time + latency + data transfer rate + head selection time
+
+In addition, in a distributed environment the speed of the networking connections to the 
+various data hosting machines becomes important as well.
+
+Once the speed of the available media is known, the database designer must understand 
+his data and how it is accessed.  Many database applications contain data in relations in 
+which the amount of data access per relation varies greatly.  Tables that are accessed 
+frequently should be placed on the fastest media available.  In certain situations, it may 
+even be preferable to keep certain data in primary storage if possible.  An example of this 
+would be the database application that is the backbone of a search engine on the internet.  
+The extreme number of queries initiated by user searches may indicate a need to place the 
+data structure representing the parsed keywords into primary storage.  This would allow 
+the fastest lookup possible, reducing the load on the secondary storage system while 
+increasing the need for primary storage.
+
+Database tables that are accessed infrequently can be placed on a slower media.  In 
+addition, some of the data within a single table, such as the data that is less current time 
+wise, may also be accessed infrequently.  This may cause the database designer to 
+separate the data, in some sort of archiving scheme such that more current data is kept on 
+faster media and the archived data is placed on slower media.
+
+Even the structure of the data within the tables can influence media allocation decisions.  
+Tables that are queried in such a way that returned rows tend not be clustered are 
+naturally less efficient and this too may be a reason to place a table on faster media.  
+Tables that are queried in such a way that rows tend to be clustered are more efficient 
+which may lead to placing the table on a slower media.
+
+As you can see, various issues need to be taken into consideration when allocating the 
+media space in order to maximize database performance.  The database designer needs to 
+be aware these issues so that the database can be implemented in the best possible way.

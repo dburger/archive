@@ -1,0 +1,538 @@
+Chapter 0
+===============================================================
+
+Seek time:  the amount of time necessary to find the proper track.
+Latency time:  the amount of time necessary to find the proper block.
+Storage methods:
+1.	Unsorted heap.  O(1) insert, O(n) find
+2.	Sorted sequence, O(n) insert, O(log n) find
+3.	Hash table, in between
+
+Chapter 1
+===============================================================
+
+Database:  A self describing integrated collection of records.
+Elements of a database app:
+Application<---->DBMS<---->Database
+What is in the database?
+1.	User data
+2.	Meta data
+3.	Application meta data
+4.	Indexes
+What does the DBMS consist of?
+1.	Design tools
+2.	Run-time subsystem
+3.	DBMS engine
+What composes the database schema?
+1.	Tables
+2.	Domains
+3.	Relations
+4.	Business Rules
+What are the components of database applications?
+1.	Forms
+2.	Reports
+3.	Queries
+4.	Menus
+5.	Applications
+What were the drawbacks of the file processing systems?
+1.	Data were separate and isolated.
+2.	Programs were file format dependent.
+3.	There were file format incompatibilities
+4.	There was a lot of data duplication.
+5.	It was difficult to model the users view of the data.
+What were the benefits of data processing?
+1.	Data was integrated.
+2.	Programs were not file format dependent.
+3.	Reduced data duplication.
+4.	It was easier to model the users view of the data.
+Metadata:  Data concerning the structure of the database stored in the data dictionary.  
+Contains tables, columns, constraints, and indexes.
+
+
+Chapter 2
+===============================================================
+
+Top down development:  A development strategy that starts with the general and keeps 
+breaking things down until it gets to the specific.
+Bottom up development:  A development strategy that starts with a specific system and 
+works up to the general.
+Discuss the pros and cons of each strategy:  While some people would say that top down 
+development leads to a more integrated whole others would say it can lead to analysis 
+paralysis.  Also, some would say that bottom up development leads to faster system 
+development and detractors would say it results in a system that is not as integrated as it 
+should be.
+Data modeling:  The process of inferring the users model of the data through interviews, 
+forms, and reports.
+Overhead data:  Data stored in the database designed to improve the speed and 
+accessibility of the database.  Common implementations are indexes and linked lists.
+Foreign key:  A column of data in a table that contains data that is a key of another table.  
+Foreign keys are used to establish relationships.
+
+Chapter 3
+===============================================================
+
+What are the elements of the ER model?
+1.	Entity – anything in the users environment they wish to track.
+2.	Attribute – the elements that describe and state the characteristics of an entity.
+3.	Identifier – an attribute or group of attributes used to identify entity instances.
+4.	Relation – a natural association between entity instances.
+Composite attributes:  Attributes that are composed of more than one attribute.
+Multi-value attributes:  Attributes that have a maximum cardinality greater than one for a 
+single entity instance.
+Recursive relationship:  A relationship of entity instances of the same class.
+
+Chapter 4
+===============================================================
+
+Semantic object:  A collection of attributes sufficient to describe an entity or instance.
+What are the major differences between the S.O. and E.R. models?  The SOM can show 
+multi-value attributes and semantic object attributes which the ERM does not show.  The 
+SOM considers the semantic object basic while the ERM considers the entity basic.  The 
+SOM contains more data and detail than the ERM.  Entities are, from the SOM view, 
+only chunks of the real entities.
+Semantic object view:  The portion of a semantic object visible to a particular 
+application.
+What are the types of attributes in the SOM?
+Simple – contain only a single value.
+Group – contains a composite of several attributes.
+Semantic object – establish a relationship between one semantic object and another.
+Object identifier:  Attribute or group of attributes used to identify object instances.
+What are the object types?
+1.	Simple – contains only single value attributes, no objects.
+2.	Composite – contains multi-value attributes, no objects.
+3.	Compound – contains semantic object attributes.
+4.	Hybrid – contains a multi-value attribute with semantic object attributes.
+5.	Association object – contains a relationship between two semantic objects and 
+data specific to that association.
+6.	Parent/Subtype – Objects that represent a hierarchy of objects.
+7.	Archetype/Version – Objects that represent specific releases of the archetype 
+object.
+
+
+Chapter 5
+===============================================================
+
+Normalization:  The process of reducing and eliminating modification anomalies by 
+breaking tables into multiple tables.
+Relation:  A table where, 1) all cells contain a single value, 2) all entries in any column 
+must be of the same kind, 3) every column has a unique name and order does not matter, 
+4) no two rows are identical and order does not matter
+Functional dependency:  relationship between attributes such that if we are given X we 
+can determine Y then Y is said to be functionally dependent on X and X is called a 
+determinant.
+Candidate key:  Attribute or group of attributes that could be a chosen function as the key 
+in a relation.
+Referential integrity constraints:  Constraints placed upon referential fields.
+1NF:  The table is a relation.
+2NF:  In 1NF and all non-key attributes are dependent on the entire key.
+3NF:  In 2NF and there are no transitive dependencies.
+BCNF:  In 3NF and every determinant is a candidate key.
+4NF:  In BCNF and there are no multi-value dependencies.
+5NF:  In 4NF and every join dependency is implied by its candidate key.
+DK/NF:  A relation in which all constraints are logical consequences of domains and 
+keys.
+
+Chapter 6
+===============================================================
+
+How are ER designs translated into relational design?  Each entity is converted into a 
+relation with the attributes of the entity becoming the attributes of the relation.  The 
+relations are then analyzed against normalization criteria.
+How are the is-a relationships handled?
+1:1 – Key of one is placed into the other.
+1:N – Key of the parent must be placed in the child.
+M:N – A relation is created for each entity and an intersection relation is created with the 
+keys of both related relations being placed together into the intersection relation.
+Intersection relation:  A relation used to model many to many relationships.  Contains the 
+keys of the related relations.
+How are the is-a relationships handled?
+A relation is created for the supertype and for each subtype, the key of the subtype is the 
+same as the parent.  We can use properties of the supertype to identify which subtypes it 
+is.  If there is mutually exclusivity among subtypes we can use a string in the supertype.  
+If there is not mutually exclusivity we can use a set of Boolean values.
+Tree:  A pattern of relationships where each node has at most one parent.
+Simple network:  A pattern of relationships where a node may have more than one parent 
+but they must be of a different type.
+Complex network:  A pattern of relationships representing many to many relationships.
+
+Chapter 7
+===============================================================
+
+How are SOM translated into relational designs?
+Simple Object – A relation is created representing the simple object and the attributes of 
+the simple object become the attributes of the relation.
+Composite Object – A relation is created for the object and for each multi-value attribute.  
+The key of the multi-value attribute relations is the key for the relation plus a group 
+identifier.
+Compound Object – A relation is created for each object and then keys are handled 
+according to the relationship:
+1-1:  The key of one is placed into the other.
+1-N:  The key of the parent is placed in the child.
+M-N:  An intersection relation is created to hold the keys of both objects.
+Hybrid Object – Combined techniques.
+Association Object – A relation is created for each object and the association object.  The 
+association relation contains the keys of the related objects and data particular to that 
+association.
+Parent/Subtype Object – A relation is created for the parent and for each subtype.  The 
+key of the subtype is the key of the parent.
+Archetype/Version – A relation is created for the archetype and version objects.  The 
+version object key is the archetype key along with a release number.
+
+Chapter 8
+===============================================================
+
+What are the steps to implement a relational DB?
+1.	Define the database structure to the DBMS.  This may be done with DDL in text 
+files or with visual design tools.
+2.	Allocate the media space.  In small systems this may be as simple as choosing a 
+directory and in large systems this is a complicated and important step.
+3.	Create database data.  In the best case the data is in a computer sensible format 
+and import tools are available.  In the worst case custom applications must be 
+written and manual data entry is used.
+Relational schema:  Relation with domain constraints.
+Logical key:  The attribute that functions as a unique identifier for a relation.
+Physical key:  An attribute that has had a special data structure defined for it to improve 
+performance.  Usually handled as an index.
+What are the three reasons you would index an attribute?
+1.	If you are going to be searching on that attribute.
+2.	If you are going to be sorting on that attribute.
+3.	If you wish to maintain uniqueness in that attribute.
+
+Chapter 9
+===============================================================
+
+What are the categories of DML?
+1.	Relational algebra.
+2.	Relational calculus.
+3.	Transform oriented languages.
+4.	QBE/QBF
+Union compatible:  Two relations are union compatible if they have the same number of 
+attributes and corresponding attributes have the same domain.
+Union:  A third relation containing tuples of both relations.
+Difference:  A third relation containing the tuples in the first relation not in the second 
+relation.
+Intersection:  A third relation containing the tuples common to both relations.
+Product:  A relation containing a concatenation of all the tuples of a first relation with all 
+the tuples of a second relation.
+Projection:  A selection of certain fields from a relation.  TABLE [Field1, Field2]
+Selection:  An operation that selects certain rows out of a relation based on selection 
+criteria.  TABLE WHERE Age>32
+Equijoin:  A relation formed from table A with field A1 and table B with field B1 where 
+a product of A and B is formed and rows are included only if A1 = B1.  In an equijoin all 
+fields are included and a natural join only includes the redundant field once.
+STUDENT JOIN (SID=StudentNumber) ENROLLMENT
+Outer join:  A join in which all the tuples in one relation are included regardless of 
+whether or not there is a match in the join criteria.  Left join means the left table is 
+included.  Right join…
+SQL Projection:  SELECT [DISTINCT] fields
+SQL Selection:  WHERE criteria;  can use BETWEEN, IN, LIKE, NOT
+SQL Ordering:  ORDER BY Major ASC;
+SQL Functions:  COUNT, MIN, MAX, AVG, SUM… can only be combined with fields 
+if you use group by.
+What are the two types of multi-table joins?
+Sub-query and joins.
+SELECT Name FROM STUDENT WHERE SID IN (SELECT StudentNumber FROM 
+ENROLLMENT WHERE Class=’ics321’);
+SELECT Name, Class FROM STUDENT, ENROLLMENT WHERE STUDENT.SID = 
+ENROLLMENT.StudentNumber;
+What are the Boolean SQL operators?  EXISTS and NOT EXISTS
+INSERT?  INSERT INTO STUDENT (Name, Age) VALUES (‘David’, 22);
+DELETE?  DELETE STUDENT WHERE Grade = 12;
+UPDATE?  UPDATE STUDENT SET Grade=12 WHERE Grade=11;
+
+Chapter 10
+===============================================================
+
+What is the purpose of a database application?  Make the database useful for humans.
+View:  A structured list of attributes taken from the semantic objects or entities of a data 
+model.  Because it is structured, an attribute may occur more than once in the view.  
+More than one SQL statement may be needed to construct the view, as it requires more 
+than one path through the database schema.
+View instance:  A view populated with data.
+What are the means of getting at the data in a database?
+1.	Form/Report tools provided by the DBMS.
+2.	Query/Update language such as SQL.
+3.	Application programs.
+What are the functions of a database app?
+1.	Process views (CRUD)
+2.	Format or materialize views.
+3.	Enforce constraints.
+4.	Security and access control.
+5.	Execute application logic.
+Recordset:  A relation with an object wrapper.
+Creating views requires:  Adding one or more rows in tables and possibly creating or 
+changing foreign keys to establish relationships.
+Types of view updates:  1.  change existing data  2.  change relationships  3.  new rows 
+for multi-value relationships
+Deleting views requires:  Removing one or more rows and adjusting foreign keys.
+Cascading delete:  A DBMS enforced deletion of dependent rows.
+Cascading update:  A DBMS enforced update of dependent rows.
+Form design principals:
+1.	Form structure reflects view structure
+2.	Semantics of data are graphically evident
+3.	Form structure encourages appropriate action
+Report structure:  reflects the structure of the view they materialize.
+Report writers have difficulty with:  Reports that follow more than one path through the 
+database schema.
+Calculated values…should not be stored in the database as integrity problems result.  
+Should be constructed on the fly.
+Where can constraints be enforced?  The can be enforced in the application code or in the 
+DBMS.
+What is best?  If the constraints are enforced by the DBMS all applications automatically 
+get them so that choice is best.  Some constraints, however, are not DBMS enforceable.
+What are the types of constraints?
+1.	Domains
+2.	Uniqueness
+3.	Cardinality
+4.	Relationship
+5.	Business rules (invoked by trapping events or triggers)
+Vertical security usually enforced by:  DBMS through username/password.
+Horizontal security must be:  Enforced by application code.
+Explain the null problem:  A null value can mean that a value is unknown, inappropriate, 
+or something else.  Solutions are to make the value required or defining subtypes.
+Fragment:  A row that exists without a required child or parent.
+Orphan:  Child rows that exist without a mandatory parent.
+Triggers:  Program segments that are invoked when events occur in the database.
+
+Chapter 11
+===============================================================
+
+Network:  A collection of computers that communicate using a standard protocol.
+TCP/IP:  Terminal Control Program/Internet Protocol, the protocol of the internet.
+Services available on the internet:  Mail, newsgroups, telnet, ftp, and www.
+HTTP:  Hypertext transfer protocol that enable the sharing of documents with embedded 
+links to other documents over a TCP/IP network.
+HTML:  Hypertext markup language, a subset of SGML, is a standardized system of 
+tagging text for formatting, locating images and other nontext files, and placing links or 
+references to other documents.
+URL:  Universal resource locator, the standardized means for locating documents 
+consisting of a service name, a domain name, and a path name with optional filename.
+MIME:  Multipurpose Internet Mail Code, system of codes to identify file types.
+Intranet:  Private LAN or WAN that uses TCP/IP, HTML, and browsers that is either not 
+connected to the Internet or connected via a firewall.
+What are the three common types of network database applications?
+1.  Static report publishing
+2.  Query publishing
+3.  Application publishing
+Name the typical tiers of a database application.
+Browser<---->Web Server<---->Database<---->Server
+What is the standard scripting language for the web?  ECMAScript-262.
+Discuss the role of standards.
+Standards allow products to interoperate with one another and provide a level of 
+compliance for developers to program too.  When everyone follows the same standard, 
+there becomes no reason to choose a product over another, therefore, many companies 
+implement and extend the standard.  Internet standards come from W3C.
+XML is designed to provide a clear separation of:  Structure, Content, and 
+Materialization.  It is extendable in a standard way.
+Structure is defined by:  Document type Definitions (DTDs)
+Documents that conform to their DTDs are called:  Type valid documents.
+Can be materialized with:  CSS or XSL.
+XML is important to database applications because:
+1.  It provides a standard means for expressing the structure of database views
+2.  it cleanly breaks the content, structure, and materialization
+3.  it allows for standardized document validity checking
+4.  it enables industry standards for database views.
+DOM:  Document Object Model, exposes all page elements as objects.
+What are the functions of a web server?
+1.  Maintain state.
+2.  Server side scripting
+3.  Stylesheet and DTD publishing
+
+Chapter 12
+===============================================================
+
+What are the multi-user management concerns?
+1.	Concurrency control
+2.	Failure recovery
+3.	Security and access control
+4.	Data administration
+What is the goal of concurrency control?  To make sure one users work doesn’t 
+inappropriately affect another users work.
+Transaction:  A logical unit of work that must occur as an atomic unit, that is, either all of 
+it or none of it occurs.
+Lost update:  Situation that occurs when two users are updating data and one users update 
+gets overwritten by the other.
+Exclusive lock:  A lock that prevents others from reading the data.
+Shared lock:  A lock that allows reads but prevents updates.
+Explicit lock:  A lock set using application code.  Implicit lock:  A lock set by the DBMS.
+Lock granularity:  The size of a lock.
+Serializable transactions:  Transactions that can occur concurrently and the result is the 
+same as if they were executed separately.
+Two-phase locking:  A scheme characterized by a growing phase and a shrinking phase.
+Deadlock or deadly embrace:  When two transactions are stuck waiting on the other for a 
+resource to be released.
+Optimistic locking:  A locking scheme that assumes no problem with occurs but deals 
+with it if it does.
+Pessimistic locking:  A locking scheme that assumes conflicts will occur and prevents 
+them with locks.
+How is locking usually handled?  A locking scheme is declared to the DBMS and then 
+BEGIN, COMMIT, and ABORT TRANSACTION are used to mark transaction 
+boundaries.  The DBMS handles locks implicitly.
+What transaction isolation levels are available?
+1.	Exclusive use
+2.	Repeatable read
+3.	Cursor stability
+4.	Dirty read
+Cursor:  A pointer into a recordset.
+What are the cursor types?
+1.	Forward only
+2.	Static
+3.	Keyset
+4.	Dynamic
+How is recovery usually handled?  Via reprocessing or rollback/rollforward using 
+transaction logs.
+Checkpoint:  A point of synchronization between the database and transaction logs.
+What are the data administration tasks?
+1.	manage database structure
+2.	manage data activity
+3.	manage DBMS
+4.	maintain data repository
+Data repository:  Collections of meta data about databases, database applications, web 
+pages, users, and other application components.
+
+Chapter 13
+===============================================================
+
+Explain the rich environment of Internet-technology database applications:  Non-
+relational, relational, VSAM, E-mail, pictures, and other data exist in the environment.
+ODBC:  Open Database Connectivity Standard for accessing relational or SQL databases.  
+Allows for processing of data in a DBMS-independent manner.
+What layers are involved in ODBC?
+APPS<---->DRIVER MANAGER<---->DBMS DRIVER<---->DATA SOURCE COMPONENTS
+What are the types of data source names?  File, system, and user.
+What is identified when setting up a dsn?  Specifying the type of driver and the identity 
+of the database to be processed.
+OLE DB:  A technology from Microsoft to access relational and other data.  Based on 
+OLE and COM standards.  An object oriented interface that encapsulates data server 
+functionality.
+What are the goals of OLE DB?
+1.  Create object interfaces for DBMS functionality pieces.
+2.  Increase flexibility.
+3.  Object interface over any data type.
+4.  Do not force data to be converted or moved from where it is.
+ADO:  Active Data Objects designed to provide easier access to OLE DB data for the 
+non-object oriented programmer.  It consists of a simple object model for OLE DB data 
+consumers.  Objects are Connection, Recordset, Command, and Errors collection.
+
+Chapter 14
+===============================================================
+
+What are the different enterprise data processing architectures?
+1.  Teleprocessing
+2.  Client-Server
+3.  File-Sharing
+4.  Distributed
+Vertical fragment:  A table that is broken into two or more sets of columns.
+Horizontal fragment:  A table that is broken into two or more sets of rows.
+Downloaded data:  Data that has been downloaded locally for processing.  The use of 
+which was increased with the advent of powerful micro computers.
+What are the problems of downloaded data?
+1.  Coordination – local constraints made necessitate changes before data can be 
+downloaded
+2.  Consistency – users should not be able to change their copy of the local data because 
+their analysis and reports will be misleading
+3.  Access Control – downloaded data needs to be protected the same as it was when 
+stored at the enterprise level.  This is a challenge with many distributions/systems
+4.  Computer crime – Stealing of data when downloaded locally can be hard to prevent
+OLAP:  Online Analytical Processing.  It is a new way of presenting data in which data is 
+viewed as cubes with axes, dimensions, measures, slices, and levels.
+Slice:  A presentation of the data when dimensions or measures are held constant.
+Cube refers to:  The underlying semantic structure and the materialization.
+Data warehouse:  Store of data designed to facilitate management decision making.  
+Includes tools, extracted data, metadata, DBMS and OLAP, data management tools, 
+delivery programs, end user tools, training and course materials, and data consultants.  
+Flexibility is desired.
+What are the challenges for data warehouses?
+1.  Inconsistent data.  Problems can occur related to timing and domains.
+2.  Tool integration.  Users need various tools that are hard to integrate.
+3.  Missing warehouse data management tools.  Extraction and analysis tools abound, but 
+management tools that adapt to the different types of data in a warehouse usually are 
+custom written programs.
+4.  Ad hoc nature of requirements.  People are not sure what they are going to want, the 
+system must be flexible.
+What are typical requirements for a data warehouse?
+Variable-structure queries and reports, user-specified data aggregation, drill-down, 
+graphical ouput, and integration with domain=specific programs.
+Data Mart:  Like a data warehouse but with a more limited domain like a certain type of 
+input, a geographic region, or a single department.
+Data administration goal:  Guard and protect the data asset and also ensure that it is 
+effectively used.  Important task is to document the organization’s data asset.
+What are the tasks of the data adminstration?
+1.  Marketing
+2.  Establish data standards
+3.  Establish data policies
+4.  Forum for conflict resolution
+5.  Return on investment
+
+Chapter 15
+===============================================================
+
+DB2:  An IBM database product that goes from personal to the mainframe.  It uses SQL 
+for everything…define, access, manipulate, and authorization granting.  It can be done 
+interactively or embedded in programming languages.
+DB2 view:  A virtual table derived from one or several tables and not physically stored.  
+It can be used much as a table can.
+Table space:  A collection of one or more VSAM data sets used to store data on magnetic 
+disk.  Both user and system tables are stored in table spaces.
+Index space:  An area of storage where DB2 stores an index.
+Data base:  Two words in DB2, a term that refers to a collection of tables and indexes and 
+storage areas to hold them.
+Storage group:  Group of disk volumes on which DB2 allocates space for user databases.
+How is DB2 used in app code?  SQL statements are embedded into programs and the 
+DB2 precompiler processes the program.
+How are multiple row queries handled?  A cursor is defined that acts as a pointer on a 
+SELECT statement.  Although an actual file is not generated, it is as if a pseudofile is 
+generated.
+
+Chapter 16
+===============================================================
+
+DL/I:  The sole surviving hierarchical data model DBMS product from IBM.
+CODASYL DBTG:  The most important network data model DBMS product.
+
+Chapter 17
+===============================================================
+
+OOP:  Style of computer programming in which programs are developed as sets of 
+objects that have data members and methods.  Objects interface w/one another by calling 
+each other’s methods.
+ODBMS:  A DBMS that is designed to provide object persistence.
+Encapsulation:  Objects combine both methods and attributes.
+Interface:  The external appearance of an object.
+Implementation:  The encapsulated interior of an object.
+Inheritance:  Process by which subclassed objects get the properties and methods of their 
+parent.
+Polymorphism:  Several versions of the same method exist and the proper one is invoked 
+at run time by based on the class of the object.
+Object Class:  The logical structure of an object, its name, attributes, methods.
+Object Class Library:  A group of object classes.
+Transient Object:  An object that exists only in primary storage when the program is 
+running.
+Persistent Object:  An object that is saved to secondary storage and can be read back in.
+Swizzling:  Process of transforming permanent identifiers into in-memory addresses.
+What methods can be used for object persistence?
+1.  Traditional file storage.  (very difficult)
+2.  RDBMS  (need to create relational structures to represent objects, SQL code to 
+interface to DBMS, swizzle pointers)
+3.  ODBMS
+
+Advantages                                  Disadvantages
+integrated with programming language        requires OOP
+automatic method storage                    little data in object form
+UDTs                                        nonexistent or poor query and reporting 
+tools                                       automatic persistent object IDs
+limited concurrency and transaction         management
+single-level memory                         substantial change and learning required
+
+Why would implement an application using an ODBMS?  If it is a new application 
+written in OOP with complex data requirements and limited query and reporting 
+requirements.
+What are the two competing object standards?
+SQL3 – an extension to SQL92.  Comes from a relational point of view.  Features
+abstract data types.  Proposes Destroy, Assignment, Call, Return, Case, If Then Else, 
+While Loop methods.
+ODMG 93 – Proposed by a consortium of object database vendors.  Comes for an object 
+point of view with objects being fundamental to the system.  The objects have strong 
+similarities to semantic objects.
+
+

@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>Assignment 2: OS Experience</title>
+</head>
+<body>
+Assignment 2: OS Experience<br />
+ICS 613, Dr. Johnson<br />
+David J. Burger<p />
+<p align="center">
+  <a href="http://jetty.mortbay.org/jetty/index.html"><img src="http://jetty.mortbay.org/jetty/images/jetty_banner.gif"></a>
+</p>
+<h3>Overview</h3>
+For my OS Experience I chose to work with the open source project Jetty.
+Jetty is an open source HTTP servlet server written in Java.  I felt
+that working with Jetty would give me an interesting perspective on
+the work with <a href="http://jakarta.apache.org/tomcat/">Tomcat</a> that we will be doing later in this course.
+Tomcat is, of course, the official Reference Implementation for Java
+Servlet and Java Server Pages technologies sponsored by the Apache
+Jakarta Project.  Because Jetty is much less known that Tomcat, I
+felt it would be interesting to see what this project has to offer.<p />
+
+The URL for Jetty can be found here:<p />
+
+<a href="http://jetty.mortbay.org/jetty/index.html">http://jetty.mortbay.org/jetty/index.html</a><p />
+
+The objective of the team that produced Jetty is to make a 100% Java HTTP
+servlet server.  The home page talks about the benefits of
+having a single server that can act as both the HTTP server and servlet
+container.  Apparently previous versions of Tomcat had to be deployed in
+conjunction with Apache in order to provide static HTTP/1.1 content.
+Another feature of Jetty that is touted on the home page is its size.
+With a smaller deployment size than Tomcat, Jetty can be
+embedded into other applications.  Integrating with Java applications is
+particularly easy because Jetty is written in Java.
+Jetty also claims to be highly efficient with the capability to handle
+thousands of simultaneous connections.
+
+<h3>Prime Directive 1</h3>
+From looking at the applications that use Jetty as a web server it is very
+apparent that Jetty is achieving prime directive number 1, that is it
+successfully accomplishes a useful task.  That useful task being its
+usage as an HTTP server, servlet container, and JSP server.
+The list of applications that use Jetty is impressive, and includes
+<a href="http://sourceforge.net/projects/jboss//">JBoss</a>
+and <a href="http://www.jxta.org/">JXTA</a>.<p />
+
+I was able to test out some of the useful technology myself by running
+the demonstration programs that came with the Jetty distribution.  I
+was able to fetch pages that demonstrated Jetty dumping headers,
+dumping servlet parameters, and handling sessions.  In addition, the
+examples that ship with Tomcat were also included.  All of the
+examples ran without any problems.<p />
+
+<h3>Prime Directive 2</h3>
+The Jetty application is available for download in .zip and .tar.gz formats.
+Being on sourceforge.net, there is also a CVS interface available if you want
+to work with the latest code.  Installing the application was as simple as
+downloading the compressed files and unpacking them on the target system.
+In the main directory a README.TXT file gave very well written instructions on
+getting Jetty running in a variety of specialized contexts.  Being a Java
+application, this was as simple as launching start.jar with the java
+interpreter.
+
+The quick start section in the README.TXT file directed me to the
+demonstration applications as noted above.  I decided
+that for a test of usefulness I would write my own servlet
+and see if I could quickly deploy it using the Jetty server.  The
+servlet did nothing more than build a simple web page displaying the
+current time. It took me some time to get the program deployed
+properly as I have done little work with servlets before.  I found the
+documentation at the Jetty site to be lacking in this area, however,
+the Jetty platform conforms to the Servlet API specification so I was
+able to get the needed documentation from the Tomcat web site.<p />
+
+Because Jetty is often used as an embedded server a lot of
+documentation was available that described using Jetty in such an
+environment.  Although I did not experiment with Jetty in this
+fashion, the code examples looked quite clear.<p />
+
+The Jetty tutorial, available here:<p />
+
+<a href="http://jetty.mortbay.org/jetty/tut/index.html">http://jetty.mortbay.org/jetty/tut/index.html</a><p />
+
+has a wealth of information for using Jetty as an embedded server.
+
+<h3>Prime Directive 3</h3>
+While the documentation for developers wishing to deploy applications using the
+Jetty platform looked quite good, the documentation for developers wishing to
+contribute to Jetty development seemed somewhat sparse.  I was unable to find
+any documents that expressed the design of the system.  The closest thing to
+developer documentation that I was able to find was a
+<a href="http://sourceforge.net/pm/task.php?group_project_id=2638&group_id=7322&func=browse">task list</a>.  The task list
+contains a list of the separate tasks that are currently being worked on, the
+name of the person assigned to the task, and an estimate of how much work is
+done on the task as a percentage.<p />
+
+The code itself seemed to be well written.  It contained a consistent
+formatting style with logically chosen variable names.  The Javadoc
+standard was followed for most of the project giving developers a
+handy way to learn about the design of the system.  The packages
+seemed to be well organized.<p />
+
+The build seems to be set up with the best open source tools available.  The
+system is configured to use ant, and an extensive build.xml file is available
+in the root directory of the distribution.  I located a section in the build
+file called tests, and it had a comment that referred to running the test
+harnesses.  The presence of these unit tests would certainly be an aid
+to any programmer wishing to make a contribution.
+
+<h3>Conclusion</h3>
+Overall Jetty seems to be a pretty impressive project.  It has proven its
+usefulness as a component of some high profile projects.  Jetty was also
+very easy to install.  I was able to deploy my own simple servlet in only
+a few minutes.  The documentation for a user of the Jetty system is quite
+good when supplemented with information from the Tomcat site.  While
+the developer documentation seemed to be somewhat lacking, the
+presence of coding conventions, Javadoc, and unit testing would do a
+lot to help developers that are new to the project.
+</body>
+</html>

@@ -1,0 +1,292 @@
+Source code listing for cap.c:
+
+#include <stdio.h>                             
+                                               
+/*                                             
+   01/15/01                                    
+   cap.c by David J. Burger for ICS 212        
+   This program replaces all lower case letters
+   in a text file by upper case letters.       
+   It is called like this:                     
+   cap < infile.txt > outfile.txt              
+*/                                             
+                                               
+main() {                                       
+                                               
+  int c;                                       
+                                               
+  while((c=getchar())!=EOF) {                  
+    if (c>='a' && c<='z')                      
+      c='A'+c-'a';                             
+    putchar(c);                                
+  }                                            
+                                               
+}
+
+Output file res.txt given the following command:
+
+./cap < secret.txt > res.txt
+
+SECRET DE DEUX, SECRET DE DIEU, SECRET DE TROIS, SECRET DE TOUS. (FRENCH PROVER
+B)                                                                              
+
+Output file res.txt given the following command:
+
+./cap < isort.c > res.txt
+
+/* AN EXAMPLE OF SORTING A LIST OF STRINGS BY  */                  
+/* REARRANGING THE POINTERS AND NOT MOVING THE */                  
+/* STRINGS THEMSELVES.       WP--9/99          */                  
+                                                                   
+#INCLUDE <STDIO.H>                                                 
+#INCLUDE <STRING.H>                                                
+                                                                   
+/* SWAP THE POINTERS THAT S AND T POINT TO  */                     
+VOID SWAP(CHAR **S, CHAR **T)                                      
+{                                                                  
+        CHAR* U;                                                   
+        U = *S;                                                    
+        *S = *T;                                                   
+        *T = U;                                                    
+}                                                                  
+                                                                   
+/* SORT THE N ELEMENTS OF V[] USING AN INSERTION SORT */           
+/* V IS ASSUMED TO BE AN ARRAY OF POINTERS TO STRINGS */           
+/* THIS REARRANGES THE POINTERS IN ARRAY V.           */           
+uhunix2:/home/23/dburger/ics212/ass02/cap% cat res.txt             
+/* AN EXAMPLE OF SORTING A LIST OF STRINGS BY  */                  
+/* REARRANGING THE POINTERS AND NOT MOVING THE */                  
+/* STRINGS THEMSELVES.       WP--9/99          */                  
+                                                                   
+#INCLUDE <STDIO.H>                                                 
+#INCLUDE <STRING.H>                                                
+                                                                   
+/* SWAP THE POINTERS THAT S AND T POINT TO  */                     
+VOID SWAP(CHAR **S, CHAR **T)                                      
+{                                                                  
+        CHAR* U;                                                   
+        U = *S;                                                    
+        *S = *T;                                                   
+        *T = U;                                                    
+}                                                                  
+                                                                   
+/* SORT THE N ELEMENTS OF V[] USING AN INSERTION SORT */           
+/* V IS ASSUMED TO BE AN ARRAY OF POINTERS TO STRINGS */           
+/* THIS REARRANGES THE POINTERS IN ARRAY V.           */           
+VOID ISORT(CHAR **V, INT N)                                        
+{                                                                  
+        INT I, J;                                                  
+                                                                   
+        FOR(I = 1; I<N; I++) {                                     
+                FOR(J = I; J>0; J--) {                             
+                        IF(STRCMP(V[J],V[J-1])<0) SWAP(V+J, V+J-1);
+                }                                                  
+        }                                                          
+}                                                                  
+/* SHORT MAIN PROGRAM TO TEST ISORT()   */                         
+VOID MAIN()                                                        
+{                                                                  
+        INT I;                                                     
+    CHAR *A[] = {"ORANGES", "GRAPES", "PEACHES",                   
+                "APPLES", "PEARS", "MANGOS", "LYCHEES"};           
+        PRINTF("UNSORTED:\N");                                     
+        FOR(I = 0; I<7; I++) PRINTF("%S\N",A[I]);                  
+        ISORT(A, 7);                                               
+        PRINTF("\NSORTED:\N");                                     
+        FOR(I = 0; I<7; I++) PRINTF("%S\N",A[I]);                  
+}                                                                  
+
+Source code listing for lc.c:
+
+#include <stdio.h>                             
+                                               
+/*                                             
+   01/15/01                                    
+   lc.c by David J. Burger for ICS 212         
+   This program converts all upper case letters
+   in a text file to lower case.               
+   It is called like this:                     
+   lc < infile.txt > outfile.txt               
+*/                                             
+                                               
+main() {                                       
+                                               
+  int c;                                       
+                                               
+  while((c=getchar())!=EOF) {                  
+    if (c>='A' && c<='Z')                      
+      c='a'+c-'A';                             
+    putchar(c);                                
+  }                                            
+                                               
+}                                              
+
+Output file res.txt given the following command:
+
+./lc < secret.txt > res.txt
+
+secret de deux, secret de dieu, secret de trois, secret de tous. (french prover
+b)                                                                              
+
+Output file res.txt given the following command:
+
+./lc < isort.c > res.txt
+
+/* an example of sorting a list of strings by  */                  
+/* rearranging the pointers and not moving the */                  
+/* strings themselves.       wp--9/99          */                  
+                                                                   
+#include <stdio.h>                                                 
+#include <string.h>                                                
+                                                                   
+/* swap the pointers that s and t point to  */                     
+void swap(char **s, char **t)                                      
+{                                                                  
+        char* u;                                                   
+        u = *s;                                                    
+        *s = *t;                                                   
+        *t = u;                                                    
+}                                                                  
+                                                                   
+/* sort the n elements of v[] using an insertion sort */           
+/* v is assumed to be an array of pointers to strings */           
+/* this rearranges the pointers in array v.           */           
+void isort(char **v, int n)                                        
+{                                                                  
+        int i, j;                                                  
+                                                                   
+        for(i = 1; i<n; i++) {                                     
+                for(j = i; j>0; j--) {                             
+                        if(strcmp(v[j],v[j-1])<0) swap(v+j, v+j-1);
+                }                                                  
+        }                                                          
+}                                                                  
+/* short main program to test isort()   */                         
+void main()                                                        
+{                                                                  
+        int i;                                                     
+    char *a[] = {"oranges", "grapes", "peaches",                   
+                "apples", "pears", "mangos", "lychees"};           
+        printf("unsorted:\n");                                     
+        for(i = 0; i<7; i++) printf("%s\n",a[i]);                  
+        isort(a, 7);                                               
+        printf("\nsorted:\n");                                     
+        for(i = 0; i<7; i++) printf("%s\n",a[i]);                  
+}                                                                  
+
+The makefile for detab:
+
+detab: detab.o              
+        gcc detab.o -o detab
+detab.o: detab.c            
+        gcc -c detab.c      
+
+Source code listing for detab.c:
+
+#include <stdio.h>                                                          
+#include <stdlib.h>                                                         
+                                                                            
+/*                                                                          
+   01/15/01                                                                 
+   detab.c by David J. Burger for ICS 212                                   
+   This program will remove tab stops from a file and                       
+   replace them with the appropriate number of spaces.                      
+   This program is called like this:                                        
+   detab 7 < infile.txt > outfile.txt                                       
+   If the tabwidth is not provided a default of 4 is                        
+   used.                                                                    
+*/                                                                          
+                                                                            
+void main(int argc, char *argv[]) {                                         
+                                                                            
+    int n; /* the tab spacing */                                            
+    int i = 0; /* used to track current column position */                  
+    int c,sp;  /* used to read the next character and                       
+                  calculate number of spaces */                             
+                                                                            
+    /* first see if a tab width was passed in from the command line */      
+    if (argc<2)                                                             
+        n = 4; /* default value */                                          
+    else                                                                    
+        n = atoi(argv[1]); /* value from command line */                    
+                                                                            
+    /* this while does all the work on the text */                          
+    while ((c=getchar())!=EOF) {                                            
+        if (c=='\t') {                                                      
+            sp = n -(i % n); /* calculate spaces to next tab stop */        
+            for (;sp>0;sp--) { /* space to the next tab */                  
+                putchar(' ');                                               
+                i++;                                                        
+            }                                                               
+        } else if (c=='\n') {                                               
+            putchar(c);                                                     
+            i = 0;                                                          
+        } else {                                                            
+            putchar(c);                                                     
+            i++;                                                            
+        }                                                                   
+    }                                                                       
+                                                                            
+}                                                                           
+
+Output file res.txt given the following command:
+
+./detab 5 < isort.c > res.txt
+
+/* An example of sorting a list of strings by  */         
+/* rearranging the pointers and not moving the */         
+/* strings themselves.       WP--9/99          */         
+                                                          
+#include <stdio.h>                                        
+#include <string.h>                                       
+                                                          
+/* swap the pointers that s and t point to  */            
+void swap(char **s, char **t)                             
+{                                                         
+     char* u;                                             
+     u = *s;                                              
+     *s = *t;                                             
+     *t = u;                                              
+}                                                         
+                                                          
+/* Sort the n elements of v[] using an insertion sort */  
+/* v is assumed to be an array of pointers to strings */  
+/* This rearranges the pointers in array v.           */  
+void isort(char **v, int n)                               
+{                                                         
+     int i, j;                                            
+                                                          
+     for(i = 1; i<n; i++) {                               
+          for(j = i; j>0; j--) {                          
+               if(strcmp(v[j],v[j-1])<0) swap(v+j, v+j-1);
+          }                                               
+     }                                                    
+}                                                         
+/* Short main program to test isort()   */                
+void main()                                               
+{                                                         
+     int i;                                               
+    char *a[] = {"oranges", "grapes", "peaches",          
+          "apples", "pears", "mangos", "lychees"};        
+     printf("Unsorted:\n");                               
+     for(i = 0; i<7; i++) printf("%s\n",a[i]);            
+     isort(a, 7);                                         
+     printf("\nSorted:\n");                               
+     for(i = 0; i<7; i++) printf("%s\n",a[i]);            
+}                                                         
+
+Output file res.txt given the following command:
+
+./detab 5 < prime.txt > res.txt
+
+Table of Prime Numbers                          
+0    3    5    7    11   13   17   19   23   29 
+31   37   41   43   47   53   59   61   67   71 
+73   79   83   89   97   101  103  107  109  113
+127  131  137  139  149  151  157  163  167  173
+179  181  191  193  197  199  211  223  227  229
+233  239  241  251  257  263  269  271  277  281
+283  293  307  311  313  317  331  337  347  349
+353  359  367  373  379  383  389  397  401  409
+419  421  431  433  439  443  449  457  461  463
+467  479  487  491  499  503  509  521  523  541

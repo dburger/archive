@@ -1,0 +1,224 @@
+<HTML>
+<HEAD>
+  <META NAME="GENERATOR" CONTENT="Adobe PageMill 2.0 Win">
+  <TITLE>Unit5--Unicity Distance</TITLE>
+</HEAD>
+<BODY>
+
+<H2>Unit 5-Unicity Distance</H2>
+
+<P>Study the notes here and do the problems given at the end of these notes. Read 
+  Section 11.1 in the book, but don't make a great effort to understand it well. 
+  I think you can understand my notes well if you try, and it is better to put 
+  your effort there. I figure this for one week's work. It isn't long, but I think 
+  the ideas are a little hard to grasp.</P>
+
+<H3>Section 11.1--information Theory</H3>
+
+<P>Section 11.1 deals with unicity distance and a couple of other topics. It gives 
+  a formula for unicity distance that I have often seen misapplied, and doesn't 
+  really give insight into where it came from. It is dangerous to try to use information 
+  theory unless you understand it well. I suggest reading this section, but just 
+  for a general understanding. I will furnish my own explanation here, which I 
+  believe you can understand more clearly and more easily than what is given in 
+  the book..</P>
+
+<P>Incidentally, Section 11.3 deals with complexity theory. It would seem to be 
+  very relevant, because most codes rely on having deciphering computationally 
+  too complex if you don't have the key, and simple if you do. A number of codes 
+  based on complexity theory have been proposed, but so far none has proved safe 
+  from cryptanalysts. When one is found, then I will include complexity theory 
+  in ICS623. You are welcome to try. The best known codes of this type are based 
+  on the knapsack problem in complexity theory--see Section 19.2.</P>
+
+<H3>Unicity Distance</H3>
+
+<P>You have some ciphertext but you don't have the corresponding cleartext.
+You are going to decipher it by brute force--you are simply going to decipher
+it using every key, at least until you find the plaintext message. But suppose
+you get something that looks like plain text. How do you know that it did
+not result by pure chance from the deciphering process? If you have a very
+small amount of ciphertext, this kind of thing is likely to happen. If you
+have a long piece of ciphertext, then it is less likely. How much ciphertext
+do you need?</P>
+
+<P>We will assume that if you decipher some ciphertext using the wrong key, every 
+  possible sequence is equally likely, i. e. that unless you have the correct 
+  key, the result is essentially random. This is genereally a reasonable assumption, 
+  but in general it is probably not provable. (I guess Shannon was the first one 
+  who made this assumption.) What we are going to calculate is, on the average 
+  if you try all keys, how many of the resulting wrong &quot;plaintext&quot; messages 
+  look like what you expect enough so you might accept them mistakenly. Again, 
+  we will assume that if you have the wrong key, what you get is essentially random--all 
+  possible deciphered &quot;messages&quot; are equally likely.</P>
+
+<P>Suppose I have N objects and M of them are acceptable. Then if I choose K of 
+  them, the expected number of acceptable ones among those K is K*(M/N), i. e. 
+  the expected percentage of acceptable ones in the chosen set is the same as 
+  the percentage of acceptable ones in the entire set. (This assumes that I can 
+  choose the same one twice, i. e. selection with replacement. I frankly don't 
+  know that you cannot get the same plaintext with two different keys, so this 
+  is probably appropriate.) So now I want to know A) the total number N of possible 
+  outputs of the decrypter, B) how many of them (M) might be accepted mistakenly 
+  as the actual plaintext, and C) the total number K of keys. In general, these 
+  numbers depend on the amount of plaintext, and the expected number of false 
+  messages decreases as the plaintext gets longer. The length of plaintext that 
+  gives just one expected false message is called <I>unicity distance</I>. You 
+  certainly don't want less ciphertext than that, because then when you see an 
+  acceptable message, you can't know whether or not you have the correct message. 
+  In fact, if the amount of ciphertext that you have equals the unicity distance, 
+  you expect one false message and the real message, and you can't tell which 
+  of them is the real message. If you have substantially more than the unicity 
+  distance amount, then you are unlikely to see a false message. Probably after 
+  you try all keys, there will be only one acceptable message, and it is the correct 
+  one.</P>
+
+<P>We need some examples. Suppose we are sending seven-bit characters, and the 
+  output of our decipherer is a string of seven-bit characters. However, the actual 
+  message has only printable characters, and we would accept any sequence of all 
+  printable characters. Let us assume 40-bit keys, so there are K=2^40 keys. From 
+  the ascii chart, we can see that all the characters from 20 hex to 7e hex inclusive 
+  are printable and all the others are not printable. (I count the blank space, 
+  which is 20 hex, as printable.) That is a total of 95 characters.Let us assume 
+  a string of n characters. Then the number of possible sequences of n seven-bit 
+  characters is N=128^n or 2^(7*n). The number of n-character strings that we 
+  would accept is M=95^n. Then the expected number of false messages would be 
+  KM/N = (2^40-1)*95^n/128^n. (I wrote 2^40-1 because we shouldn't count the one 
+  correct key. However, clearly that 1 is negligible for the purpose of computing, 
+  so now I will drop it.) I get unicity distance by setting this equal to 1 and 
+  solving for n. I get 92.993 characters as the answer. If you have 50 characters 
+  of ciphertext, then you can expect to get (2^40)*(95/128)^50 = 368877 acceptable 
+  sequences. You have essentially no chance of determining which one is correct. 
+  If you have 140 characters of ciphertext, then you can expect to get (2^40)*(95/128)^140 
+  = 0.000000819 false sequences--this means less than one chance in a million 
+  that a false sequence will show up, so you can almost certainly determine which 
+  message is correct.</P>
+
+<P>Now suppose you are transmitting ascii characters again, and now the plaintext 
+  is English and suppose again the the decryption device puts out 7-bit characters. 
+  Consider a sequence of n characters. Now we know that there are 128^n possible 
+  sequences that might come out of the decrypter. How many English sequences? 
+  I gave you some notes that indicate that you should use 2^(nH), and H should 
+  be in the range of 1.0 to 1.5. Let us use 1.3--I believe that is the value that 
+  Schneier chose to use. Again let's use 40-bit keys. Then the formula for the 
+  expected number of false sequences is (2^40)*(2^1.3n)/(128^n) = (2^40)*(2^1.3n)/(2^7*n) 
+  = 2^(40-5.7n). Unicity distance is where 40-5.7n = 0, or n = 7.0175. This indicates 
+  that you don't need much more than 7 symbols of ciphertext to break the code 
+  (but it still may require a lot of computing). (Double that--14 characters, 
+  is probably plenty to be safe.)</P>
+
+<H3>Unicity Distance Assignment</H3>
+
+<P>Assume that you send the 27 characters, 26 capital letters and space, and assume 
+  that the code is a simple substitution code, where any letter my be substituted 
+  for any letter, i. e. any letter may represent a, any letter except that one 
+  may represent b, any letter except those two my be used to represent c, etc. 
+  The ciphertext will be a string of capital letters and spaces, and the output 
+  of the decipherer will also be a string of capital letters and spaces. The plaintext 
+  is plain English, all letters upper case, keeping spaces.</P>
+<P>I calculated the unicity distance as follows: There are K=27! keys, N=27^n 
+  possible sequences of length n of which about M=2^(1.3n) look like English. 
+  Thus the expected number of sequences, aside from the correct one, that we would 
+  expect to find would be 27!*(2^(1.3n))/27^n. I solved for the value of n that 
+  would make this expression equal to 1 and found the value to be about 27 characters. 
+  (This is not exactly correct, because with a given string of ciphertext, the 
+  decoder must decode into a sequence such that same characters in the cipher 
+  text must go into the same character in the deciphered text. However, I believe 
+  it is approximately correct.)</P>
+
+<P>1a) Try to find cleartext that the following might decode into.</P>
+
+<P><TT><FONT FACE="Courier">OXRYJBRBKZR</FONT></TT></P>
+
+<P>That is, find (part of) a substitution cipher such that this string deciphers 
+  into a string that could be part of some English text. It may start and/or end 
+  in the middle of a word. For a substitution cipher, this is too short. There 
+  must be many such strings. For example this could decode into &quot;WEARS A 
+  COA(T)&quot; if we encipher R into A, B into space, and the others in the obvious 
+  way. However, this is not what I enciphered. I expect each student to find a 
+  different string like this. It will be interesting to see whether anyone finds 
+  the original plaintext that I used. Clearly you can't cryptanalyze a substitution 
+  code with only this much ciphertext.Note that this is only about half as long 
+  as the unicity distance.</P>
+
+<P>1b) Try to decipher this string, which was enciphered using a different
+substitution cipher.</P>
+
+<P><TT><FONT FACE="Courier">URJQQNOAGNTQQSNANIQOJQUNB NUVWNW NURQFNAJQNKQAK</FONT></TT></P>
+
+<P>Let me give you several suggestions. First, here is a table of letter
+frequencies. (These are expressed in percentages.)</P>
+
+<PRE>A  8.0   B  1.5   C  3.0   D  4.0   E 13.0   F  2.0   G  1.5
+H  6.0   I  6.5   J  0.5   K  0.4   L  3.5   M  3.0   N  7.0
+O  8.0   P  2.0   Q  0.2   R  6.5   S  6.0   T  9.0   U  3.0
+V  1.0   W  1.5   X  0.3   y  1.6   Z  0.1</PRE>
+
+<P>This ignores spaces. I believe that the average word size is roughly 5, so 
+  we would expect one character out of 6, or about 16%, to be spaces, depending 
+  somewhat on whether the writer tends to use short or long words. There are no 
+  double spaces in this ciphertext. There are tables of frequencies of digraphs, 
+  also--if I run across one I will at least give you a reference. A digraph is 
+  a pair of letters next to each other Several digraphs occur more than once in 
+  this ciphertext. For example, UR occurs twice, as does Space-N and JQ occurs 
+  three times, and also QQ occurs twice. You know, I think, what digraphs are 
+  very common. What you have to do is to make an educated guess, based on frequencies 
+  in the ciphertext and what you know about frequencies and good common sense. 
+  If you make a wrong guess, things won't work out and you have to backtrack and 
+  try a different guess. I think you should be able to do this in an hour or so--don't 
+  spend much more than that on it.</P>
+
+<P>This is about twice the unicity distance. I believe that in this case there 
+  is probably no substitution that deciphers this string into a string that resembles 
+  English except the one that I used to encipher it. (These two examples were 
+  enciphered from English plaintext using two different substitution ciphers.) 
+</P>
+
+<P>Find the unicity distance for the following situations. For 2), 3), and 4) 
+  assume that you are using DES, which has a 56-bit key. (Then how many possible 
+  keys are there?)</P>
+<P>2) Assume that you send bytes, and the information is decimal digits packed 
+  two digits per byte. Any sequence of digits would be accepted. Find the unicity 
+  distance in bytes. (Each hex digit is used to represent one decimal digit, and 
+  thus the hex representation has no letters, only digits.)</P>
+
+<P>3) Assume that you send bytes and you will accept any sequence of ascii
+characters as a valid message. Find the unicity distance in bytes. (Assume
+that there are 128 ascii characters, all of the characters with the first
+bit equal to zero.)</P>
+
+<P>4) Assume that you send bytes and the clear text is plain English, one letter 
+  per byte. Find the unicity distance in bytes. Assume 1.3 bits per letter for 
+  plain English.</P>
+
+<P>5) Same as 4), but now assume triple DES with three different keys.</P>
+<P>6) Same as 4), but now assume AES, which enciphers and deciphers 128-bit blocks. 
+  It can use 128-bit or 192-bit or 256-bit keys. Let us assume 256-bit keys. Give 
+  the answer for unicity distance in bytes.</P>
+<P>7) Assume that you send bytes and the clear text is plain English, one letter 
+  per byte, but before enciphering you compress it to half its uncompressed size. 
+  Assume 1.3 bits per letter for the uncompressed English. Assume AES again with 
+  256-bit keys, as in 6). Find the unicity distance in bytes.</P>
+<p></p>
+<P>Hint: The best way to approach this is to note that the amount of information
+in the compressed message is the same as before compression, but there are
+half as many bytes. Therefore the information per symbol of the compressed
+text is twice the information per symbol of the uncompressed text. If we
+assume 1.3 bits per symbol for the plain English, then there nust be about
+2.6 bits per symbol for the compressed English. Another way of looking at
+it that gives the same answer is to say that the number of acceptable compressed
+messages of length n is approximately the same as the number of plain English
+messages of length 2n, because a compressed message would be accepted if
+it becomes plain English when expanded. (That is only approximately true,
+because the ratio of compression is not exactly the same for every message,
+but it gives the right result--the same as the other approach.) Either way
+the number of compressed English messages of length n will be 2^(1.3*2*n).</P>
+
+<P>Answers to problem 3: 56 bytes, and to problem 4: 8.36 bytes. Note that compression 
+  makes cryptanalysis harder. You need more ciphertext. Also, you have to do more 
+  computing, because you will probably have to decompress in order to recognize 
+  whether the deciphered block is part of a compressed file than to recognize 
+  whether it is plain English or not. </P>
+
+</BODY>
+</HTML>

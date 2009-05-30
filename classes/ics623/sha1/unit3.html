@@ -1,0 +1,133 @@
+<html>
+<head>
+<title>Unit 3 Hash Functions</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h2>Unit 3--Hash Functions</h2>
+<p>This may not be the logical place for this topic by most reasoning, but it 
+  is important and it is a topic that we can discuss without more mathematical 
+  preparation, so let's do it now. I would like you to study this note and the 
+  sections of the book that are referenced, and also to program the SHA1 standard 
+  hash algorithm. I will give some further details on the SHA1 program in these 
+  notes </p>
+<p>A hash function is a function H(s), where s is a string of bits of any length 
+  and the function value is a number in a specified range--usually a 128 or 160 
+  bit number in cryptographic applications. In general, for a good hash function, 
+  you want all possible function values to be about equally probable if you choose 
+  an s at random. Let us assume that our hash function produces an n bit number. 
+  Then the probability that two randomly chosen strings s1 and s2 will have the 
+  same hash value is about 1 in 2^n. Here are some ways in which you can make 
+  good use of hash functions:<br>
+</p>
+<p>A) Error detection. When you transmit or store some data, you store its hash 
+  value with it. When you receive or recall the information, you recalculate the 
+  hash value. If the recalculated value doesn't match the hash value sent or stored 
+  with the data, you have detected an error. If there is an error, the probability 
+  will be about one in 2^n that the correct data and the erroneous data will have 
+  the same hash value, so the probability of an undetected error is about 1 in 
+  2^n.</p>
+<p>B) Do files match? Suppose you have a file in your PC and a &quot;copy&quot; 
+  of it on one of the Sun servers. Are those files the same? You can't compare 
+  them, because they are in different computers. If you send the file from one 
+  computer to the other, you can't be sure that the file you received is the same 
+  as the one you sent. There might be a transmission error, or the ftp program 
+  may even introduce changes. What you can do is to calculate the hash function 
+  of each file and compare them. If the files are different, the probability is 
+  about one in 2^n that the hash values will match. </p>
+<p>For the purpose of A) and B), n=32 is prbobably quite adequate. This gives 
+  a probability of one in several billion that you will have an undetected error. 
+  That is about the same as the probability that you will be killed the next time 
+  you cross the street. Most of you seem willing to bet your life with those odds. 
+  For the following cryptographic applications, n=64 is not adequate. Using n=128 
+  seems to be adequate. Now n=160 is quite common.</p>
+<p>C) The basic concept of a digital signature is as follows: To sign a message 
+  M, you encrypt M using your private key. Then anyone can decrypt using your 
+  public key. If your public key decrypts the message properly with your public 
+  key, it must have ben encrypted with your private key. Then you must have sent 
+  it, because no one else could possibly have encrypted it because no one else 
+  knows your private key. </p>
+<p>Encrypting a big message with a public key is slow. A much more efficient method 
+  is to calculate H(M) and then encrypt that value, which will be 128 or 160 bits, 
+  using your private key. You send M and with it the encrypted hash value. The 
+  person who wants to verify your signature simply decrypts the hash value and 
+  recalculates H(M) from the message, and compares those values, and if they are 
+  equal, he/she assumes that you must have sent the message.</p>
+<p>D) Storiing passwords securely. It is best not to store passwords in the computer 
+  as clear text, because if a hacker gets access to the files, he has all the 
+  passwords. What is done is that the hash of the passwords is stored. When you 
+  change your password, the computer calculates the hash and stores it. When you 
+  login, the computer again calculates the password and compares with the stored 
+  hash value. If the hash values match, you are accepted. Actually, the computer 
+  administrators do not know your password. I believe that unix uses a hash function 
+  based on DES.</p>
+<p>E) Here is a new way to handle copyrights. Instead of having the copyright 
+  office store a copy of your document, you send them the hash value and they 
+  store it, which is much more economical. If anyone contests your copyright, 
+  you simply show the original document. That person can recalculate the hash 
+  function. If it matches the hash function that you registered, that proves that 
+  you had that document at the time of the copyright registration.</p>
+<p>For C), D), and E) you need stronger requirements on the hash function (see 
+  pp. 429-431)</p>
+<p>Let h = H(M) be the hash value for a message M. Then</p>
+<p>1) Given M, it should be easy to calculate h. </p>
+<p>2) Given h it should be hard (practically impossible) to calculate M such that 
+  h = H(M)</p>
+<p>3) Given M it should be hard (practically impossible) to calculate another 
+  message M1 such that H(M1) = H(M). (This is equivalent to 2).</p>
+<p>4) It should be hard (practically impossible) to find two messages M1 and M2 
+  such that H(M1) = H(M2).</p>
+<p>If you could do 2) you could do forgery. You could find a message that Alice 
+  signed and then replace the message with a different message that would still 
+  match her signature. If you could do 4), then you could have Alice sign M1 and 
+  then use that signature with M2 to claim that Alice signed M2. Study the protocol 
+  on page 430 to see how this might be done if the hash function is not strong 
+  enough. Also, see the discussion of the &quot;birthday attack&quot; on pages 
+  165-166. I will discuss that in class in some more detail.</p>
+<p>For A) and B), you could use a CRC (cyclic redundanncy check, used for error 
+  detection) or treating M as a binary number, use M mod p for some large prime 
+  number. However, they are not secure hash functions. They do not satisfy requirements 
+  2), 3), or 4) above. What you should use is an algorithm designed for the purpose 
+  of hashing. There are several. I don't think any is better than the algorithm 
+  SHA1 that has been adopted as a standard quite widely. The book describes SHA. 
+  SHA1 is a revised algorithm almost identical to SHA. I will give you a copy 
+  of one of the standards documents. That document has adequate information for 
+  writing a program and checking it. It has several asmple calculations. </p>
+<p>Specifically, your assignment is to write a program that will calculate the 
+  SHA1 hash of a file. Do it in such a way, however, that later you can calculate 
+  the hash of a string of bytes in memory, because we will implement a couple 
+  of signature algorithms later in the course. You may assume that the file is 
+  no larger than one megabyte, if you wish. SHA1 actually deals with 512 bit blocks 
+  of data. It is possible to write your program in such a way that it reads 512 
+  bit blocks one at a time and processes them, and thus your program may be able 
+  to calculate the hash for a file with no size limit. Assuming the file size 
+  is no greater than one megabyte, so that you can read the whole file into memory 
+  before you process, simplifies the process. Doing it for the case where there 
+  is no restriction on the file size is an interesting challenge.</p>
+<p>Here is the output from my program for several files. Use your program to compute 
+  these and see whether you get the same hash values as I did. The first three 
+  are the examples given in the standard document. All six files are in my unix 
+  directory ~wes/ics/sha1 and you should be able to copy them from there.</p>
+<pre>File: abc.txt Size = 24 bits, or 3 bytes
+SHA1 HASH: a9993e36: 4706816a: ba3e2571: 7850c26c: 9cd0d89d
+</pre>
+<pre>File: abcd.txt Size = 448 bits, or 56 bytes
+SHA1 HASH: 84983e44: 1c3bd26e: baae4aa1: f95129e5: e54670f1
+</pre>
+<pre>File: aaaa Size = 8000000 bits, or 1000000 bytes
+SHA1 HASH: 34aa973c: d4c4daa4: f61eeb2b: dbad2731: 6534016f
+</pre>
+<pre>File: se.txt  Size = 648 bits, or 81 bytes<br>SHA1 HASH: e2632519: c8ab80ba: dba6203d: 5230db75: 916fbf22</pre>
+<pre>File: declares.txt Size = 66336 bits, or 8292 bytes
+SHA1 HASH: 4fcb5b03: bc2fb710: ad74e7a3: e62ebf77: 516ec786
+
+
+File: msdev.exe Size = 2163248 bits, or 270406 bytes
+SHA1 HASH: 792a4f77: d2521648: 2b2f397d: 716ba0dc: 5ce1aedb
+ </pre>
+<p>For programs for this course, you have to be aware of a little problem related 
+  to data representation in the computer. See the note <a href="Endian.html">&quot;Little 
+  Endian--Big Endian&quot;.</a></p>
+</body>
+</html>

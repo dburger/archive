@@ -1,0 +1,204 @@
+<html>
+<head>
+<title>Sorting Testing Results</title>
+</head>
+<body topmargin="0" leftmargin="0" rightmargin="0">
+<table width="100%" bgcolor="#ffcc00">
+  <tr height="49">
+    <td>
+    <font size="7">digitalOverflow</font><font size="1">101010</font>
+    </td>
+  </tr>
+</table>
+<blockquote>
+<a href="#testing">testing results</a> | <a href="#supportcode">support code choice</a> | <a href="#responsibilities">group responsibilities</a>
+<h3><a name="testing">Sorting Testing Results</a></h3>
+This document presents the results of sorting sequences using heap sort, merge sort, and
+quick sort techniques with both random and sorted data by David Burger and Robert Griffis
+for ICS 311.  The running times, in milliseconds, for various test runs are shown below:
+
+<table border="1" cellspacing="0" align="center">
+  <tr>
+    <th colspan="3">
+      10 & 100 Element Sort
+    </th>
+  </tr>
+  <tr>
+    <td>Sort Technique</td><td>Random Data</td><td>Sorted Data</td>
+  </tr>
+  <tr>
+    <td>heapSort</td><td align="right">0</td><td align="right">0</td>
+  </tr>
+  <tr>
+    <td>mergeSort</td><td align="right">0</td><td align="right">0</td>
+  </tr>  
+  <tr>
+    <td>quickSort</td><td align="right">0</td><td align="right">0</td>
+  </tr>  
+</table>
+<p>
+<table border="1" cellspacing="0" align="center">
+  <tr>
+    <th colspan="3">
+      1000 Element Sort
+    </th>
+  </tr>
+  <tr>
+    <td>Sort Technique</td><td>Random Data</td><td>Sorted Data</td>
+  </tr>
+  <tr>
+    <td>heapSort</td><td align="right">50</td><td align="right">50</td>
+  </tr>
+  <tr>
+    <td>mergeSort</td><td align="right">60</td><td align="right">60</td>
+  </tr>  
+  <tr>
+    <td>quickSort</td><td align="right">0</td><td align="right">0</td>
+  </tr>  
+</table>
+<p>
+<table border="1" cellspacing="0" align="center">
+  <tr>
+    <th colspan="3">
+      10000 Element Sort
+    </th>
+  </tr>
+  <tr>
+    <td>Sort Technique</td><td>Random Data</td><td>Sorted Data</td>
+  </tr>
+  <tr>
+    <td>heapSort</td><td align="right">600</td><td align="right">550</td>
+  </tr>
+  <tr>
+    <td>mergeSort</td><td align="right">770</td><td align="right">660</td>
+  </tr>  
+  <tr>
+    <td>quickSort</td><td align="right">270</td><td align="right">160</td>
+  </tr>  
+</table>
+
+Our tests were performed using the code in VariousSortApplet.java which has been included with this submission and
+can also be found in the presentation area of our website.<p>
+
+Once again we learned from these tests is that the granularity of the system timer in the Java
+Virtual Machine that we are using is not that accurate.  In fact, any of the above timing results
+that are listed as a time of under 100 milliseconds would often flip back and forth between 0
+and a value below 100.  This made it very hard to spot any trends in the data for test runs of
+10, 100, or 1000 elements.  Therefore, while we were able to get an idea of the various
+efficiencies from the smaller test runs, only the test run for 10000 elements was consistent
+enough for us to get a clear picture of heapSort, mergeSort, and quickSort.<p>
+
+One thing that was apparent was that although heapSort, mergeSort, and quickSort have all been
+shown to be O(nlog(n)) algorithms, the difference in the constant factors was large enough to show
+significant performance differences among the sorting techniques.  In fact, it was very evident
+that given the type of data we were using for our testing, quickSort was shown to be the superior
+technique, followed by heapSort, and then mergeSort.<p>
+
+First, let's take a look at mergeSort.  While mergeSort did turn out to be the slowest of the sorting
+algorithms we tested one must keep in mind that mergeSort, unlike quickSort, is largely unaffected
+by the data that is fed to it.  This is because the the recursive splitting of the sequence into two
+sequences is done in a deterministic manner.  We did, however, see a slightly better performance with
+sorted data when using mergeSort.  We believe the reason for this comes from the merge step.  The given
+sequences S<sub>1</sub> and S<sub>2</sub> in the merge method of mergeSort from a pre-sorted sequence
+will always have every item of S<sub>1</sub> <= the items of S<sub>2</sub>.  This will cause the first
+while loop within the merge to exhaust the items from S<sub>1</sub> before picking any items from S<sub>2</sub>.
+Therefore the first while loop will finish and no more comparisons will be necessary.  Of the final two while
+loops the first will not need to execute, as S<sub>1</sub> is already empty, and the final while loop will
+exhaust the items of S<sub>2</sub>.  The decreased number of comparisons necessary when sorting already sorted
+data makes for a slight speed improvement for mergeSort.<p>
+
+HeapSort, somewhat suprisingly, was faster than mergeSort.  I say suprisingly because from an intuitive standpoint
+it is hard to imagine the construction of a heap tree structure and the up and down bubbling that results beating
+the sequence techniques of the mergeSort.  We also so a speed improvement, although slight, from sorting already
+sorted data with heapSort.  The cause for this speed improvement was easier to deduce than the cause for the speed
+improvement in sorting sorted data with mergeSort.  For heapSort, this speed improvement comes from a reduced time
+needed to add the sequence items to the heap.  Because we added items to the heap from the front of the sorted sequence,
+each new item added to the heap was >= all items already in the heap.  Therefore, no up bubbling will take
+place and a step that would be O(log(n)) is now O(1).  The overall insertion is still O(log(n)) because of the process
+of locating the last position for insertion, however, the constant factors have been reduced.  This makes us curious
+as to the constant time performance improvement that would have been made had we implemented our heap with a
+<b>sequence</b> in which the last position is always at node n+1.<p>
+
+Our last sort was quickSort.  QuickSort proved to be a very fast sorting algorithm given the type of data we were sorting.
+In addition, the quickSort we implemented was performed "in place"  (ignoring the stack frame overhead of the recursive calls).
+In our implementation of quickSort we were able to locate a very large but subtle error that Goodrich and Tamassia made in
+their implementation on p. 326.  In it they check S.size() < 2 to determine if they have a sequence of 0 or 1 elements that
+does not need sorting.  In reality, only the indices leftBound and rightBound are being changed on each recursive call to
+quickSort and therefore Goodrich and Tamassia should have been using:
+<pre>
+    if (rightBound-leftBound+1<2) return;
+</pre>
+This not only takes care of the logic error in the routine but also eliminates the need for the second if statement.  We also
+implemented the choice of the pivot in a non-deterministic manner by choosing the pivot as a random element from leftBound to
+rightBound.  In this way we did not see any performance degradation from sorting random or sorted data.  In fact, we again
+saw a slight performance improvement sorting sorted data.  We believe this is due to the fact that no swaps are necessary as
+the partition is found to be already "in place."  Therefore the rightIndex and leftIndex quickly cross within the quickSort
+loop and the new recursive calls are made without re-arranging any data.<p>
+
+From our tests it would be easy to think that one would have no reason to use anything but quickSort when sorting data.  This,
+however, is not the case.  We can think of instances where certain types of data would still cause quickSort to be a bad choice
+even with our non-deterministic implementation.  For example, if the majority of the data of a sequence consisted of elements
+with equal values called e, our random pivot choice would often pick e and eventually we could have recursive calls that consist
+of subsequences with only elements of value e.  These subsequences would break down into partitions that have all the elements
+in one partition, the pivot, and an empty partition.  This results in a situation very similar to the sorted sequence problem
+with a determinstic quickSort implementation. 
+<p>
+<h3><a name="supportcode">Support Code Choice</a></h3>
+
+We spent a fair amount of time analyzing the code of the other groups before making a decision.  When we first looked for
+code very few groups actually had anything in position.  Later, the code for the other groups began to show up so we may
+not have given some of these late bloomers a fair chance.  Robert did speed testing among the final sets of code that we
+had listed as acceptable to help determine the final result.  For the sequence code, both array and linked, we decided to use
+the code of Byte Techies.  Their code seemed well commented, concise, and was very fast.  For the Binary Tree we chose
+Van Kuelen/Crockett.  The main reason for this decision was that they used a naming convention that matched ours so we had
+to change little to nothing to get it to work.  Their code also seemed very solid although somewhat over commented.
+
+
+<h3><a name="responsibilities">Group Responsibilities</a></h3>
+<blockquote>
+  <h4>Coding</h4>
+  <blockquote>
+    Extreme programming - done as a group.
+  </blockquote>
+  <h4>Web Site Updates</h4>
+  <blockquote>
+    Web site updates to reflect our new product were done by Robert Griffis.
+  </blockquote>
+  <h4>Testing Results Write Up</h4>
+  <blockquote>
+    The testing results write up was done by David Burger.
+  </blockquote>
+  <h4>Testing Applet</h4>
+  <blockquote>
+    The testing applet was written mainly by Robert Griffis with design decisions made as a group.
+  </blockquote>
+</blockquote>
+</blockquote>
+<pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</body>
+</html>

@@ -1,0 +1,466 @@
+<html>
+
+<head>
+<title>a13-WebAppStudy</title>
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000" link="#006666" vlink="#999999" alink="#66CCCC">
+David J. Burger<br/>
+ICS 613, Dr. Johnson<br/>
+Assignment 13, Web App Review
+<p/>
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+1. What parts of the StackMVC application are used to implement the MVC
+design pattern? What parts implement the &quot;model&quot;? What parts implement the &quot;view&quot;?&nbsp; What parts implement the &quot;controller&quot;?&nbsp;&nbsp;
+</tr></td>
+</table>
+
+The StackMVC application has a very easily seen separation of functionality
+into Model, View, and Controller parts:
+<p/>
+
+<table>
+<tr>
+  <td>
+    Model:
+  </td>
+  <td>
+    the StackModel class
+  </td>
+</tr>
+<tr>
+  <td>
+    View:
+  </td>
+  <td>
+    HTML and JSTL in the index.jsp page (+ other JSP's)
+  </td>
+</tr>
+<tr>
+  <td>
+    Controller:
+  </td>
+  <td>
+    the Controller class, along with the classes in the command directory
+  </td>
+</tr>
+</table>
+<p/>
+Decoupling of the functionality contained in the Model, View, and Controller
+provides the flexiblity to make changes to an application later in the
+development cycle.  It also increases the possiblity of reuse of software
+components.
+<p/>
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+<p>2. Implement a new command that &quot;doubles&quot; the current contents of
+the stack.&nbsp; In other words, if the current stack contains &quot;1 2
+3&quot;, the stack after doubling contains &quot;1 2 3 1 2 3&quot;. Once you
+have this working, provide your implementation of this new command below.</p>
+</tr></td>
+</table>
+
+The excellent MVC architecture used in StackMVC made it trivial to add the
+double command to the application.  The first thing I did was to add
+DoubleCommand.java to the command directory (colorized source produced by the
+outstanding GNU tool
+<a href="http://www.gnu.org/software/src-highlite/">source-highlight</a>):
+
+<pre>
+<tt>
+<b><font color=#0000FF>package</font></b> edu<font color=#990000>.</font>hawaii<font color=#990000>.</font>stackmvc<font color=#990000>.</font>control<font color=#990000>.</font>command<font color=#990000>;</font>
+
+<b><font color=#000080>import</font></b> edu<font color=#990000>.</font>hawaii<font color=#990000>.</font>stackmvc<font color=#990000>.</font>control<font color=#990000>.</font>Page<font color=#990000>;</font>
+<b><font color=#000080>import</font></b> edu<font color=#990000>.</font>hawaii<font color=#990000>.</font>stackmvc<font color=#990000>.</font>model<font color=#990000>.</font>StackModel<font color=#990000>;</font>
+<b><font color=#000080>import</font></b> javax<font color=#990000>.</font>servlet<font color=#990000>.</font>http<font color=#990000>.</font>HttpServletRequest<font color=#990000>;</font>
+
+<i><font color=#9A1900>/**</font></i>
+<i><font color=#9A1900> * Implements the double command to place the contents of the stack on the</font></i>
+<i><font color=#9A1900> * stack, thus "doubling" the contents.</font></i>
+<i><font color=#9A1900> * @author David J. Burger</font></i>
+<i><font color=#9A1900> * @version $Id$</font></i>
+<i><font color=#9A1900> */</font></i>
+<b><font color=#0000FF>public</font></b> <b><font color=#0000FF>class</font></b> DoubleCommand <b><font color=#0000FF>implements</font></b> Command <font color=#FF0000>{</font>
+
+  <i><font color=#9A1900>/**</font></i>
+<i><font color=#9A1900>   * Processes the "Double" command sent by the user.</font></i>
+<i><font color=#9A1900>   * Sets the stackIterator attribute with the resulting stack contents.</font></i>
+<i><font color=#9A1900>   *</font></i>
+<i><font color=#9A1900>   * @param request The request object.</font></i>
+<i><font color=#9A1900>   * @return The page to be displayed (Page.INDEX).</font></i>
+<i><font color=#9A1900>   */</font></i>
+  <b><font color=#0000FF>public</font></b> Page <b><font color=#000000>process</font></b><font color=#990000>(</font>HttpServletRequest request<font color=#990000>)</font> <font color=#FF0000>{</font>
+    StackModel stackModel <font color=#990000>=</font> StackModel<font color=#990000>.</font><b><font color=#000000>getInstance</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    stackModel<font color=#990000>.</font><b><font color=#000000>doubleStack</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    request<font color=#990000>.</font><b><font color=#000000>setAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"stackIterator"</font><font color=#990000>,</font> stackModel<font color=#990000>.</font><b><font color=#000000>iterator</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> Page<font color=#990000>.</font>INDEX<font color=#990000>;</font>
+  <font color=#FF0000>}</font>
+<font color=#FF0000>}</font>
+</tt>
+</pre>
+
+
+The second change was to add the doubleStack() function to the StackModel
+class:
+
+<pre>
+<tt>
+  <i><font color=#9A1900>/**</font></i>
+<i><font color=#9A1900>   * "Doubles" the stack by placing a copy of itself at the end of the stack.</font></i>
+<i><font color=#9A1900>   */</font></i>
+  <b><font color=#0000FF>public</font></b> <b><font color=#0000FF>synchronized</font></b> <font color=#009900>void</font> <b><font color=#000000>doubleStack</font></b><font color=#990000>(</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    Object elements<font color=#990000>[</font><font color=#990000>]</font> <font color=#990000>=</font> <b><font color=#0000FF>this</font></b><font color=#990000>.</font>stack<font color=#990000>.</font><b><font color=#000000>toArray</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>for</font></b> <font color=#990000>(</font><font color=#009900>int</font> i <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font> i <font color=#990000>&lt;</font> elements<font color=#990000>.</font>length<font color=#990000>;</font> i<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+      <b><font color=#0000FF>this</font></b><font color=#990000>.</font>stack<font color=#990000>.</font><b><font color=#000000>push</font></b><font color=#990000>(</font>elements<font color=#990000>[</font>i<font color=#990000>]</font><font color=#990000>)</font><font color=#990000>;</font>
+    <font color=#FF0000>}</font>
+  <font color=#FF0000>}</font>
+
+</tt>
+</pre>
+
+Finally, it was also necessary to add another form to the index.jsp page that
+contained the submit button for the double stack command.  This HTML was
+just like the other forms already in index.jsp and therefore was as simple
+as a copy, paste, and then making minor changes.
+<p/>
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+<p>3. Write a class that implements a junit/httpunit test of the
+&quot;double&quot; command. Once you have it working, provide your
+implementation of this class below.</p>
+</tr></td>
+</table>
+
+<pre>
+<tt>
+<b><font color=#0000FF>package</font></b> edu<font color=#990000>.</font>hawaii<font color=#990000>.</font>stackmvc<font color=#990000>.</font>control<font color=#990000>.</font>command<font color=#990000>;</font>
+
+<b><font color=#000080>import</font></b> com<font color=#990000>.</font>meterware<font color=#990000>.</font>httpunit<font color=#990000>.</font>WebConversation<font color=#990000>;</font>
+<b><font color=#000080>import</font></b> com<font color=#990000>.</font>meterware<font color=#990000>.</font>httpunit<font color=#990000>.</font>WebForm<font color=#990000>;</font>
+<b><font color=#000080>import</font></b> com<font color=#990000>.</font>meterware<font color=#990000>.</font>httpunit<font color=#990000>.</font>WebLink<font color=#990000>;</font>
+<b><font color=#000080>import</font></b> com<font color=#990000>.</font>meterware<font color=#990000>.</font>httpunit<font color=#990000>.</font>WebResponse<font color=#990000>;</font>
+<b><font color=#000080>import</font></b> com<font color=#990000>.</font>meterware<font color=#990000>.</font>httpunit<font color=#990000>.</font>WebRequest<font color=#990000>;</font>
+<b><font color=#000080>import</font></b> com<font color=#990000>.</font>meterware<font color=#990000>.</font>httpunit<font color=#990000>.</font>WebTable<font color=#990000>;</font>
+
+<b><font color=#000080>import</font></b> junit<font color=#990000>.</font>framework<font color=#990000>.</font>TestCase<font color=#990000>;</font>
+
+<i><font color=#9A1900>/**</font></i>
+<i><font color=#9A1900> * Tests operation of the StackMVC Double command.</font></i>
+<i><font color=#9A1900> *</font></i>
+<i><font color=#9A1900> * @author David J. Burger</font></i>
+<i><font color=#9A1900> * @version $Id$</font></i>
+<i><font color=#9A1900> */</font></i>
+<b><font color=#0000FF>public</font></b> <b><font color=#0000FF>class</font></b> TestDoubleCommand <b><font color=#0000FF>extends</font></b> TestCase <font color=#FF0000>{</font>
+
+  <i><font color=#9A1900>/** The stackMVC's single page title. */</font></i>
+  <b><font color=#0000FF>private</font></b> String pageTitle <font color=#990000>=</font> <font color=#FF0000>"Stack MVC"</font><font color=#990000>;</font>
+
+  <i><font color=#9A1900>/** Get the test host. */</font></i>
+  <b><font color=#0000FF>private</font></b> String testHost <font color=#990000>=</font> System<font color=#990000>.</font><b><font color=#000000>getProperty</font></b><font color=#990000>(</font><font color=#FF0000>"test.host"</font><font color=#990000>)</font><font color=#990000>;</font>
+
+  <i><font color=#9A1900>/**</font></i>
+<i><font color=#9A1900>   * Tests the stackMVC double operation under normal situation.</font></i>
+<i><font color=#9A1900>   *</font></i>
+<i><font color=#9A1900>   * @throws Exception If problems occur</font></i>
+<i><font color=#9A1900>   */</font></i>
+  <b><font color=#0000FF>public</font></b> <font color=#009900>void</font> <b><font color=#000000>testDouble</font></b><font color=#990000>(</font><font color=#990000>)</font> <b><font color=#0000FF>throws</font></b> Exception <font color=#FF0000>{</font>
+    WebConversation conversation <font color=#990000>=</font> <b><font color=#0000FF>new</font></b> <b><font color=#000000>WebConversation</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// Get welcome.jsp page and check for successful retrieval</font></i>
+    String Url <font color=#990000>=</font> testHost <font color=#990000>+</font> <font color=#FF0000>"stackmvc/welcome.jsp"</font><font color=#990000>;</font>
+    WebResponse response <font color=#990000>=</font> conversation<font color=#990000>.</font><b><font color=#000000>getResponse</font></b><font color=#990000>(</font>Url<font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Checking welcome.jsp retrieval"</font><font color=#990000>,</font> pageTitle<font color=#990000>,</font>
+        response<font color=#990000>.</font><b><font color=#000000>getTitle</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// Go to the stack page and check that we got it OK.</font></i>
+    WebLink startLink <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getLinkWithID</font></b><font color=#990000>(</font><font color=#FF0000>"InitStack"</font><font color=#990000>)</font><font color=#990000>;</font>
+    response <font color=#990000>=</font> conversation<font color=#990000>.</font><b><font color=#000000>getResponse</font></b><font color=#990000>(</font>startLink<font color=#990000>.</font><b><font color=#000000>getRequest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Checking index.jsp retrieval"</font><font color=#990000>,</font> pageTitle<font color=#990000>,</font>
+        response<font color=#990000>.</font><b><font color=#000000>getTitle</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// check to make sure that the stack is empty</font></i>
+    WebTable stackTable <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getTableWithID</font></b><font color=#990000>(</font><font color=#FF0000>"stackTable"</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected empty stack table."</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>,</font> stackTable<font color=#990000>.</font><b><font color=#000000>getRowCount</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// call the double command on the empty stack</font></i>
+    WebForm form <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getFormWithID</font></b><font color=#990000>(</font><font color=#FF0000>"DoubleForm"</font><font color=#990000>)</font><font color=#990000>;</font>
+    WebRequest request <font color=#990000>=</font> form<font color=#990000>.</font><b><font color=#000000>getRequest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    response <font color=#990000>=</font> conversation<font color=#990000>.</font><b><font color=#000000>getResponse</font></b><font color=#990000>(</font>request<font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// check to make sure still an empty stack</font></i>
+    stackTable <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getTableWithID</font></b><font color=#990000>(</font><font color=#FF0000>"stackTable"</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected empty stack table."</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>,</font> stackTable<font color=#990000>.</font><b><font color=#000000>getRowCount</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// now push a 1 on the stack</font></i>
+    form <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getFormWithID</font></b><font color=#990000>(</font><font color=#FF0000>"PushForm"</font><font color=#990000>)</font><font color=#990000>;</font>
+    request <font color=#990000>=</font> form<font color=#990000>.</font><b><font color=#000000>getRequest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    request<font color=#990000>.</font><b><font color=#000000>setParameter</font></b><font color=#990000>(</font><font color=#FF0000>"number"</font><font color=#990000>,</font> <font color=#FF0000>"1"</font><font color=#990000>)</font><font color=#990000>;</font>
+    response <font color=#990000>=</font> conversation<font color=#990000>.</font><b><font color=#000000>getResponse</font></b><font color=#990000>(</font>request<font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// now call double</font></i>
+    form <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getFormWithID</font></b><font color=#990000>(</font><font color=#FF0000>"DoubleForm"</font><font color=#990000>)</font><font color=#990000>;</font>
+    request <font color=#990000>=</font> form<font color=#990000>.</font><b><font color=#000000>getRequest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    response <font color=#990000>=</font> conversation<font color=#990000>.</font><b><font color=#000000>getResponse</font></b><font color=#990000>(</font>request<font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// check that the stack is now 1, 1</font></i>
+    stackTable <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getTableWithID</font></b><font color=#990000>(</font><font color=#FF0000>"stacktable"</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable to have two rows"</font><font color=#990000>,</font> <font color=#993399>2</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getRowCount</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(0, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"1"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(1, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"1"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// now push a 2 on the stack</font></i>
+    form <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getFormWithID</font></b><font color=#990000>(</font><font color=#FF0000>"PushForm"</font><font color=#990000>)</font><font color=#990000>;</font>
+    request <font color=#990000>=</font> form<font color=#990000>.</font><b><font color=#000000>getRequest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    request<font color=#990000>.</font><b><font color=#000000>setParameter</font></b><font color=#990000>(</font><font color=#FF0000>"number"</font><font color=#990000>,</font> <font color=#FF0000>"2"</font><font color=#990000>)</font><font color=#990000>;</font>
+    response <font color=#990000>=</font> conversation<font color=#990000>.</font><b><font color=#000000>getResponse</font></b><font color=#990000>(</font>request<font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// now call double</font></i>
+    form <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getFormWithID</font></b><font color=#990000>(</font><font color=#FF0000>"DoubleForm"</font><font color=#990000>)</font><font color=#990000>;</font>
+    request <font color=#990000>=</font> form<font color=#990000>.</font><b><font color=#000000>getRequest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    response <font color=#990000>=</font> conversation<font color=#990000>.</font><b><font color=#000000>getResponse</font></b><font color=#990000>(</font>request<font color=#990000>)</font><font color=#990000>;</font>
+
+    <i><font color=#9A1900>// check that the stack is now 1, 1, 2, 1, 1, 2</font></i>
+    stackTable <font color=#990000>=</font> response<font color=#990000>.</font><b><font color=#000000>getTableWithID</font></b><font color=#990000>(</font><font color=#FF0000>"stacktable"</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable to have two rows"</font><font color=#990000>,</font> <font color=#993399>6</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getRowCount</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(0, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"1"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(1, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"1"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(2, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"2"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>2</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(3, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"1"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>3</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(4, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"1"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>4</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>assertEquals</font></b><font color=#990000>(</font><font color=#FF0000>"Expected stackTable(5, 0) to contain 1."</font><font color=#990000>,</font> <font color=#FF0000>"2"</font><font color=#990000>,</font>
+        stackTable<font color=#990000>.</font><b><font color=#000000>getTableCell</font></b><font color=#990000>(</font><font color=#993399>5</font><font color=#990000>,</font> <font color=#993399>0</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>asText</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>.</font><b><font color=#000000>trim</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+
+  <font color=#FF0000>}</font>
+
+<font color=#FF0000>}</font>
+</tt>
+</pre>
+
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+<p>4. Why is the synchronized keyword used in the StackModel class?&nbsp;
+    Describe a sequence of interactions by multiple users with the StackMVC
+application&nbsp; that would lead to incorrect results if the
+    synchronized keyword was not present.</p>
+</tr></td>
+</table>
+
+The synchronized keyword is used to deny the possiblity of concurrent
+manipulation of the ClearStack.  This is done because problems can occur if
+multiple threads, such as those used by a servlet, manipulate the internal
+data structure at the same time.  As a simple example of the type of problem
+that can occur without synchronization consider a situation where two users,
+call them Client 1 and Client 2, click the Pop button at almost the same time.
+Because the servlet is multi-threaded the order in which the sequence of
+commands for each users request executes cannot be determined.  Say that the
+stack currently contains:
+
+<p/>
+bottom=>[1, 2, 4, 3, 2]<=top
+<p/>
+
+Therefore the size of the stack is 5.  If you look at the implementation of
+the Stack class you will see that a pop is accomplished by:
+<p/>
+
+<ol>
+  <li>determine the size of the Array holding the stack</li>
+  <li>subtract one from that value to determine the index of the last element</li>
+  <li>retrieve the Object from that Array position</li>
+  <li>remove the Object from that Array position</li>
+  <li>return that Object</li>
+</ol>
+
+The following table demonstrates the problem that could occur if we don't
+synchronize the Pop:
+
+<table border="1">
+  <tr>
+    <td>Stack Contents</td><td>Client 1</td><td>Client 2</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3, 2]</td>
+    <td>1. determines the size of the stack to be 5</td>
+    <td>idle</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3, 2]</td>
+    <td>2. subtracts 1 to determine last element at index 4</td>
+    <td>idle</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3, 2]</td>
+    <td>idle</td>
+    <td>1. determines the size of the stack to be 5</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3, 2]</td>
+    <td>idle</td>
+    <td>2. subtracts 1 to determine last element at index 4</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3, 2]</td>
+    <td>idle</td>
+    <td>3. retrieves the Object at index 4, that is the 2</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3, 2]</td>
+    <td>idle</td>
+    <td>4. <b>removes the Object at index 4</b>, that is the 2</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3]</td>
+    <td>idle</td>
+    <td>5. returns the 2</td>
+  </tr>
+  <tr>
+    <td>[1, 2, 4, 3]</td>
+    <td>3. <b>attempts to retrieve the Object at index 4</b>, BOOM! it
+           it doesn't exist!</td>
+    <td>idle</td>
+  </tr>
+</table>
+<p/>
+Therefore it can be seen that even a simple Pop can result in synchronization
+errors that will cause Exceptions to be thrown when there are plenty of items
+left on the stack to pop!
+
+<p/>
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+<p>5. Why does the StackModel class keep an internal instance of the ClearStack
+class, rather than the Stack class?&nbsp; Explain.&nbsp; (Hint: try replacing
+the instantiation of the ClearStack instance with a Stack instance, and see what
+happens.) </p>
+</tr></td>
+</table>
+
+The Stack class is a pretty strict class in that it only allows you to work
+with the top of the stack.  The StackMvc application, on the other hand, is
+used to display the contents of the entire stack.  It is not possible to
+display the entire stack (well, not without removing the elements and then
+putting them back on) if all you have is a reference to the Stack class.
+The ClearStack provides the getIterator() method.  This method returns an
+iterator over the elements in the stack.  The iterator can be used to easily
+display the full contents of the stack.
+<p/>
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+<p>6. In Chapter 10 of the Java Extreme Programming Cookbook, a &lt;taskdef&gt;
+is shown with a nested &lt;classpath&gt; parameter. If the StackMVC build.xml
+file was enhanced to use this approach for defining &lt;taskdefs&gt;, which
+target in the StackMVC build.xml file could be deleted?&nbsp; Why?</p>
+</tr></td>
+</table>
+
+This would make the updateAntLib target unecessary, as the locations of the
+jar files that implement various tasks could be specified with the nested
+classpath parameter as shown in Chapter 10 of the XP Cookbook.  This would
+allow the classpath to be set to the location of the jar file within the lib
+directory.  One benefit of this would be that you could always be sure that
+the version of the jar file that you were using to implement an ant task for
+your build is the one you expect and not a different version that possibly
+copied over your version in the ant lib directory.
+<p/>
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+<p>7.&nbsp; The StackMVC application uses the following code in the index.jsp
+file&nbsp; to print out the
+contents of the stack:</p>
+
+<font SIZE="2">
+<p>&lt;table id=&quot;stackTable&quot; border=&quot;1&quot;&gt;<br>
+</font>&nbsp; <font SIZE="2">&lt;c:forEach var=&quot;element&quot;
+items=&quot;${stackIterator}&quot;&gt;<br>
+</font>&nbsp;&nbsp;&nbsp; <font SIZE="2">&lt;tr&gt;&lt;td&gt;&lt;c:out
+value=&quot;${element}&quot;/&gt;&lt;/td&gt;&lt;/tr&gt;<br>
+</font>&nbsp; <font SIZE="2">&lt;/c:forEach&gt;<br>
+&lt;/table&gt;</p>
+</font><p>Change this code so that even valued stack elements (i.e 0, 2, 4) are
+printed out in red, and odd valued stack elements (i.e. 1, 3) are printed out in
+blue.&nbsp; Note: you must implement this behavior by modifying the JSTL code
+above in the index.jsp, not by modifying any Java code.&nbsp; This is important,
+since &quot;presentation&quot; level decisions such as the font to be used
+should be implemented by &quot;presentation&quot; level components such as JSP
+pages.&nbsp; Hint: download and fool around with the JSTL sample web
+applications provided on the Resources page. </p>
+</tr></td>
+</table>
+
+In my first implementation of this red/blue output I put in a big when
+statement that used the test condition to determine whether to output red or
+blue.  This worked well, but made the display code for the table largely
+unreadable.  I therefore changed the code by introducing the following
+scriplet on the page:
+
+<pre>
+  <%
+     // colors are used to display even values on stack red, odd blue
+     String[] colors = { "red", "blue" };
+     pageContext.setAttribute("colors", colors);
+  %>
+</pre>
+
+and then used the following more streamlined code to write out the table:
+
+<pre>
+  &lt;c:forEach var="element" items="${stackIterator}"&gt;
+    &lt;tr&gt;&lt;td&gt;
+        &lt;font color="<b>&lt;c:out value="${colors[element%2]}"/&gt;</b>"&gt;
+        &lt;c:out value="${element}"/&gt;
+      &lt;/font&gt;
+    &lt;/td&gt;&lt;/tr&gt;
+    &lt;c:set var="topValue" value="${element}"/&gt;
+  &lt;/c:forEach&gt;
+</pre>
+
+<table bgcolor="#cccccc" width="100%" border="1">
+<tr><td>
+<p>8. The current Ant build.xml file only supports &quot;installation&quot; of
+the web application. In other words, there is no way to &quot;permanently&quot;
+deploy the StackMVC application to a tomcat server so that the web application
+persists across startups/shutdowns of the tomcat server.&nbsp; One way to
+support deployment (and a kind of &quot;binary distribution) of StackMVC is to
+write an ant task that creates&nbsp; a file called &quot;stackmvc.war&quot; in
+the top level of the build directory.&nbsp; Once this file is created, then the
+user can manually place it into the webapps/ directory of tomcat, which
+permanently deploys it.&nbsp; The user can also provide this file to any other
+person who wants the StackMVC web application for their own server (and who may
+not want to fool around with Ant, the Java source code, and so forth. That's why
+the war file forms a &quot;binary&quot; distribution.)&nbsp;&nbsp; Please
+implement the ant target that creates the stackmvc.war file.&nbsp; Once you've
+tested it and made sure it works, provide your solution below.</p>
+</tr></td>
+</table>
+
+This target was quite easy to create and only involved understanding the war
+task:
+
+<pre>
+  &lt;target name="war" depends="install"
+    description="Creates the war file stackmvc.war in the build/ directory."&gt;
+    &lt;war destfile="${build.dir}/stackmvc.war"
+      webxml="${basedir}/webapp/WEB-INF/web.xml" basedir="${build.dir}/war"
+      excludesfile="${build.dir}/war/WEB-INF/web.xml"/&gt;
+  &lt;/target&gt;
+</pre>
+
+</body>
+</html>

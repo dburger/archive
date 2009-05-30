@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.6.1
+by Lorenzo Bettini, bettini@gnu.org
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite">
+<title>XrefDb.py</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+<i><font color=#9A1900>#!/usr/bin/python</font></i>
+<i><font color=#9A1900>#                             -*- Mode: Python -*- </font></i>
+<i><font color=#9A1900>#  XrefDb.py -- </font></i>
+<i><font color=#9A1900>#  Author          : David J. Burger &amp; Bruce Harris</font></i>
+<i><font color=#9A1900>#  Created On      : Wed May  7 09:16:23 2003</font></i>
+<i><font color=#9A1900>#  Last Modified By: David J. Burger</font></i>
+<i><font color=#9A1900>#  Last Modified On: Thu May  8 17:56:58 2003</font></i>
+<i><font color=#9A1900>#  RCS: $Id$</font></i>
+<i><font color=#9A1900># </font></i>
+<i><font color=#9A1900>#  Copyright (c) 2003 David J. Burger</font></i>
+<i><font color=#9A1900># </font></i>
+<i><font color=#9A1900>#  A database for code cross referencing systems.</font></i>
+
+<b><font color=#0000FF>from</font></b> LispExtensions <b><font color=#0000FF>import</font></b> pushNew
+
+<b><font color=#0000FF>class</font></b> XrefInfo<font color=#990000>:</font>
+<i><font color=#9A1900>    "Data structure for representing function in the cross reference database"</font></i>
+    
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__init__</font></b><font color=#990000>(</font>self<font color=#990000>,</font> filename<font color=#990000>,</font> caller<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Initializes the XrefInfo with given filename and caller.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FILENAME is the filename in which the function is defined</font></i>
+<i><font color=#9A1900>        CALLER is a caller of the function</font></i>
+<i><font color=#9A1900>        """</font></i>
+        self<font color=#990000>.</font>__filename <font color=#990000>=</font> filename
+        self<font color=#990000>.</font>__callers <font color=#990000>=</font> <font color=#990000>[</font><font color=#990000>]</font>
+        <b><font color=#0000FF>if</font></b> caller <font color=#990000>!</font><font color=#990000>=</font> None<font color=#990000>:</font> self<font color=#990000>.</font>__callers<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font>caller<font color=#990000>)</font>
+            
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>setDefiningFile</font></b><font color=#990000>(</font>self<font color=#990000>,</font> filename<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Sets the defining file.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FILENAME is the new defining file</font></i>
+<i><font color=#9A1900>        """</font></i>
+        self<font color=#990000>.</font>__filename <font color=#990000>=</font> filename
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Returns the defining file."</font></i>
+        <b><font color=#0000FF>return</font></b> self<font color=#990000>.</font>__filename
+        
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>addCaller</font></b><font color=#990000>(</font>self<font color=#990000>,</font> caller<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Adds the given caller to the list of callers.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        CALLER is a caller to add.</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#000000>pushNew</font></b><font color=#990000>(</font>caller<font color=#990000>,</font> self<font color=#990000>.</font>__callers<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getCallers</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Returns the list of callers."</font></i>
+        <b><font color=#0000FF>return</font></b> self<font color=#990000>.</font>__callers
+
+<b><font color=#0000FF>class</font></b> XrefDb<font color=#990000>:</font>
+<i><font color=#9A1900>    "Provides a database to hold cross referencing information."</font></i>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__init__</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Creates the dictionary used to store the cross reference data."</font></i>
+        self<font color=#990000>.</font>__database <font color=#990000>=</font> <font color=#990000>{</font><font color=#990000>}</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>registerFunction</font></b><font color=#990000>(</font>self<font color=#990000>,</font> function<font color=#990000>,</font> filename<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Registers the given function in the database.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FUNCTION is the name of the function to register</font></i>
+<i><font color=#9A1900>        FILENAME is the name of the file the function is defined in</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__database<font color=#990000>.</font><b><font color=#000000>has_key</font></b><font color=#990000>(</font>function<font color=#990000>)</font><font color=#990000>:</font>
+            entry <font color=#990000>=</font> self<font color=#990000>.</font>__database<font color=#990000>[</font>function<font color=#990000>]</font>
+            entry<font color=#990000>.</font><b><font color=#000000>setDefiningFile</font></b><font color=#990000>(</font>filename<font color=#990000>)</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            entry <font color=#990000>=</font> <b><font color=#000000>XrefInfo</font></b><font color=#990000>(</font>filename<font color=#990000>,</font> None<font color=#990000>)</font>
+            self<font color=#990000>.</font>__database<font color=#990000>[</font>function<font color=#990000>]</font> <font color=#990000>=</font> entry
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>registerCaller</font></b><font color=#990000>(</font>self<font color=#990000>,</font> function<font color=#990000>,</font> caller<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Registers the given caller as a caller of the given function</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FUNCTION is the name of the function being called</font></i>
+<i><font color=#9A1900>        CALLER is a name of the function calling function</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__database<font color=#990000>.</font><b><font color=#000000>has_key</font></b><font color=#990000>(</font>function<font color=#990000>)</font><font color=#990000>:</font>
+            entry <font color=#990000>=</font> self<font color=#990000>.</font>__database<font color=#990000>[</font>function<font color=#990000>]</font>
+            entry<font color=#990000>.</font><b><font color=#000000>addCaller</font></b><font color=#990000>(</font>caller<font color=#990000>)</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            entry <font color=#990000>=</font> <b><font color=#000000>XrefInfo</font></b><font color=#990000>(</font>None<font color=#990000>,</font> caller<font color=#990000>)</font>
+            self<font color=#990000>.</font>__database<font color=#990000>[</font>function<font color=#990000>]</font> <font color=#990000>=</font> entry
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font>self<font color=#990000>,</font> function<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Returns the name of the defining file for function.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FUNCTION is the name of the function to return the defining file for</font></i>
+<i><font color=#9A1900>        returns the defining file or None if function not present/not defined</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__database<font color=#990000>.</font><b><font color=#000000>has_key</font></b><font color=#990000>(</font>function<font color=#990000>)</font><font color=#990000>:</font>
+            entry <font color=#990000>=</font> self<font color=#990000>.</font>__database<font color=#990000>[</font>function<font color=#990000>]</font>
+            <b><font color=#0000FF>return</font></b> entry<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>return</font></b> None
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getCallers</font></b><font color=#990000>(</font>self<font color=#990000>,</font> function<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Returns the list of callers of the given function.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FUNCTION is the name of the function to return the list of callers for</font></i>
+<i><font color=#9A1900>        returns the list of callers or None if not present/no callers defined</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__database<font color=#990000>.</font><b><font color=#000000>has_key</font></b><font color=#990000>(</font>function<font color=#990000>)</font><font color=#990000>:</font>
+            entry <font color=#990000>=</font> self<font color=#990000>.</font>__database<font color=#990000>[</font>function<font color=#990000>]</font>
+            <b><font color=#0000FF>return</font></b> entry<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>return</font></b> None
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getDbString</font></b><font color=#990000>(</font>self<font color=#990000>,</font> filter<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Returns a string representation of the contents in the database.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FILTER set to true to filter those without a defining file</font></i>
+<i><font color=#9A1900>        returns the database string</font></i>
+<i><font color=#9A1900>        """</font></i>
+        result <font color=#990000>=</font> <font color=#FF0000>"%-30s%-30s%-25s\n"</font> <font color=#990000>%</font> <font color=#990000>(</font><font color=#FF0000>"Function"</font><font color=#990000>,</font> <font color=#FF0000>"Defined in"</font><font color=#990000>,</font> <font color=#FF0000>"Called by"</font><font color=#990000>)</font>
+        <b><font color=#0000FF>for</font></b> function <b><font color=#0000FF>in</font></b> self<font color=#990000>.</font>__database<font color=#990000>.</font><b><font color=#000000>iterkeys</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+            entry <font color=#990000>=</font> self<font color=#990000>.</font>__database<font color=#990000>[</font>function<font color=#990000>]</font>
+            filename <font color=#990000>=</font> entry<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            callers <font color=#990000>=</font> entry<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            <b><font color=#0000FF>if</font></b> filter <b><font color=#0000FF>and</font></b> <b><font color=#0000FF>not</font></b> filename<font color=#990000>:</font> <b><font color=#0000FF>continue</font></b>
+            result <font color=#990000>=</font> result <font color=#990000>+</font> <font color=#FF0000>"%-30s%-30s%-25s\n"</font> <font color=#990000>%</font> <font color=#990000>(</font>function<font color=#990000>,</font> filename<font color=#990000>,</font> callers<font color=#990000>)</font>
+        <b><font color=#0000FF>return</font></b> result
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>clearDb</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Clears all entries in the database"</font></i>
+        self<font color=#990000>.</font>__database<font color=#990000>.</font><b><font color=#000000>clear</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>unitTest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Performs unit testing for this module.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>    returns 1 if successful, 0 otherwise</font></i>
+<i><font color=#9A1900>    """</font></i>
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Creating an XrefDb"</font>
+    xrefDb<font color=#990000>=</font> <b><font color=#000000>XrefDb</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Registering function 'foo' called in 'test.el'"</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerFunction</font></b><font color=#990000>(</font><font color=#FF0000>"foo"</font><font color=#990000>,</font> <font color=#FF0000>"test.el"</font><font color=#990000>)</font>
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Registering 'aoo', 'boo', 'coo' as callers of 'foo'"</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerCaller</font></b><font color=#990000>(</font><font color=#FF0000>"foo"</font><font color=#990000>,</font> <font color=#FF0000>"aoo"</font><font color=#990000>)</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerCaller</font></b><font color=#990000>(</font><font color=#FF0000>"foo"</font><font color=#990000>,</font> <font color=#FF0000>"boo"</font><font color=#990000>)</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerCaller</font></b><font color=#990000>(</font><font color=#FF0000>"foo"</font><font color=#990000>,</font> <font color=#FF0000>"coo"</font><font color=#990000>)</font>
+    
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Registering function 'doo' called in None"</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerFunction</font></b><font color=#990000>(</font><font color=#FF0000>"doo"</font><font color=#990000>,</font> None<font color=#990000>)</font>
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Registering 'eoo', 'foo', 'goo' as callers of 'doo'"</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerCaller</font></b><font color=#990000>(</font><font color=#FF0000>"doo"</font><font color=#990000>,</font> <font color=#FF0000>"eoo"</font><font color=#990000>)</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerCaller</font></b><font color=#990000>(</font><font color=#FF0000>"doo"</font><font color=#990000>,</font> <font color=#FF0000>"foo"</font><font color=#990000>)</font>
+    xrefDb<font color=#990000>.</font><b><font color=#000000>registerCaller</font></b><font color=#990000>(</font><font color=#FF0000>"doo"</font><font color=#990000>,</font> <font color=#FF0000>"goo"</font><font color=#990000>)</font>
+
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Now checking for database consistency..."</font>
+    
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Defining file for 'foo' should be 'test.el'"</font>
+    <b><font color=#0000FF>if</font></b> xrefDb<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font><font color=#FF0000>"foo"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>"test.el"</font><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Callers of 'foo' should be ['coo', 'boo', 'aoo']"</font>
+    <b><font color=#0000FF>if</font></b> xrefDb<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font><font color=#FF0000>"foo"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#990000>[</font><font color=#FF0000>'coo'</font><font color=#990000>,</font> <font color=#FF0000>'boo'</font><font color=#990000>,</font> <font color=#FF0000>'aoo'</font><font color=#990000>]</font><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Defining file for 'doo' should be None"</font>
+    <b><font color=#0000FF>if</font></b> xrefDb<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font><font color=#FF0000>"doo"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> None<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Callers of 'doo' should be ['goo', 'foo', 'eoo']"</font>
+    <b><font color=#0000FF>if</font></b> xrefDb<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font><font color=#FF0000>"doo"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#990000>[</font><font color=#FF0000>'goo'</font><font color=#990000>,</font> <font color=#FF0000>'foo'</font><font color=#990000>,</font> <font color=#FF0000>'eoo'</font><font color=#990000>]</font><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Defining file of 'notHere' should be None"</font>
+    <b><font color=#0000FF>if</font></b> xrefDb<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font><font color=#FF0000>"notHere"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> None<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Callers of 'notHere' should be None"</font>
+    <b><font color=#0000FF>if</font></b> xrefDb<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font><font color=#FF0000>"notHere"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> None<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+    <i><font color=#9A1900># success</font></i>
+    <b><font color=#0000FF>return</font></b> <font color=#993399>1</font>
+    
+<b><font color=#0000FF>if</font></b> __name__ <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"__main__"</font><font color=#990000>:</font> <b><font color=#0000FF>print</font></b> <b><font color=#000000>unitTest</font></b><font color=#990000>(</font><font color=#990000>)</font>
+</tt>
+</pre>
+</body>
+</html>

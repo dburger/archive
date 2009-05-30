@@ -1,0 +1,248 @@
+<html>
+<head>
+<title>Tree Testing Results</title>
+</head>
+<body topmargin="0" leftmargin="0" rightmargin="0">
+<table width="100%" bgcolor="#ffcc00">
+  <tr height="49">
+    <td>
+    <font size="7">digitalOverflow</font><font size="1">101010</font>
+    </td>
+  </tr>
+</table>
+<blockquote>
+<a href="#testing">testing results</a> | <a href="#responsibilities">group responsibilities</a>
+<h3><a name="testing">Tree Testing Results</a></h3>
+This document presents the results of insertion and searching in BST trees and AVL trees using
+sorted and unsorted input as implemented by David Burger and Robert Griffis for ICS 311.
+The running times, in milliseconds, for various test runs are shown below:
+
+<table width="90%" border="0">
+  <tr>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            10 Element Insert
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">0</td><td align="right">0</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">0</td><td align="right">0</td>
+        </tr>  
+      </table>
+    </td>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            10 Element Search
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">0</td><td align="right">0</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">0</td><td align="right">0</td>
+        </tr>  
+      </table>    
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            100 Element Insert
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">0</td><td align="right">0</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">0</td><td align="right">0</td>
+        </tr>  
+      </table>
+    </td>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            100 Element Search
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">0</td><td align="right">0</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">0</td><td align="right">0</td>
+        </tr>  
+      </table>    
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            1000 Element Insert
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">60</td><td align="right">330</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">100</td><td align="right">60</td>
+        </tr>  
+      </table>
+    </td>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            1000 Element Search
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">0</td><td align="right">330</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">60</td><td align="right">0</td>
+        </tr>  
+      </table>    
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            10000 Element Insert
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">270</td><td align="right">33950</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">820</td><td align="right">880</td>
+        </tr>  
+      </table>
+    </td>
+    <td>
+      <table border="1" cellspacing="0" align="center">
+        <tr>
+          <th colspan="4">
+            10000 Element Search
+          </th>
+        </tr>
+        <tr>
+          <td><pre> </pre></td><td>Unsorted Data</td><td>Sorted Data</td>
+        </tr>
+        <tr>
+          <td>BST</td><td align="right">160</td><td align="right">40540</td>
+        </tr>
+        <tr>
+          <td>AVL</td><td align="right">160</td><td align="right">110</td>
+        </tr>  
+      </table>    
+    </td>
+  </tr>  
+</table>
+<p>
+One of the many things that we learned from these tests is that the granularity of the system
+timer in the Java Virtual Machine that we are using is not that accurate.  In fact, any of the
+above timing results that are listed as a time of under 100 milliseconds would often flip back
+and forth between 0 and a value below 100.  This made it very hard to spot any trends in the
+data for test runs of 10 and 100 elements.  Even the test run for 1000 elements was fast enough
+for 0 milliseconds to be returned.  Therefore, while we were able to get an idea of the various
+efficiencies from the smaller test runs, only the test run for 10000 elements was consistent
+enough for us to get a clear picture of BST and AVL trees.<p>
+
+Our tests were performed using the code in TreeProject.java.  We also provided a simpler testing
+mechanism in our applet TreeTester.java which is available from our web page and also through
+TreeTester.html.<p>
+
+The results in the insertion part of these tests reveal the differences between a BST and AVL tree.
+The AVL tree maintains its balance through rotations while elements are being inserted into the
+tree.  The BST makes no attempt at maintaining balance.  For the BST this becomes very obvious when
+we look at the times for inserting sorted versus unsorted data.  For the 10000 element test run,
+the BST was able to insert a sorted sequence in 270 milliseconds and an unsorted sequence in
+33950 milliseconds.  These results are not unexpected.  When inserting random unsorted data into
+a BST a fairly well balanced tree will occur  (Goodrich and Tamassia p. 262).  Therefore the
+number of hops needed to hop down to the external node for an insertion is kept at a minimum with
+each insertion being O(log(n)) and therefore the n insertions are O(nlog(n)).  When we take this
+same random data and then sort it before insertion we see a severe performance decline with a
+time of 33950 milliseconds. This occurs because the insertion of sorted data into a BST renders
+our tree structure into a linear list in which each insertion is O(n) as it is placed at the end of the
+list resulting in an O(n<sup>2</sup>) algorithm for n elements.  When we now search the BST's for
+each element in the sequence these same issues determine the running times.  For the BST in which
+random data was dropped into the tree we have a fairly well balanced tree.  Therefore the
+running time to find all elements is a very quick 160 milliseconds and O(nlog(n)).  For
+the BST in which we sorted the data before inserting we get a poor performance of 40540
+milliseconds with an O(n<sup>2</sup>) algorithm.  Once again this is because the tree has
+deteriorated into a linear shape losing the advantages of a BST.<p>
+
+For the AVL trees, the time differences for inserting sorted and unsorted data were very small.  This is
+to be expected because the AVL tree maintains its shape and therefore any single insertion is O(log(n))
+and therefore n insertions are O(nlog(n)).  We can see that the AVL was slightly faster with the
+insertion of sorted data at 820 milliseconds than unsorted data at 880 milliseconds.  We believe
+this slight advantage is due to the fact that the unsorted data results in a fewer number of
+rotations to maintain the balance of the tree.  What is interesting to note is that the BST
+time for unsorted data was much faster than either of the AVL insertion times as it did not
+do any rotations to maintain a balanced shape. Searching the AVL trees was consistently good
+with very little difference between sorted and unsorted tests.  This is also to be expected as
+the tree maintains its balanced shape resulting in O(log(n)) individual searches and O(nlog(n))
+to find all the elements.  Once again it is interesting to note that searching the BST created
+by inserting unsorted random data was as fast searching the AVL trees.<p>
+
+Our tests show that if data can be guaranteed to be random and without pattern a BST is not a
+bad choice with quick running times and an easy implementation.  In most cases, however, our
+data does not come with such a guarantee making the self balancing AVL tree a superior choice.
+
+<p>
+<h3><a name="responsibilities">Group Responsibilities</a></h3>
+<blockquote>
+  <h4>Coding</h4>
+  <blockquote>
+    We decided to tackle the tougher coding issues of this assignment as a team, therefore all
+    key algorithms were programmed in a team environment.
+  </blockquote>
+  <h4>Web Site Updates</h4>
+  <blockquote>
+    Web site updates to reflect our new product were done by Robert Griffis.
+  </blockquote>
+  <h4>Testing Results Write Up</h4>
+  <blockquote>
+    The testing results write up was done by David Burger.
+  </blockquote>
+  <h4>Testing Applet</h4>
+  <blockquote>
+    The testing applet was written by Robert Griffis.
+  </blockquote>
+</blockquote>
+</blockquote>
+</body>
+</html>

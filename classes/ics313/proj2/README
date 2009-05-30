@@ -1,0 +1,28 @@
+why special parsers for let, cond, and condition-case
+
+1) let - proposes two problems, first a let has a list that contains other
+   lists.  Usually we expect the first symbol seen inside a list to be a
+   function name.  With let we get (let ((boo 7))), which would have the
+   second ( looking like a function call...can't let that happen.  The second
+   problem with let is that when it contains pairs, as in the (boo 7), the
+   first symbol is not a function call but a variable.
+
+   Dr. Johnson' program has an error in it that it assumes all let forms to
+   include only pair assignments.  It recursively calls the parse routine on
+   the second form so a let like this: (let (burger (foo 27))) will choke on
+   the burger because (second 'burger) is an error.  Variables like burger
+   are assigned nil, but he had none of these in the example code he was
+   parsing.
+
+2) cond - has the problem that is contains lists of lists.  So the first
+   thing in the list is not a function call but another list.
+   (cond ((< x 7) (message "boo"))
+
+3) condition-case - has the problem that the error handlers are lists where
+   the first element is not a function call, as in (error (message "boo")).
+
+   Dr. Johnson's program has an error in that it doesn't parse from the cdr
+   on but from the car on.  This will register error as a function call.
+
+Also, dolist macro should be in there because otherwise (dolist (poo thelist)
+says that poo is a function.

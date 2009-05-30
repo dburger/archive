@@ -1,0 +1,64 @@
+David J. Burger
+ICS 321 Sec. 452
+5/22/01
+
+1.6)  Explain the nature and function of each of the components of Figure 1-9.
+
+In Figure 1-9 the components of a database application are pictured.  At the far left of the 
+diagram we see the users.  The users and the uses of the data are the guiding force in the 
+development of the database application.  Database applications must be designed to 
+model the users’ model of the data so that the application will effectively represent the 
+data and also feel like a natural implementation of that model.  The users perception of 
+the database application will be a large factor in the success or failure of the application.  
+At the next level we see boxes representing the applications that the user interacts with to 
+manage the data.  The application can take a variety of forms from executable programs 
+that reside on client machines to “thin clients” that operate within the confines of a web 
+browser.  The application interfaces to the database via the database management system 
+or DBMS.  The DBMS accesses the data and provides applications with a standard 
+method for interfacing with that data.  At the far right we see the database.  The database 
+is the self-describing collection of integrated records.  Taken as a whole the diagram 
+represents the components of a typical database application.
+ 
+1.12)  Explain why a database is a model.  Describe the difference between a model of 
+reality and a model of a user’s model of reality.  Why is this difference important?
+
+A database is a model in that it attempts to represent a set of data and the ways that data 
+needs to be managed, updated, combined, processed, and used in reports.  One might 
+think that it would be the database designers goal to model reality, however, this is not 
+the case.  In actuality a database is a model of the users’ model of reality.  In this way a 
+database becomes an efficient mechanism for managing the necessary aspects of the data 
+without the burden of being an exact model of reality.  This difference is important for 
+the database designer to build a focused design in which relevant details are handled in a 
+natural and effective manner and irrelevant details are left out.
+
+1.13)  Give an example, other than one in this chapter, of a personal database application.
+
+I thought of two examples of personal database applications.  First, an independent 
+software developer could maintain a database of customers and jobs.  I found this 
+example to be very similar to the house painting example from the book so I figured I 
+would come up with another example.  The second example I came up with is a 
+basketball coach or manager could maintain a database of basketball statistics.  The 
+database at a minimum would need tables for the team, players, statistics, and games.  
+This design would also allow for interesting relationships between the tables and 
+extensive reporting options would be necessary.
+
+
+
+Project A
+
+I was able to configure a Dell Inspiron system with a lot of nice features for under $2500.  
+I would have to say that more than one database is used to support the site.  Data that is 
+used in the support section of the site is almost certainly in a different database than data 
+used in the custom quoting portion of the site.
+
+The diverse data on the site includes account pages, order status, support information, and 
+a shopping cart application allowing the custom configuration of computer systems.  
+Most of the Dell web site can achieve great benefits by using database technology instead 
+of using static web pages or prices/features hard coded into applications.  The portion of 
+the site that can receive the most benefit from this is probably the feature of the site that 
+allows the custom configuration of computer systems.  Having the various features and 
+accessories available to the consumer stored in a database allows updates to be made by 
+merely adjusting the data in the database instead of the tedious task of modifying web 
+pages directly.  This becomes of extreme importance when prices and standard features 
+can change rapidly.  Overall this web site is a great example of a site that is using 
+database technology in an effective manner.

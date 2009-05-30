@@ -1,0 +1,38 @@
+David J. Burger
+ICS 461, Artificial Intelligence
+Project 4 Commentary
+
+This submission combines parts one and two into a single submission.
+You will find the table data, output for the test runs, and the
+project code attached with this document.  My program can be invoked
+via:
+
+./nqueens input
+
+Where input is a file specifying the nqueens problems to perform.  The
+input file has one job per line where each line looks like the
+following:
+
+# extent algorithm
+
+where,
+  # is the number of queens
+  extent is "all" to find all solutions, anything else to find first
+  algorithm is "mrv" to use backtracking + mrv, and anything else to
+               use pure backtracking
+
+I had actually written a program like this before, the evidence of
+which can be found at:
+
+http://www2.hawaii.edu/~dburger/eightqueens/index.html
+
+So when I first implemented this project I used a similar approach.
+After implementing it in that fashion, I decided to re-implement using
+the pseudo code approach from the Russell book on page 142.  I also
+left the code set up with a sort of generic usage of "num_vars" and
+"num_vals" instead of number of queens and column placements so that
+the code would be easily extensible to different types of Constraint
+Satisfaction Problems.
+
+The numbers pretty much speak for themselves as to the superiority of
+backtracking + mrv to pure backtracking.  

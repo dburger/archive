@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Python Cross Referencer for Lisp: Installation and Run Instructions</title>
+</head>
+<body>
+<h3>Installation of Python</h3>
+
+<p>Python installers for Windows, Mac, and Unix systems are available from the Python home page at <a href="http://www.python.org/download/">http://www.python.org/download/</a>.  If you are using a Unix based system, however, it is quite likely that you already have a Python interpreter installed.  For Windows users there is an install file in the form of an executable file.  For all other users the install is done via a the source which can be downloaded as a .tgz file.  This file can be unpacked with:</p>
+
+<pre>
+tar -xvzf name-of.tgz
+</pre>
+
+Once unpacked, installation is as simple as changing to the directory containing the source files and running:
+
+<pre>
+./configure
+make
+make install
+</pre>
+
+<h3>Run Instructions</h3>
+
+<p>Our cross referencing program is contained in three files included in the src/ directory of this distribution:</p>
+
+<pre>
+LispXrefer.py ===========> Contains the cross referencing code.
+LispExtensions.py =======> Contains code to give Python Lisp like extensions.
+XrefDb.py ===============> Contains code to prove a cross referencing database.
+</pre>
+
+<p>On a Unix based system the program can be run by setting execute permissions on the file LispXrefer.py, and then running:</p>
+
+<pre>
+./LispXrefer.py
+</pre>
+
+<p>This will start a menu based program that will allow you to cross reference Lisp files and then retrieve the various pieces of information about the functions contained in those files.  Also note that each of the files has its own demo and unit test code built in as well.  These can be run by setting the following line appropriately in each of the files:
+
+<pre>
+if __name__ == "__main__": demo()
+</pre>
+
+<p>and then executing the file directly.</p>
+
+<p>Contained within each file is extensive documentation on the usage and effects of the various classes and functions used in the implementation.  This documentation is in the standard Python format for which there are documentation building tools.</p>
+</body>
+</html>

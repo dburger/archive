@@ -1,0 +1,303 @@
+<html><head><title>ICS 451 project 3</title></head>
+<body>
+<h1>Computer Networks Project 3</h1>
+
+<br>
+<B><FONT SIZE="-1">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ document.write('<BR>' + 'This page was last modified on: ' + document.lastModified + ' HST</BR>');
+ //-->
+</SCRIPT>
+</FONT></B>
+
+The goals of this project are:
+<ol>
+<li> to learn about the TCP protocol
+<li> to implement reliable transmission
+<li> to learn about sliding window transmission
+</ol>
+
+<p> This is an individual or group project, at your choice -- a group
+may have a maximum of three people, and may not include any of the
+people you worked with on project 2.  Send the instructor email if you
+wish to join a group and would like the instructor to match you up
+with others.  You may discuss concepts and ideas with other students,
+but your group should be the sole author of all your code.  For the
+program, you may choose any programming language that is available
+on uhunix2.
+
+<p> Submission is electronic and must be on time -- late submissions
+will not be graded and will receive no credit.  So please submit what
+you have on the due date, by 11:59pm HST on December 9th.  Please plan
+to be done early if at all possible.
+
+<p> The assignment is to write software to implement TCP
+retransmission and windows.  These are described in the TCP RFC,
+<a href="http://www.ietf.org/rfc/rfc0793.txt">RFC 793</a>.
+
+<h2>TCP reliable transmission</h2>
+
+A TCP implementation must 
+
+<ul>
+
+<li> Number every packet sent according to the sequence number of the
+first byte it contains.
+
+<li> Keep a timer, and when the timer expires, retransmit any
+unacked packets.
+
+<li> Receive incoming packets, process and ack any data they contain,
+and remove acked packets from the retransmission buffer.
+
+</ul>
+
+For this project, you need not implement the full TCP state machine.
+Your implementation will only have a single pre-established connection
+with a pre-established initial sequence number.  Your implementation
+will have to deal with delayed, duplicate, and lost packets.
+
+<h2>Project Deliverables</h2>
+
+I will expect the following from each group:
+
+<ol>
+
+<li> As soon as possible, an email from one representative of each
+group specifying the names and emails of all the members of the group
+(please Cc the other members of your group on the email).  This is
+not required if you are working alone.
+
+<li> For full credit, your code must also interoperate with the code
+from another group.
+
+<li> By the deadline, the source code (source and makefile only -- no
+objects, binaries, or random files) for your implementation.  The
+source code must compile and run on uhunix2.  Compilation must be
+achieved by running ``make'' with no arguments (see
+<tt>make(1S)</tt>).  If you use an interpreted language such as Java
+which does not produce an executable binary, be sure to include a
+shell script which calls your code.  You should also include a file
+<tt>status</tt> that lists all the members of your group, describes
+whether your program works and if not, what problems you are having.
+The <tt>status</tt> file must also state whether your program
+interoperated with that of another group, and if so, who the members
+of that group are.
+
+<li> Create a web page with links to each of your source files, make
+file, and status file, and make it readable to the entire world.  You
+do not need to try and make the web page look good -- any extensions
+such as ".txt" will make it harder to download the data automatically
+(if you wish, you may make another web page for your formatted
+sources, and if you wish, you may publish that page).
+
+<li> Send the URL for the web page with your solutions to the <a
+href="mailto:esb@hawaii.edu">instructor</a>.  Your web page must
+remain available for at least one week, giving the instructor and TAs
+plenty of time to download it and review it.
+
+<li> Please follow the naming instructions: name your makefile
+<tt>makefile</tt> (all lower case), and your status file
+<tt>status</tt> (no extension).  Your executable (or script) should be
+<tt>mytcp</tt>.
+
+</ol>
+
+<h2>Program</h2>
+
+<p>The program must implement the full TCP data transport protocol.
+In particular, the program must both send and receive data.  The first
+argument to your program, which must be called <tt>mytcp</tt>, is a
+number giving the number of bytes to send.  If the number is negative,
+that number of bytes should be sent only after the first segment has
+been received from the other TCP.  The idea is that we run two such
+programs to exchange data with each other, one with a positive number
+of bytes, one with a negative number.  The number of bytes sent in the
+two directions may be different.
+
+<p>Each TCP starts with a window of 500 in both directions.  If the
+first argument is negative, the initial sender sequence number is
+12345678 (hex), if the first argument is positive, the initial sender
+sequence number is FEDCBA98 (hex).  Whichever initial sender sequence
+number is selected, the initial receiver sequence number is the other
+number.
+
+<p>The second, third, and fourth argument to <tt>mytcp</tt> are the
+local UDP port number, the ip number or domain name of the machine on
+which the peer is running, and the UDP port number to which you send
+packets.  In this project, we are running a nonstandard TCP over UDP:
+the segments are sent over UDP, all to the same destination, and we
+expect to receive segments only from the specified destination.
+
+<p> <tt>mytcp</tt> has an optional fifth argument (optional means you
+are required to implement it, but it is not required to be on the
+command line).  If that argument is present, it must be a number
+<i>p</i> between 0 and 100.  If the argument is present, your TCP data
+send routine must randomly discard <i>p</i> out of every 100 segments
+sent.  In other words, <tt>mytcp</tt> must build and prepare to send
+all the segments as usual.  Immediately before sending, there must be
+a test to see if this packet should be randomly selected for discard,
+and if the test returns true, the packet should not be sent.  If the
+packet is to be sent, a separate test, with the same probability,
+should immediately follow to see if the packet should be sent twice
+(duplicate).
+
+<p>Example command lines:
+
+<ul>
+
+<li> <tt>mytcp 100000000 5345 128.171.7.44 5867</tt>
+<br>Send 100,000,000 bytes, initiating the send.  The local port is
+5345, the remote port (on host 128.171.7.44) is 5867, and no
+outgoing packets will be dropped.
+<li> <tt>mytcp -100000 6345 maru.ics.hawaii.edu 5677</tt>
+<br>The 
+peer is running on maru.ics.hawaii.edu at port 5677.  My UDP port
+is 6345, and once I receive the first packet, I should start sending
+my 100,000 bytes.
+</ul>
+
+<p>The Maximum Segment Size (MSS) for your TCP is 53 bytes.  This size
+does not include the TCP header, which in your case is always 20 bytes
+long, so your TCP should send packets no larger than 73 bytes, and
+should be prepared to receive packets of at most 73 bytes (including
+headers).  The MSS is described in <a
+href="http://www.ietf.org/rfc/rfc0879.txt">RFC 879</a> -- I especially
+encourage you to review Section 5 of this RFC.
+
+<p>Your TCP need not compute checksums.  The TCP checksum should be
+sent as zero, and must be ignored on receipt.  If you have time and
+desire at the end of this project, you may extend your program to
+compute checksums, but this is not required (nor rewarded!), and the
+program submitted should NOT discard received segments with a checksum
+of 0.
+
+<p>The port numbers are also ignored, and should be sent as all zeros.
+The urgent pointer is likewise always zero.
+
+<p>All your segments should have the ACK bit set, and carry a valid
+ACK number.  All the other control bits must be zero, except for the
+push bit which may have any value you like.
+
+<p>The data you send should be legible to a human, i.e. consist only
+of ASCII printable characters and newlines.  I encourage you to make
+the lines no longer than 79 characters.  Data you receive should be
+printed to stdout.  Your program should give the data to your TCP one
+line at a time.  Your TCP should print the data only once you see an
+end-of-line.  Be aware that the end-of-line character may be in the
+middle of a segment, not at the end.
+
+<p>You should ack the received segment before printing it to stdout,
+but only slide the window to the right <b>after</b> the data is
+printed to stdout.  The new window would be communicated in the next
+ack that you send, which is either sent when the next segment is sent
+or received, or after a 1 second timeout, whichever comes first.
+
+<p> The design of the implementation of TCP is up to you.  You may use
+threads, or select, or any other mechanism that works for you and the
+programming language you select.  You have to spend some time (but not
+too much time!) thinking about what the program needs to do and how
+your program will implement that functionality.
+
+
+</a><h2>Hints</h2>
+
+<ol>
+
+<li><strong>Binary Data</strong>
+
+<p> All the data in the TCP header is binary.  Although the data in
+the TCP payload should be ASCII, it will not be null-terminated, so in
+most languages you will be unable to use string operations on it.
+
+<li><strong>Printing Headers</strong>
+
+<p>The program <tt>tcpdump</tt> has a standard and reasonably good way
+of displaying TCP headers.  The following example is from the tcpdump
+man page (slightly adapted -- the original is at <a
+href="http://www.it.kth.se/edu/gru/Internet/tcpdump.html">
+http://www.it.kth.se/edu/gru/Internet/tcpdump.html</a>).
+
+<blockquote>
+
+<p>Here is the opening portion of an rlogin from host rtsg to host csam.
+
+<pre>
+rtsg.1023 > csam.login: S 768512:768512(0) win 4096 
+csam.login > rtsg.1023: S 947648:947648(0) ack 768513 win 4096 
+rtsg.1023 > csam.login: . ack 1 win 4096
+rtsg.1023 > csam.login: P 1:2(1) ack 1 win 4096
+csam.login > rtsg.1023: . ack 2 win 4096
+rtsg.1023 > csam.login: P 2:21(19) ack 1 win 4096
+csam.login > rtsg.1023: P 1:2(1) ack 21 win 4077
+csam.login > rtsg.1023: P 2:3(1) ack 21 win 4077 urg 1
+csam.login > rtsg.1023: P 3:4(1) ack 21 win 4077 urg 1
+<pre>
+
+<p>The first line says that tcp port 1023 on rtsg sent a packet to port
+<tt>login</tt> on csam. The S indicates that the SYN flag was set. The packet
+sequence number was 768512 and it contained no data. (The notation is
+`first:last(nbytes)' which means `sequence numbers first up to but not
+including last which is nbytes bytes of user data'.)
+
+<p>There was no piggy-backed ack, the available receive window was 4096
+bytes and there was a max-segment-size option requesting an mss of
+1024 bytes.
+
+<p>Csam replies with a similar packet except it includes a piggy-backed
+ack for rtsg's SYN. Rtsg then acks csam's SYN. The `.' means no flags
+were set. The packet contained no data so there is no data sequence
+number. Note that the ack sequence number is a small integer (1). The
+first time tcpdump sees a tcp `conversation', it prints the sequence
+number from the packet. On subsequent packets of the conversation, the
+difference between the current packet's sequence number and this
+initial sequence number is printed. This means that sequence numbers
+after the first can be interpreted as relative byte positions in the
+conversation's data stream (with the first data byte each direction
+being `1'). `-S' will override this feature, causing the original
+sequence numbers to be output.
+
+<p>On the 6th line, rtsg sends csam 19 bytes of data (bytes 2 through 20
+in the rtsg -> csam side of the conversation). The PUSH flag is set
+in the packet.
+
+<p>On the 7th line, csam says it has received data sent by rtsg up to but
+not including byte 21. Most of this data is apparently sitting in the
+socket buffer since csam's receive window has gotten 19 bytes
+smaller. Csam also sends one byte of data to rtsg in this packet.
+
+<p>On the 8th and 9th lines, csam sends two bytes of urgent, pushed data
+to rtsg.
+
+</blockquote>
+
+If you implement this for your own program, you would of course have
+little use for port numbers or flags, but the sequence, ack, and
+window information would be useful.
+
+<p>
+
+<li><strong>Prioritizing</strong>
+
+<p> For this project as for the last, you should try and get a
+prototype working as soon as possible, and then proceed to add the
+refinements required for this project.
+
+<p> The most important functionality is sending and receiving the
+data, and sending and processing acks.  You must then add
+retransmission timers, a data structure to save the data that might
+have to be retransmitted, window processing, dropping and duplicating
+a percentage of the packets, and interoperation with others' projects.
+You do need these components for full credit, but you can get some
+partial credit even if you only have the basic functionality.
+
+<li><strong>Interoperation</strong>
+
+<p> You may post to the course mailing list to find others who are
+ready to test for interoperation.  I strongly encourage you to do this
+<b> only after </b> you are convinced that your program works,
+reliably sending data in the presence of errors when tested against
+itself.
+
+</body></html>

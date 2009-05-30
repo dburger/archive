@@ -1,0 +1,208 @@
+<html><head><title>ICS 651 Project 3 -- Web search program</title></head>
+<body>
+<h1>ICS 651 (Computer Networks) Project 3 -- Web search program</h1>
+
+<B><FONT SIZE="-1">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ document.write('<BR>' + 'Last modified:  ' + document.lastModified
+ + ' HST </BR>');
+ //-->
+</SCRIPT>
+</FONT></B>
+
+<p>
+The goals of this project are:
+<ol>
+<li> to learn how the world-wide web works
+<li> to learn about simple web robots
+<li> to become familiar with HTTP and HTML
+</ol>
+
+<p>This is an individual project.  You may discuss ideas with your
+colleagues, but you must be the sole author of all your code.
+
+<p>I am running a web server at <a
+href="http://maru.ics.hawaii.edu/~esb/">
+http://maru.ics.hawaii.edu/~esb/</a> for your convenience in testing.
+You are of course welcome to use other web servers.
+
+<p>You may use any reasonable programming language, as long as you do
+all the work required for the project.  This means you are <b>NOT</b>
+allowed to use any special HTTP or HTML libraries, even though they
+may be provided with the language you select.  Your program must establish a
+connection, generate and send the request, listen for, read, and parse
+the reply, correctly handling any errors.  Also, I must be able to
+test your code on a linux box or on one of the department Suns.  If you
+have any questions as to the suitability of a specific programming
+language, send me mail.
+
+<p>The project is due Tuesday, April 27th 1998, at 4pm HST.
+Submission is electronic:
+
+<ol>
+<li> send e-mail to <a href="mailto:esb@hawaii.edu">esb@hawaii.edu</a>
+
+<li> subject line must be "project 3 -- file-name": file-name is the
+name of the source file in that email
+
+<li> be sure to include your makefile in your submission
+
+<li> no attachments please -- ASCII (text) files only
+
+<li> your main file (file containing the "main" function) must show,
+in a comment near the beginning: whether you think your program works,
+and if not, what you think the problem is.
+
+</ol>
+
+Late submissions lose 10% of the grade for each day they are late.
+<b>Please submit what you have no later than 4pm April 27th.</b>  You may
+then submit improved versions after the deadline, and I will give
+you the highest possible grade.
+
+<h2>Project Specification</h2>
+
+Your job is to implement a program, <tt>websearch</tt>, which 
+does the following:
+
+<ol>
+
+<li>Parse its arguments, including:
+
+<ul>
+
+<li> optionally, <tt>-i</tt> for case-independent match of the
+     pattern against the web data
+
+<li> optionally, <tt>-l</tt> to indicate the program should show only
+     the matching URL(s), and not individual matching lines.
+
+<li> optionally, <tt>-v</tt> to only show non-matching lines (or URLs if -l
+     is present)
+
+<li> optionally, <tt>-d=N</tt> (for some number N) to search up to
+     depth N links.  The value N defaults to 0 if this option is not given,
+     that is, you only search the given URL.
+
+<li> required, a <tt>string</tt> to search for
+
+<li> required, one or more URLs to search through
+
+</ul>
+(in short, <tt>usage: websearch [-i] [-l] [-v] [-d=N] pattern URL [URL*]</tt>)
+
+<li> keep a set of URLs to search, each with a specific depth.  The
+search order is arbitrary, i.e.  you may pick any order that works for
+you.  The URLs specified on the command line have depth zero.
+
+<li> keep a current depth, initialized to zero
+
+<li> while there are URLs to search, do the following:
+
+<ul>
+
+<li> pick a URL from the set, and remove it so it is not accessed again
+
+<li> fetch the data from the server, using HTTP/1.0 as described in <a
+     href="http://www.cis.ohio-state.edu/htbin/rfc/rfc1945.html">RFC 1945</a>
+
+<li> check the content type, and discard this URL unless the content
+     type is text/html or text/plain.  Also discard any URLs that
+     return data with a non-empty Content-Encoding.  If you have
+     discarded this URL, start over with the next one.  Also discard
+     the URL if you have an error, and print an appropriate message.
+
+<li> search the retrieved data for occurrences of the pattern, and
+     print either the URL (if <tt>-l</tt> has been specified) or
+     matching lines.
+
+<li> also search for links (identified by 'href=').  The depth of
+     these links is one more than the current depth.  Unless the
+     current depth is already the maximum depth, and if these
+     are http links, add these new URLs to your set of URLs to search.
+     Notice that the links might be relative to the current URL.  If
+     so, you need to convert them back into absolute links before adding
+     them to your set.
+
+</ul>
+
+</ol>
+
+The following are examples of the desired output format, which
+is inspired by fgrep(1):
+
+<pre>
+% websearch -i biagioni http://maru.ics.hawaii.edu/~esb/index.html
+http://maru.ics.hawaii.edu/~esb/index.html: &lt;head&gt;&lt;title&gt;Edoardo S. Biagioni&lt;/title&gt;&lt;/head&gt;
+http://maru.ics.hawaii.edu/~esb/index.html: &lt;h1&gt;Edoardo S. Biagioni&lt;/h1&gt;
+
+% websearch -l -i -d=1 biagioni http://maru.ics.hawaii.edu/~esb/index.html
+http://ancl.ics.hawaii.edu/
+http://maru.ics.hawaii.edu/~esb/1999spring.ics651/index.html
+http://maru.ics.hawaii.edu/~esb/1998fall.ics451/index.html
+http://maru.ics.hawaii.edu/~esb/1998fall.ics312/index.html
+...
+
+% websearch biagioni http://maru.ics.hawaii.edu/~esb/index.html
+(nothing printed out, since there is no occurrence of lowercase "biagioni"
+in that web page)
+%
+</pre>
+
+<h3>Details</h3>
+
+<p> Of the HTTP/1.0 methods, you need to implement <tt>GET</tt>,
+you may implement <tt>HEAD</tt> (to figure out the type of the page),
+and you do not need <tt>POST</tt>.
+
+<p> You do need to appropriately handle all possible errors by printing
+an appropriate error message and continuing with the next URL.
+
+<p> You may get a reply beginning with <tt>HTTP/1.1</tt> -- for
+example, you will get this from the server on maru.  Treat this the
+same as you would a reply beginning with <tt>HTTP/1.0</tt>.  You may
+ignore fields that are not defined in HTTP/1.0, including specifically
+<tt>ETag</tt>, <tt>Accept-Ranges</tt>, <tt>Content-Length</tt>,
+<tt>Connection</tt>, <tt>Content-Type</tt>, and <tt>X-Pad</tt>.  If
+you are interested in the meaning of these fields, feel free to study
+the <a
+href="http://www.cis.ohio-state.edu/htbin/rfc/rfc2068.html">HTTP/1.1</a>
+definitions.
+
+<p> If you wish to do additional work, you may try and implement any
+of the following:
+
+<ul>
+
+<li> recognition of loops, so if page A points to page B and page
+B points to page A, each page is only searched and printed once
+
+<li> a graphical display of the "tree" being searched, perhaps
+differentiating local from remote links
+
+<li> an interaction window allowing the user to dynamically control
+the search
+
+<li> parsing and interpreting of the HTML control constructs, so you
+can display the results in the appropriate font or (optionally) ignore
+comments
+
+<li> full HTTP/1.1, perhaps including the use of persistent connections
+for better performance.
+
+<li> caching or indexing of pages for later use (a web proxy does
+caching; a regular web search engine does indexing)
+
+</ul>
+
+Note that I do <b>NOT</b> plan to give extra credit.  Get the basic
+program running first, and only add these features if everything
+else is done and you feel like improving your program.
+
+<p>I do make mistakes.  If you find mistakes in the design of this
+project, please send mail to <a href="mailto:esb@hawaii.edu">me</a>
+or to the <a href="mailto:ics651-l@hawaii.edu">mailing list</a>.  I
+will probably reply within 24 hours (except on weekends).
+
+</body></html>

@@ -1,0 +1,282 @@
+1. JDBC
+
+* How do you make a connection with JDBC?
+
+DriverManager.registerDriver(new org.gjt......Driver());
+Connection conn = DriverManager.getConnection("jdbc:mysql:///foobar");
+
+* How do you do a basic select statement?
+
+Statement st = conn.createStatement();
+ResultSet rs = st.executeQuery("select * from foo where foo");
+
+* How do you do a basic prepared statement?
+
+Statement st = conn.prepareStatement("select * from foo where bar='?'");
+st.setString(1,"party");
+ResultSet rs = st.executeQuery();
+
+* How are statements that do not return result sets handled?
+
+Statement st = conn.createStatement();
+st.executeUpdate("delete from foo where user_id='boo'");
+
+* Explain the difference between 2 tier and 3 tier implementations.
+
+Two tier implementations have a client containing both presentation code and
+business logic.  This is called a "fat client."  The other tier is the DBMS
+connecting to the database.
+
+Three tier systems only put presentation code in the client.  A middle tier
+exist that contains business logic called the application server.  The
+application connects to the database via the DBMS.
+
+* What are the major objects of JDBC?  Purpose?
+
+  1.) Connection - used to create and maintain connections to the database.
+  2.) Statement and 3.) Prepared statement - used to execute queries and
+      updates against the database.
+  4.) ResultSet - used to capture and analyze query results.
+
+* When it comes to handling connections with web applications, what are your
+  options and what are the various trade offs?
+
+  1.) Create a connection for each client that connects and tear it down when
+      done.  Connections are time consuming to establish and resource
+      intensive.
+  2.) Use one global connection for all connecting clients.  With many clients
+      this method will bog down application performance.
+  3.) Use connection pooling.  When using connection pooling the web container
+      can maintain a pool of connections to hand out to clients.  This avoids
+      the time consuming connection/tear down for the client increasing
+      server speed.  It also avoid the resource overhead of giving each client
+      there own connection.
+
+===============================================================================
+
+2. Servlets
+
+* Explain the life cycle of a servlet and the role of the web container.
+
+A servlet must be compiled and placed in the classes directory before use.  The
+web container is responsible for instantiating the servlet on first request or
+on container start-up.  At this time it calls the init method.  The web
+container then acts as a conduit between the web server and the servlet,
+taking requests from the web server and passing them to the appropriate method
+of the servlet.  It also takes the responses from the servlet and passes them
+back to the web server.  Multiple concurrent requests are sent to the same
+servlet so the developer is responsible for any synchronization that may be
+necessary.  If the servlet becomes inactive the web container may write the
+servlet out to disk and bring it back in for the next request.
+
+* What methods are available for the various http requests?
+
+Obvious doGet and doPost are available for get and post requests respectively.
+Also available are:
+
+doHead, doOptions, doPut, doDelete, doTrace, getLastModified 
+
+All of these methods have the HTTPServletRequest and HTTPServletResponse
+available as parameters.  It is possible to do global handling in the
+service(req,res) method.
+
+* What are the principal classes of the servlet and what do they provide?
+
+  1.) Request - ability to get information about the request, this information
+                would include things such as query string and form variables.
+  2.) Response - ability to respond to the client and set session values etc..
+  3.) Context - provides a way to share data among all clients using a web
+                application.  This is done through the typical setAttribute and
+                getAttribute calls.
+  4.) Config - ability to retrieve init parameters present in the web.xml set
+               during program initialization.
+  5.) Session - provides ability to maintain information about a client between
+                stateless requests.  Has getAttribute and setAttribute.
+
+* Explain the shopping cart metaphor and session state.
+
+A shopping cart can be kept for a client by maintaining session state.  In
+servlets this can be done by setting a session attribute to an ArrayList of
+item numbers, for example.  The session is used to set the cart and then
+retrieve it on subsequent requests.
+
+* Explain the different methods of maintaining state and the various
+trade-offs.
+
+  1.) Cookies - users can turn off cookies.
+  2.) Hidden form variables - users aren't always in forms so it is easy to
+      lose state.
+  3.) SSL session keys - usually only very specific pages use SSL, so this is
+      not available site wide.
+  4.) URL rewriting - this is probably the best way to handle sessions.  It is
+      done like this:
+
+      out.println("<a href='" + res.urlEncode(theURL) + "'>"...
+
+      The response object will take care of either rewriting the URL to provide
+      state identifiers of using cookies if available.
+
+* Explain what the request dispatcher is used for in regard to forwarding/
+  including directives.
+
+After doing some processing the request dispatcher can be used to pass the
+request to another resource for further processing.  This can be done as a
+forward(req,res) to hand the processing off, or include(req,res) to include
+the processing of another process and then continue in the current process.
+
+===============================================================================
+
+3. JSP
+
+* What are the various components of a JSP page?
+
+  1.) Standard tags
+  2.) Directives -- <%@ page import="java.util.Date" %>
+  3.) Declarations -- <%! final int BOO_YEAH=17; %>
+  4.) Scriplets -- <% code in here %>
+  5.) Expressions -- <%=BOO_YEAH%>
+
+* Under what conditions do you use servlets or JSP?
+
+Servlets are best for when the web resource is processing intensive while JSP
+is well suited when the resource focuses on presentation.
+
+* Explain the life cycle of JSP and the role of the web container.
+
+Upon first request the web container will compile a JSP into a servlet and
+then instantiate the servlet.  The method jspInit is called and this method
+should be overridden to provide any initialization.  The request is passed
+to _jspService(req,res) which should never be overridden.  When the request
+is finished jspDestroy() is called which should be overridden to provide any
+tear down functionality.
+
+* Explain the types of custom tags and what they have to offer.
+
+The two types of custom tags are simple and body.  The life cycle of tag goes
+as follows:
+
+   simple             body
+setPageContext()   setPageContext()
+setParent()        setParent()
+setValue()
+doStartTag()       doStartTag()
+                   setBodyContent()
+                   doInitBody()
+doAfterBody()      doAfterBody()
+doEndTag()         doEndTag()
+release()          release()
+
+Both tags provide simple tags or iteration.  These tag types differ in the
+fact that body tags provide more functionality, allowing for the body to
+content to manipulated before being output.
+
+* What are the classes that support tag development?
+
+
+BodyTagSupport --> BodyTag
+                     |
+                     V
+TagSupport --> IterationTag-->Tag
+
+===============================================================================
+
+4. Beans
+
+* Explain the nature of beans and their purpose.
+
+Beans are reusable software components.  They are designed to be manipulated
+with a builder tool.  They may or may not be visible components.  In JSP beans
+can be used to encapsulate functionality to separate the presentation from the
+logic of an application.  This makes for a cleaner JSP page as well.
+
+* Explain the design pattern for beans.
+
+  1.) Must have either a zero parameter constructor or be serializable.
+  2.) Properties with standard naming convention for accessors and mutators.
+  3.) Standards event handling through listener methods.
+  4.) Standards for bound properties.
+  5.) Standards for constrained properties.
+  6.) Introspection for method discovery.
+  7.) Additional -- editors and such.
+
+* How are beans accommodated in JSP pages?
+
+the import...
+<%@ page import ="MyBeanClass" %>
+
+the instantiation...
+<jsp:useBean id="theBean" class="MyBeanClass" scope="page"/>
+
+setting values...
+<jsp:setProperty id="theBean" property="*"/>
+
+getting values...
+<jsp:getProperty id="theBean" property="firstName"/>
+
+===============================================================================
+
+5. Design
+
+* Explain the design issues of a web application.
+
+There are three issues:
+  1.) Overall structural site design.  Concerned with the overall purpose of
+       the site and who it targets.  How is it going to acheive purpose?  How
+       will we know if it does?  Is this site really a good idea?
+  2.) Presentational design.  Concerned with the appearance of the site and the
+      user interaction.  Aesthetics, ease of navigation, accessibility.
+  3.) Software architecture design.  Concerned with the data structures and
+      algorithms used to support the site.  Many, many, technologies available.
+
+* What is the purpose and need for design patterns?
+
+In the early days of computing code reuse was always the stated goal and
+supposed holy grail of programming.  Software engineers have found that code
+reuse hasn't worked because of the specific nature of code and the bloat and
+unwiedlyness of code that has been made general.  Software engineers have
+found that the reuse of designs can be very helpful in the software
+development process.  Design patterns provide an aid to the reuse of design
+and analysis, a distillation of good practice, and a means of communication
+between designers.
+
+* What are the varous design patterns discussed in the course?  Features?
+
+  1.) MVC - This design pattern comes from Kay in the 1970s.  The model is the
+            underlying computational component of the system.  The view is the
+            visual presentation of the system.  The controller is the part of
+            the system that allows for interaction with the model to change its
+            state.  In Java interfaces are available to implement this pattern
+            in the form of Observer (for the view and controller), and
+            Observable (for the model).  The Observable uses update() to notify
+            the the Observers of changes.  The Observers find out about changes
+            by calling getState().
+  2.) Facade - The facade design conerns hiding a complex interconnected system
+               behind a single interface.  This allows the sub-components to
+               be modified without modifying the interface.
+  3.) Front controller - based on MVC and FACADE.  Client request goes to
+                         front controller (probably a servlet) which then
+                         delegates the handling of the request to other
+                         resources.
+  4.) Data Access Object - SQL statments and logic encapsulated in an object.
+                           All data access / modification request use the
+                           object.  Provides for easier porting when changing
+                           the backend.
+  5.) Data Value Pattern - When read only access to database data is needed,
+                           the data can populate an object, and the serialized
+                           object is sent to the client.
+  6.) Value List Pattern - Same as above, but now a collection of objects.
+
+===============================================================================
+
+6. Security
+
+Threat                 Countermeasure
+
+confidentiality        encryption, access control, firewall
+integrity              message digests
+replay                 time stamping
+site stealing          authentication, digital signature, certification
+repudiation            secure third party logging
+dos                    ??? (syn cookies and config router no spoof)
+malicious damage       virus checker, physical security
+non-availability       duplication of resources

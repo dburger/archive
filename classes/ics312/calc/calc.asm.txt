@@ -1,0 +1,681 @@
+title Calculator
+
+;calc by David J. Burger
+;for Dr. Sugihara, ICS 312
+;04/04/01
+
+;This program has +,-, and * capabilties for very large numbers.  It reads
+;expression from an input file passed in as a command line parameter.  If
+;the given input file is not found, it defs to trying the same file with
+;a .txt file extension.  If the file is not found it reports the error and
+;exits.  An option is given to write the output to the scrn and a file
+;or just the screen.  If a filename is given the output is written to that
+;file and to the screen.  The output to the file wraps at 80 character
+;widths.  If the two operators and operand parse to a valid expression the
+;result of evaluating the expr. is displayed to the screen (and to the
+;file).  If the expression is not valid an appropriate error message is
+;display and the program exits.  If the output file already exists an
+;appropriate message is displayed and the screen and the existing file is
+;not damaged.  
+
+.model small
+.stack 100h
+.386
+.data
+    filespec db 100 dup(0)          ;the filename to read expression from
+    filespecSize = ($ - filespec)
+    filePrompt db "Enter fname for output or <enter> for screen output only"
+    filePromptLen = ($ - filePrompt)
+    inputArea label byte            ;the memory construct for holding the
+    maxInput db 100                 ;input of the file specification for
+    actInput db ?                   ;the output file
+    outFilename db 100 dup(0)
+    inFileHandle dw ?
+    outFileHandle dw ?    
+    inBufferSize = 10240            ;buffer to hold expression file data
+    inBuffer db inBufferSize dup(0)
+    bytesRead dw ?
+    op1 db 1024 dup('0')            ;will hold operator 1
+    op2 db 1024 dup('0')            ;will hold operator 2
+    res db 1024 dup('0')            ;will hold the result
+    op1Mantissa dw ?                ;length of mantissa in op1
+    op1Decimal dw ?                 ;length of decimal in op1
+    op2Mantissa dw ?                ;length of mantissa in op2
+    op2Decimal dw ?                 ;length of decimal in op2
+    decimal1Padding dw 0            ;padding necessary to = longer dec
+    decimal2Padding dw 0
+    longest dw ?                    ;will hold the length of the longer #
+    operator db ?                   ;holds the operator
+    multNum db ?                    ;will hold a # through a mult.
+    radix db 10                     ;radix of output
+    multCarry db 0                  ;holds multiplication carry value
+    CRLF db 0Dh,0Ah
+    endOfop1 dw ?                   ;= end of op1 during mult. loops
+    endOfres dw ?                   ;= end of res during mult. loops
+    numLoops dw ?                   ;keeps track of num. of mult. loops
+    col dw 0                        ;column counter for returns in output
+    decimalPoint db '.'             ;used to print out the decimal point
+    ;error messages from Irvine p. 419
+    error db 'Invalid function number        ',0Dh,0Ah
+    fileExistsErr db 'File exists error- no output   ',0Dh,0Ah
+    MessageTable label byte
+        db 'Invalid function number        ',0Dh,0Ah
+    msglen = ($ - MessageTable)
+        db 'File not found                 ',0Dh,0Ah
+        db 'Path not found                 ',0Dh,0Ah
+        db 'Too many files open            ',0Dh,0Ah
+        db 'Access denied                  ',0Dh,0Ah
+        db 'Invalid handle                 ',0Dh,0Ah
+        db 'Memory control blocks destroyed',0Dh,0Ah
+        db 'Insufficient memory            ',0Dh,0Ah
+        db 'Invalid memory block address   ',0Dh,0Ah
+        db 'Invalid environment            ',0Dh,0Ah
+        db 'Invalid format                 ',0Dh,0Ah
+        db 'Invalid access code            ',0Dh,0Ah
+        db 'Invalid data                   ',0Dh,0Ah
+        db 'Reserved                       ',0Dh,0Ah
+        db 'Invalid drive was specified    ',0Dh,0Ah
+        db 'Attempt to remove current dir  ',0Dh,0Ah
+        db 'Not same device                ',0Dh,0Ah
+        db 'No more files                  ',0Dh,0Ah
+        db 'Diskette write protected       ',0Dh,0Ah
+        db 'Unknown unit                   ',0Dh,0Ah
+        db 'Drive not ready                ',0Dh,0Ah
+        db 'Unknown command                ',0Dh,0Ah
+        db 'Data error (CRC)               ',0Dh,0Ah
+        db 'Bad request structure length   ',0Dh,0Ah
+        db 'Seek error                     ',0Dh,0Ah
+        db 'Unknown media type             ',0Dh,0Ah
+        db 'Sector not found               ',0Dh,0Ah
+        db 'Printer out of paper           ',0Dh,0Ah
+        db 'Write fault                    ',0Dh,0Ah
+        db 'Read fault                     ',0Dh,0Ah
+        db 'General failure                ',0Dh,0Ah
+        db 'Invalid operator               ',0Dh,0Ah        
+        db 'Invalid operand                ',0Dh,0Ah
+    num_entries = ($ - MessageTable)/msglen
+.code
+main proc
+    mov bx, ds              ;getting command line paramters
+    mov ax, @data           ;from PSP and setting up ds,es
+    mov ds, ax
+    mov es, ax
+    mov dx, offset filespec
+    call Get_Commandtail
+    
+    mov ah,3Dh              ;function to open a file
+    mov al,0                ;input mode read only
+    mov dx, offset filespec ;holding the filename
+    int 21h
+    jnc InFileOK
+    ;add .txt to the end to see if default extension works
+    cld                     ;direction up
+    mov di,seg filespec
+    mov es,di
+    mov di,offset filespec
+    mov al,0
+    repne scasb             ;search for termination
+    dec di
+    mov byte ptr [di],'.'
+    inc di
+    mov byte ptr [di],'t'
+    inc di
+    mov byte ptr [di],'x'
+    inc di
+    mov byte ptr [di],'t'
+    mov ah,3Dh              ;now try it again
+    mov al,0                ;input mode read only
+    mov dx, offset filespec ;holding the filename
+    int 21h
+    jnc InFileOK
+    jmp errorRoutine         ;error trying to open with .txt appended
+InFileOK:    
+    mov inFileHandle, ax    ;the file handle returned in ax
+
+    mov ah,40h              ;function to write to a file handle
+    mov bx,1                ;the handle to the console
+    mov cx,filePromptLen
+    mov dx,offset filePrompt
+    int 21h                 ;write message to ask for filename for output
+    call WriteCRLF
+    
+    mov ah,0Ah              ;buffered keyboard input for output filename
+    mov dx,offset inputArea ;buffer for input
+    int 21h
+    
+    call WriteCRLF    
+    
+    mov ah, 3Fh             ;read from file or device
+    mov bx,inFileHandle     ;bx = file handle
+    mov cx, inBufferSize    ;number of bytes to read
+    mov dx, offset inBuffer ;pointer to buffer
+    int 21h                 ;reading the expression file
+    jc errorRoutine
+    mov bytesRead, ax
+        
+    mov ax,seg inBuffer     ;now we process the expression data read in
+    mov es,ax               ;from the input file
+    mov di,offset inBuffer
+    call SkipWhiteSpace     ;first, skip all the white space
+        
+    mov si,offset op1       ;done with white space, read the first number
+    call ReadFixedPoint
+    mov op1Mantissa,ax      ;mantissa length returned in ax
+    mov op1Decimal, bx      ;decimal length returned in bx
+    cmp ax,0                ;needs to have a mantissa part
+    jne C1
+    mov ax,num_entries-1    ;invalid operator error
+    call errorRoutine
+C1:    
+    call SkipWhiteSpace     ;skip white space between op1 and operator
+    
+    mov al, byte ptr [di]   ;store the operator
+    mov operator, al
+    inc di                  ;move past the operator
+    
+    call SkipWhiteSpace     ;skip the white space between operator and op2
+    
+    mov si,offset op2       ;done with white space, read the second number
+    call ReadFixedPoint
+    mov op2Mantissa,ax      ;mantissa length returned in ax
+    mov op2Decimal, bx      ;decimal length returned in bx
+    cmp ax,0                ;needs to have a mantissa part
+    jne C2
+    mov ax,num_entries-1    ;invalid operator error
+    call errorRoutine
+C2:    
+    mov ah,3Eh              ;function to close a file
+    mov bx,inFileHandle
+    int 21h                 ;close the input file
+    jc errorRoutine
+    
+    mov ax,op1Decimal       ;figure out which number has a longer decimal
+    sub ax,op2Decimal       ;and then set the padding to make them match
+    cmp ax,0                ;ax less than 0 then decimal one needs padding
+    jle C3                  ;signed comparison less than or equal to
+    mov decimal2Padding,ax  ;setting the padding
+    jmp C4
+C3:
+    mov ax,op2Decimal       ;ax was greater than 0
+    sub ax,op1Decimal       ;decimal two needs padding
+    mov decimal1Padding,ax  ;setting the padding
+C4:
+    mov ax,op1Mantissa      ;figuring out which one has the total longest
+    add ax,op1Decimal       ;length, mantissa + decimal + padding
+    add ax,decimal1Padding  ;store result in longest
+    
+    mov bx,op2Mantissa      ;find which operator has the longer total len
+    add bx,op2Decimal
+    add bx,decimal2Padding
+    
+    cmp ax,bx
+    jb C5
+    mov longest,ax          ;storing length of op1 as longest
+    jmp C6
+C5:
+    mov longest,bx          ;storing length of op2 as longest
+C6:
+    ;now right align operator one in op1 in proper alignment
+    ;by moving it into res and then back into op1
+    cld                     ;direction = up
+    mov si,offset op1       ;source
+    mov di,offset res       ;destination
+    mov cx,op1Mantissa
+    add cx,op1Decimal
+    call MoveData           ;moves cx length from si to di
+    ;now move operator one back to op1 in proper alignment
+    mov di,offset op1       ;destination
+    add di,1023             ;setting up the alignment
+    mov cx,op1Mantissa
+    add cx,op1Decimal
+    add cx,decimal1Padding
+    sub di,cx
+    inc di
+    mov si,offset res       ;source
+    call MoveData           ;moves cx length from si to di
+    
+    ;now do the same with op2
+    mov si,offset op2       ;source
+    mov di,offset res       ;destination
+    mov cx,op2Mantissa
+    add cx,op2Decimal
+    call MoveData           ;moves cs length from si to di
+    ;now move operator two back to op2 in proper alignment
+    mov di,offset op2       ;destination
+    add di,1023             ;setting up the alignment
+    mov cx,op2Mantissa
+    add cx,op2Decimal
+    add cx,decimal2Padding
+    sub di,cx
+    inc di
+    mov si,offset res       ;source
+    call MoveData           ;moves cx length from si to di
+        
+    mov si,offset op1
+    mov di,offset op2
+    mov dx,offset res
+    add si,1023             ;pointing si at the end of op1
+    add di,1023             ;pointing di at the end of op2
+    add dx,1023             ;pointing dx at the end of res
+    mov cx,longest
+    cmp operator,'+'        ;call proper routine for operator
+    je Addit
+    cmp operator,'-'
+    je Subt
+    cmp operator,'*'
+    je Mult
+    
+    mov ax,num_entries      ;the last error unknown operator
+    call errorRoutine
+Addit:
+    call Addition    
+    jmp C7
+Subt:
+    call Subtraction
+    jmp C7
+Mult:
+    call Multiplication
+C7:
+    ;res now holds the result of the operation        
+    mov bx,1                ;first output the res to screen
+Output:
+    mov ax,op1decimal       ;setting up ax for location of decimal
+    add ax,decimal1Padding
+    mov cx,longest          ;cx holds the number of digits to write out
+    mov dx,offset res
+    add dx,1023             ;dx now points at the end of the result
+    cmp operator,'*'
+    je MultiplicationOutput
+
+    add cx,1                ;carry from msd requires one more digit
+    call WriteFixedPointFH
+    jmp FileOutput
+MultiplicationOutput:
+    add ax,op2decimal       ;adding up decimal from op2 as well
+    add ax,decimal2Padding
+    add cx,longest          ;result can be up to twice as long
+    call WriteFixedPointFH
+FileOutput:                 ;doing the file ouput here
+    call WriteCRLF
+    cmp actInput,0          ;if they didn't enter a fname, no file ouput
+    je Exit
+    ;create the output file, first terminate the filename with a zero
+    mov si,offset outFilename
+    mov ah,0
+    mov al,actInput
+    add si,ax
+    mov byte ptr [si],0     ;now terminated with 0    
+    mov dx,offset outFilename
+    mov ah,5Bh              ;function to create a file
+    mov cx,00h              ;normal mode
+    int 21h
+    jc  ErrorRoutine
+    mov outFileHandle,ax    ;file handle returned in ax
+    mov bx,outFileHandle    ;set up bx for output to the file handle
+    mov actInput,0          ;change actInput to 0 so doesn't run again
+    jmp Output              ;to the output routine with new file handle
+Exit:
+    mov ax, 4C00h           ;quiting the program
+    int 21h
+main endp
+
+errorRoutine proc           ;print out that an err occurred and exit prog
+    cmp ax,50h
+    je FileExistsError
+    cmp ax,num_entries
+    ja UknownError
+    cmp ax,0
+    je UknownError
+    dec ax                  ;calculate the position in the error table
+    mov bx,msglen
+    mul bl
+    mov dx,offset MessageTable
+    add dx,ax
+    jmp WriteError
+FileExistsError:
+    mov dx, offset fileExistsErr
+    jmp WriteError
+UknownError:
+    mov dx, offset error
+    jmp WriteError
+WriteError:
+    mov cx,msglen           ;now write out the error
+    mov ah,40h
+    mov bx, 2    
+    int 21h
+    mov ax, 4c00h
+    int 21h
+errorRoutine endp
+
+Get_Commandtail proc        ;from K. Irvine for reading the cmd tail
+    pusha
+    mov es,bx
+    mov si,dx
+    mov di,81h
+    mov cx,0
+    mov cl,es:[di-1]
+    cmp cx,0
+    je CommandTailL2
+    mov al,20h
+    repz scasb
+    jz CommandTailL2
+    dec di
+    inc cx
+CommandTailL1:    
+    mov al,es:[di]
+    mov [si],al
+    inc si
+    inc di
+    loop CommandTailL1
+    clc
+    jmp CommandTailL3
+CommandTailL2:    
+    stc
+CommandTailL3:
+    popa
+    ret
+Get_Commandtail endp
+
+SkipWhiteSpace proc         ;skips all white space pointed at by di def
+SkipWhiteSpaceLoop:         ;to be space (20h) and CRLF (0Dh, 0Ah)
+    cmp byte ptr [di],20h
+    je SkipWhiteSpaceContinue
+    cmp byte ptr [di],0Dh
+    je SkipWhiteSpaceContinue    
+    cmp byte ptr [di],0Ah
+    je SkipWhiteSpaceContinue    
+    jmp SkipWhiteSpaceExit    
+SkipWhiteSpaceContinue:
+    inc di
+    jmp SkipWhiteSpaceLoop    
+SkipWhiteSpaceExit:
+    ret
+SkipWhiteSpace endp
+
+;reads a fixed point number pointed at by di
+;and places it at si, the number of digits
+;before the decimal is returned in ax, the
+;number after the decimal in bx
+ReadFixedPoint proc
+    push dx
+    mov ax,0
+    mov bx,0
+ReadMantissa:
+    mov dl,[di]             ;read digits
+    cmp dl,'.'              ;found decimal, switch to reading decimal
+    je ReadDecimal1
+    cmp dl,'0'
+    jb ReadFixedPointExit   ;outside of digit range, stop reading
+    cmp dl,'9'
+    ja ReadFixedPointExit   ;outside of digit range, stop reading
+    mov [si],dl
+    inc ax
+    inc si
+    inc di
+    jmp ReadMantissa    
+ReadDecimal1:
+    inc di ;point past the decimal
+ReadDecimal:
+    mov dl,[di]             ;read decimal digits
+    cmp dl,'0'
+    jb ReadFixedPointExit   ;outside of digit range, stop reading
+    cmp dl,'9'
+    ja ReadFixedPointExit   ;outside of digit range, stop reading
+    mov [si],dl
+    inc bx
+    inc si
+    inc di    
+    jmp ReadDecimal
+ReadFixedPointExit:    
+    pop dx
+    ret
+ReadFixedPoint endp
+
+;this procedure moves the number of bytes indicated by cx from the buffer
+;pointed to by si to the buffer pointed to by di and then replaces that
+;number of characters at si with 0's
+MoveData proc
+    pushf
+    pusha
+    push si                 ;save current si pointer
+    cld                     ;direction up
+    mov dx,cx
+    rep movsb               ;move the data
+    pop si                  ;point si back to the front
+    mov cx,dx
+MoveDataL1:
+    mov byte ptr [si],'0'   ;now replace data at si with 0's
+    inc si
+    loop MoveDataL1
+    popa
+    popf
+    ret
+MoveData endp
+
+
+;does addition of the digits pointed at by si to the digits pointed at by
+;di putting the answer at the buffer pointed at by dx, cx should hold the
+;number of digits in the longer digit string
+Addition proc
+    pusha
+    pushf
+    add cx,1 ;because there might be a carry in the highest digit
+    clc
+AdditionLoop:    
+    mov ah,0
+    mov al,[si]  ;digit from one operator
+    adc al,[di]  ;digit from the other is added
+    aaa
+    pushf        ;flags are pushed to preserve the carry flag
+    or al,30h    ;convert back to ascii
+    popf         ;restore the carry
+    
+    push si      ;save away si pointing at an operator
+    mov si,dx    ;point si at the result buffer
+    mov [si],al  ;move the result
+    pop si       ;restore si to operator buffer
+    
+    dec si       ;move all buffer pointers to next digit position
+    dec di
+    dec dx
+    loop AdditionLoop
+    popf
+    popa
+    ret
+Addition endp
+
+;does subtraction of the digits pointed at by si to the digits pointed at
+;by di the ans is put at the buffer pointed at by dx, cx should hold the
+;number of digits in the longer digit string
+Subtraction proc
+    pusha
+    pushf
+    clc
+SubtractionLoop:    
+    mov ah,0
+    mov al,[si]  ;digit from one operator
+    sbb al,[di]  ;digit from the other operator is subtracted
+    aas
+    pushf        ;flags are pushed to preserve the borrow
+    or al,30h    ;convert back to ascii
+    popf         ;restore the borrow
+    
+    push si      ;save away si pointing at an operator
+    mov si,dx    ;point si at the result buffer
+    mov [si],al  ;move the result
+    pop si       ;restore si to the operator buffer
+    
+    dec si       ;move all buffer pointers to the next digit
+    dec di
+    dec dx
+    loop SubtractionLoop
+    popf
+    popa
+    ret
+Subtraction endp
+
+;does multiplication of the digits pointed at by si to the digits pointed
+;at by di putting the answer into the buffer pointed at by dx, cx should
+;hold the number of digits in the longer digit string
+Multiplication proc
+    pusha
+    pushf
+    
+    mov endOfop1,si
+    mov endOfres,dx
+    mov numLoops,cx
+    
+    ;di is on the character for mult\
+OuterMultiplicationLoop:
+    mov multCarry,0    
+    clc
+    mov al,[di]           ;al holds the number for a mult. loop
+    mov multNum,al        ;now stored in multNum
+    and multNum,00001111b ;change the ascii to a value
+    push cx               ;store away number of loops
+InnerMultiplicationLoop:
+    mov ah,0
+    mov al,[si]           ;number for multiplying by multNum
+    pushf                 ;preserve the carry flags from the addition
+    and al,00001111b      ;change the ascii to a value
+    mul multNum           ;multiply
+    add al,multCarry      ;add in the previous carry
+    div radix             ;divide by the radix
+    popf
+    mov multCarry,al      ;store away carry for next iteration
+    
+    mov al,ah             ;put remainder in al
+    mov ah,0
+        
+    push si               ;store away si pointing at operator
+    mov si,dx             ;point si at result buffer
+    pushf                 ;preserve carry flags from addition
+    or al,30h             ;change to an ascii again
+    popf                  ;restore carry flag
+    adc al,[si]           ;add to result buffer
+    aaa
+    pushf                 ;preserve carry flags from addition
+    or al,30h             ;change to ascii
+    popf                  ;restore carry flag
+    mov [si],al           ;put new digit in result
+    pop si                ;restore si to operator buffer
+    dec si                ;point at next digit for multiplication
+    dec dx                ;point at next digit in result buffer
+    loop InnerMultiplicationLoop
+    ;in case there is a leftover carry
+    push si               ;store away si pointing at operator
+    mov si,dx             ;point si at result buffer
+    mov al,multCarry      ;move the leftover carry to al
+
+    mov ah,0
+    adc al,ah             ;possible left over carry from last add
+
+    pushf                 ;preserve the carry flag
+    or al,30h             ;change to ascii
+    popf                  ;restore the carry flag
+    mov [si],al           ;move the new digit into the result
+    pop si                ;point si back at operator buffer
+    
+    mov si,endOfop1       ;point si back to end of operator
+    dec di                ;position for next mult. digit
+    dec endOfres          ;position for next result digit
+    mov dx,endOfres
+    pop cx                ;restore number of loops
+
+    dec numLoops
+    cmp numLoops,0
+    ja OuterMultiplicationLoop
+    
+    popf
+    popa
+    ret
+Multiplication endp
+
+;writes a crlf to the handle in bx
+WriteCRLF proc
+    push ax               ;preserve these registers, handle in bx
+    push cx
+    push dx
+    mov ah,40h
+    ;mov bx, -> bx already holds the handle
+    mov cx,2
+    mov dx,offset CRLF
+    int 21h
+    pop dx                ;restore the registers
+    pop cx
+    pop ax
+    ret
+WriteCRLF endp
+
+;ax holds the number of decimal digits
+;bx holds the file handle to write to
+;cx holds the number of digits
+;dx points to the tail of the buffer
+WriteFixedPointFH proc
+    sub dx,cx
+    add dx,1     ;now pointing at start of decimal number
+    push dx      ;preserve start of decimal number
+    mov dx,cx    ;figuring out how many digits before decimal
+    sub dx,ax
+    mov ax,dx    ;ax now holds number of digits before decimal
+    pop dx       ;restore pointer to start of decimal number
+    mov col,0    ;set up col to word wrap at 80
+    cmp bx,1     ;we won't word wrap when screen is output device
+    jne WordWrap ;just let the screen wrap by itself
+    mov col,80   ;will prevent word wrap on screen output
+WordWrap:
+    ;mov past leading zeros
+    mov si,dx
+LeadingZeros:
+    cmp byte ptr [si],'0'
+    jne WriteFixedPointLoopFH
+    cmp ax,1     ;if only one place left before decimal go ahead and print
+    je WriteFixedPointLoopFH
+    dec cx       ;number of digits left to print decremented
+    inc dx       ;pointing at next digit
+    inc si       ;pointing at next digit
+    dec ax       ;number of places before decimal decremented
+    jmp LeadingZeros    
+WriteFixedPointLoopFH:
+    push ax      ;preserve registers
+    push cx
+    mov ah,40h   ;function to write to a file handle
+    ;mov bx, -> bx already holds the handle
+    mov cx,1     ;one digit
+    int 21h
+    pop cx       ;restore flags
+    pop ax
+    inc dx       ;point at next digit
+    dec ax       ;number of places before decimal decremented
+    inc col      ;keeping track of column position for word wrap
+    cmp col,80   ;wrap at 80
+    jne WriteFixedPointLoopFHC1
+    call WriteCRLF
+    mov col,0    ;set back to 0 for next wrap
+WriteFixedPointLoopFHC1:    
+    cmp ax,0     ;if zero, time to write the decimal
+    jne WriteFixedPointLoopC2
+    cmp cx,1    ;don't put the decimal point if no digits after decimal
+    je WriteFixedPointLoopC2
+    push ax     ;preserving registers
+    push cx
+    push dx
+    mov ah,40h  ;function to write to a file handle
+    ;mov bx, -> bx already holds the handle
+    mov cx,1    ;one character
+    mov dx,offset decimalPoint
+    int 21h
+    pop dx      ;restore registers
+    pop cx
+    pop ax
+    inc col     ;increment column position
+    cmp col,80  ;wrap at 80
+    jne WriteFixedPointLoopC2
+    call WriteCRLF
+    mov col,0   ;set back to 0 for next wrap
+WriteFixedPointLoopC2:
+    loop WriteFixedPointLoopFH
+    ret
+WriteFixedPointFH endp
+
+end main

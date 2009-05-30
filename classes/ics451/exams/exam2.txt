@@ -1,0 +1,159 @@
+==================================================================
+Answer 1:
+
+45 00 02 3C   first fragment
+90 AB 23 21
+17 11 -- --
+80 AB 0A 01
+80 AB 0A 02
+
+
+45 00 02 3C   second fragment
+90 AB 23 66
+17 11 -- --
+80 AB 0A 01
+80 AB 0A 02
+
+
+45 00 00 60   third fragment
+90 AB 03 AB
+17 11 -- --
+80 AB 0A 01
+80 AB 0A 02
+
+==================================================================
+Answer 2:
+
+The request:
+
+preamble of 8 bytes of alternation 1's and 0's followed by:
+      FF FF
+FF FF FF FF
+12 13 14 15
+16 17 08 06
+00 01 08 00
+06 04 00 01
+12 13 14 15
+16 17 02 03
+04 05 00 00
+00 00 00 00
+02 03 04 01
+  padding      <- 18 bytes of padding to get to min. size
+-- -- -- --    <- CRC
+
+
+The response:
+preamble of 8 bytes of alternation 1's and 0's followed by:
+      12 13
+14 15 16 17
+12 13 14 AB
+CD EF 08 06
+00 01 08 00
+06 04 00 02
+12 13 14 AB
+CD EF 02 03
+04 01 12 13
+14 15 16 17
+02 03 04 05
+  padding      <- 18 bytes of padding to get to min. size
+-- -- -- --    <- CRC
+
+==================================================================
+Answer 3:
+
+DEST        MASK              COST     IFACE     GWAY
+1.2.3.4     255.255.255.252   1        eth0      *
+7.8.0.0     255.255.0.0       1        ppp0      *
+9.0.0.0     255.192.0.0       1        ttyS0     *
+3.4.0.0     255.255.240.0     2        eth0      1.2.3.6
+5.6.7.0     255.255.255.0     2        ppp0      7.8.9.10
+6.7.8.0     255.255.255.0     2        ppp0      7.8.9.10
+6.7.8.0     255.255.255.0     2        ttyS0     9.10.11.32
+
+1.2.3.5     255.255.255.255   0        eth0      *
+7.8.9.11    255.255.255.255   0        ppp0      *
+9.10.11.33  255.255.255.255   0        ttyS0     *
+
+* - deliver direct
+==================================================================
+Answer 4:
+
+The proposed extension could theoretically prevent a packet from
+traveling in a loop assuming that the network does not contain a
+loop that takes longer than one second, even under heavy load
+(such as the load imposed by storing and comparing packets), to
+complete.  The bridge could use the original packet to update its
+host table and disregard all copies received.  Protocols used on
+the network would have to use designs that avoided sending
+identical packets in rapid succession.   
+
+This does not mean, however, that broadcast would work correctly.
+A broadcast packet should be received by every host on the
+network only once.  The proposed algorithm would have the tendency
+to place the same broadcast packet on some network segments more
+than once.  As an example say we have a network with a segment A
+connected to bridges B1 and B2.  In addition, we have a network
+segment C, also connected to B1 and B2.  If a host on segment A
+generates a packet that will be broadcast, it could arrive at B1
+and B2 such that both of them will check the packets they have
+already received within the last second and determine that they
+should go ahead and forward this packet onto segment C.  The
+packet from B1 will cross segment C and reach B2 where it will be
+discarded as a second packet.  Similarly the packet from B2 will
+cross segment C and reach B1 where it will be discarded.  In the
+mean time all hosts on segment C will end up receiving two copies
+of the same broadcast packet, thus violating the desired broadcast
+behavior.
+
+==================================================================
+Answer 5:
+
+Advantages (and implied disadvantage of the other) of each:
+
+Connection-oriented advantages:
+1.  easy to keep track of connection usage.
+2.  communicating computers can be immediately
+    notified when a connection is broken.
+3.  reduced overhead using a connection identifier.
+4.  connection requirements can be specified.
+
+Connectionless advantages:
+1.  less initial overhead for communication.
+2.  efficient broadcast and multi-cast.
+3.  generally less expensive hardware.
+
+
+Connection-oriented systems have several advantages over
+connectionless systems. For a provider of network services, it is
+much easier for them to keep track of the length of a connection
+with a connection-oriented system than it is to keep track of the
+number of packets sent in a connectionless system.  When a
+connection is broken, the communicating computers can be notified
+immediately in a connection oriented system while a connectionless
+system may continue to send packets unaware that they are not
+reaching the destination.  Connection-oriented systems can also
+gain an advantage by using a connection identifier in packets
+after the initial connection has been made.  This identifier is
+usually smaller than the full destination address and therefore
+makes communication more efficient.  Connectionless systems must
+place the full destination address in each and every packet.  It
+should be noted, however, that the ATM connection-oriented
+technology squanders this advantage by having such a small packet
+size.  Another advantage of connection oriented systems is that
+the requirements of a connection, in terms of speed, jitter, etc.,
+can be more easily specified and maintained throughout a session.
+
+Connectionless systems also have several advantages over
+connection-oriented systems.  A major advantage comes from the
+nature of certain types of network communication that can be
+characterized by a short message, possibly a single packet,
+followed by a reply, then followed by an extended wait.  In this
+scenario the ability to send this type of traffic immediately with
+the overhead of creating a connection becomes a major advantage.
+A further advantage of connection-less systems is the ability to
+do broadcast and multicast in an efficient manner. Connection
+oriented systems must simulate broadcast and multicast by passing
+a copy to each computer in the receiving set.  Connectionless
+networks also have the advantage of being less expensive than
+connection-oriented networks.
+

@@ -1,0 +1,56 @@
+Design and Thought Process for MPI Matrix Multiplication:
+
+1. PARTITIONING
+
+For matrix multiplication the first thought that came to mind was to assign
+a process to each cell in the result set.
+
+From class I realized that the goal of the partitioning phase was the break the
+work down into as small as tasks as possible in order to aid with the decisions
+made at later stages in the design.  With this in mind I noted that the
+ultimate granularity would be to have each multiplication involved in the
+result be a different individual process to be accomplished.  While noted, I
+also felt that such a large number of communications involved in bringing all
+the data back together would make this approach prohibitive.
+
+2. COMMUNICATION
+
+After learning more about the specifics of the RS-6000 I felt that it was best
+for one process, the head, to do all the reading of the data and then pass
+that data to the other processes.  So the communication requirements would be
+for the head process to do a broadcast of all the matrix data, and then for
+the worker processes to send this data back to the head process with MPI_Send
+and MPI_Recv.  After thinking about this for a while I realized that this
+would serialize the reception of the data back to the head task that was going
+to print out the result. This lead me to investigate the MPI_Gather command.
+MPI_Gather seemed to be what I would need to get all the information back to
+the head process for printing.
+
+3. AGGLOMERATION
+
+While each process was defined to be the computation of a single cell it the
+result matrix, it became apparent that these tasks needed to be combined in
+some way.  Obviously the number of processes with this approach could easily
+out number the number of processors.  Therefore I decided that each processor
+would have to compute a range of cells in the result matrix.  This would allow
+for a very clean separation of the work, and would make the communications
+needed very apparent.
+
+4. MAPPING
+
+So the final decision was for each processor to calculate a range of cells in
+the result set.  This would be done in such a way that the processes are
+distributed as evenly as possible to the processors involved.  This meant that
+the communcations back to the head task would not have each processor sending
+back the exact some amount of data as some of the processors might be doing one
+more cell than the others.  This lead me to the investigation of the
+MPI_Gatherv command.  This command allows for each task to send back a variable
+amount of data and turned out to be exactly what I needed.
+
+Note that two source files have been turned in.  The one called classic.c has
+a major if branch in it that seperates the loops that the head process and the
+worker processes run in during the execution of the program.  This program is
+probably a little easier to understand logically because of how the execution
+paths of the head and workers are separate.  The file called matrix.c is the
+same program with the execution paths interwoven...slightly less code, but
+maybe a little more confusing to follow for first time MPIers.

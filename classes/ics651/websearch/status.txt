@@ -1,0 +1,51 @@
+David Burger - in  a group by myself.
+
+My program seems to work well, however, this project has certainly
+reminded me further of the wild and wooly nature of the web.  I've
+located some web servers that do unusual things...like not responding
+to a request for a long time.  I guess this is the nature of this type
+of programming.
+
+I have added some advanced command line parameter handling features
+that allow parameters to be strung together like:
+
+./websearch -ilvd=20 foo http://www.yahoo.com
+
+Of course I also handle command line parameters of the usual kind:
+
+./websearch -i -l -v -d=20 foo http://www.yahoo.com
+
+I found that some web sites would basically cause the program to
+lock up because they wouldn't connect.  To counteract this
+problem I added an additional command line parameter that will
+allow the user to specify a timeout for creating a connection.
+The default value is no timeout.  As an example, say the user
+wants websearch to give up on creating a connection after 5
+seconds then he would enter:
+
+./websearch -t=5 foo http://www.yahoo.com
+
+I have used a search trie that I made to prevent this program
+from forming loops.  The trie relies heavily on the doubly linked
+list I wrote for a previous 451 project.  It also uses a heuristic
+to move the most recently accessed character one character towards
+the front of its containing list.
+
+I have tried to recognize and reject many URLs that should not
+be spidered.  These include URLs that are merely internal hyperlinks
+as in:
+
+<a href="#conclusion">whatever</a>
+
+and links that are really not links as in:
+
+<a href="mailto:dburger@hawaii.edu">email</a>
+
+I realize that my list of special conditions is not exhaustive and a full
+implemenation may find many, many of these special conditions.
+
+I have relied on returned Content-type and not file extensions to determine
+if a found URL was text/plain or text/html.
+
+It was a fun project and I learned a lot.
+

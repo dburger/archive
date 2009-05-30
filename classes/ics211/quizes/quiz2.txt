@@ -1,0 +1,130 @@
+Chapter 3 Exercises
+
+1.>
+
+//Purpose:  To compute the sum of an ADT list of integers.
+//Preconditions:  The parameter aList is passed a valid
+//    ADT list of integers.
+//Postconditions:  The sum of the integers in the list is
+//    returned.
+public static long sumList(IntegerListInterface aList) {
+    long sum = 0;
+    for (int i = 1;i <= aList.size();i++)
+        sum += aList.get(i);
+    return sum;
+}
+
+2.>
+
+//Purpose:  This method swaps the elements in the i and j
+//    positions of list aList.
+//Preconditions:  The method is passed valid list positions
+//    of aList at locations i and j.
+//Postconditions:  The items in locations i and j are
+//    swapped.  If either of the indexes are out of range
+//    a ListIndexOutOfBoundsException is thrown.
+public static void swap(ListInterface aList, int i, int j) {
+    Object iOld;
+    Object jOld;
+    if ((i >= 1) && (i <= aList.size()) && (j >=1) && (j<= aList.size()))
+        {
+            iOld = aList.get(i);
+            jOld = aList.get(j);
+            aList.remove(i);
+            aList.add(i,jOld);
+            aList.remove(j);
+            aList.add(j,iOld);
+        }
+    else
+        {
+            throw new ListIndexOutOfBoundsException(
+                    "ListIndexOutOfBoundsException on swap");
+        }
+}
+
+
+4.>
+
+a.)  An advantage is that the users of the ADT list have been allowed to 
+implement these methods in the exact manner that they want to by using the 
+primitives of the class.  A disadvantage may be that these operations may be 
+common enough, especially in the case of replace, that the functionality 
+could have been added to the ADT list itself and then all users of the class 
+would have had more operations to work with possibly reducing coding time in 
+some instances.
+
+b.)  With the operations displayList and replace added to the ADT list, an 
+advantage would be that programs using the list would have a standard way to 
+perform those two operations.  With the operation replace, I don't see that 
+as a problem because the idea of what replacing means is very straightforward 
+and the operation would become like an additional primitive.  For 
+displayList, however, being part of the ADT List would probably not be much 
+of advantage. Yes, the displayList may be what another coder needs in some 
+specific instance, however, it is likely that different programs using the 
+list would want to display information in different ways and to different 
+output devices.  Therefore it is probably preferable for programs using the 
+list to implement a displayList that is external to the ADT list.
+
+8.>
+
+a.)
+int highestDegree = p.degree();
+System.out.println(p.getCoefficient(highestDegree));
+
+b.)
+int theCoefficient = p.getCoefficient(3);
+p.changeCoefficient(theCoefficient + 8, 3);
+
+
+
+c.)
+I thought it was best to put this into a method and I am assuming that the 
+name of this class or the name of the interface is ADTPolynomial:
+
+//Purpose:  Compute the sum of two polynomials.
+//Precondition:  This method is passed two valid
+//    polynomials in p and q.
+//Postcondition:  The sum of the polynomials is
+//    returned.
+public static ADTPolynomial sumPolynomials(ADTPolynomial p, ADTPolynomial q){
+    ADTPolynomial r = new ADTPolynomial();
+    int highestDegree;
+    int pCoefficient;
+    int qCoefficient;
+
+    //determine which one has a higher degree
+    if (p.degree() > q.degree())
+        highestDegree = p.degree();
+    else
+        highestDegree = q.degree();
+
+    //loop from the highest degree down to the 0th degree
+    for (int i = highestDegree;i>=0; i--)
+        r.changeCoefficient(p.getCoefficient(i) + q.getCoefficient(i),i);
+
+    return r;
+}
+
+10.>
+
+SortedListOfIntegers aSortedList = new SortedListOfIntegers();
+for (int i = 0; i < N ; i++)
+    aSortedList.sortedAdd(data[i]);
+for (int i = 1; i <= N ; i++)
+    data[i - 1] = aSortedList.sortedGet(i);
+
+14.>
+
+//assuming we have sorted lists sortedList1 and sortedList2
+//and assuming they are the SAME SIZE
+sortedListMerged.createSortedList()
+for (index = 1 through sortedList1.size())
+    {
+        sortedListMerged.sortedAdd(sortedList1.sortedGet(index))
+        sortedListMerged.sortedAdd(sortedList2.sortedGet(index))
+    }
+David J. Burger
+                                                                                     Burger, David
+                                                                                     ICS 211
+                                                                                     Quiz 2
+                                                                                     Due: 09/14/2000

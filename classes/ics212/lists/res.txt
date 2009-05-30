@@ -1,0 +1,111 @@
+File ht1.lst: 472 distinct words and 1063 total words.
+File ht2.lst: 587 distinct words and 1584 total words.
+Words that appear 5 or more times:
+Word                ht1.lst        ht2.lst        
+about               7              2              
+also                5              1              
+an                  4              7              
+and                 23             26             
+are                 6              9              
+area                5              1              
+as                  9              12             
+at                  2              13             
+bay                 6              
+be                  7              8              
+because             1              7              
+been                4              2              
+bills                              6              
+brown               6              
+but                                10             
+by                  3              5              
+can                 2              4              
+city                8              
+city's              6              
+companies           7              7              
+company             3              7              
+could                              5              
+employees                          14             
+even                2              6              
+for                 12             12             
+former              2              3              
+francisco           15             
+from                10             7              
+gains                              7              
+has                 15             2              
+have                5              7              
+he                  5              24             
+his                 7              5              
+if                  2              7              
+in                  35             34             
+intertrust                         8              
+is                  13             13             
+it                  5              10             
+its                 4              4              
+last                3              3              
+like                3              2              
+lower               2              4              
+many                4              8              
+market              1              7              
+million             4              7              
+more                3              9              
+mr                  13             8              
+new                 5              1              
+not                 2              7              
+now                 2              4              
+oakland             17             1              
+oakland's           6              
+of                  23             48             
+office              5              
+on                  4              18             
+one                 3              3              
+options                            26             
+other               3              3              
+out                 1              5              
+people              3              10             
+percent             4              4              
+price                              5              
+problem                            6              
+protopappas         9              
+real                3              3              
+rents               5              
+said                7              14             
+san                 15             
+say                 1              6              
+says                3              2              
+sell                1              6              
+shares              1              13             
+she                 4              2              
+so                  2              5              
+some                               5              
+space               6              
+stock                              39             
+tax                                33             
+taxes               1              6              
+than                3              7              
+that                13             21             
+the                 60             93             
+their               2              20             
+them                2              4              
+there               3              5              
+they                2              17             
+this                2              4              
+to                  32             45             
+up                  1              8              
+van                                7              
+was                 4              9              
+wealth                             5              
+were                2              9              
+when                3              7              
+which               6              2              
+who                 4              6              
+wie                                7              
+with                9              11             
+would               2              9              
+year                2              8              
+years               6              2              
+you                 1              4              
+331 distinct words and 486 total words appear only in file ht1.lst.
+446 distinct words and 749 total words appear only in file ht2.lst.
+There are 141 distinct words that appear in both files.
+They appear 577 times in file ht1.lst.
+They appear 835 times in file ht2.lst.

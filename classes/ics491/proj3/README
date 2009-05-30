@@ -1,0 +1,65 @@
+My part of the project was to implement ships and harbour_master.
+
+SHIPS
+=====
+ships is a very straight forward actor task.  It only needs to make calls to
+the servers that control access to resources, such as the harbour_master and
+the supervisor, and then react accordingly.  Because all calls are blocking
+until granted, the ship doesn't have to worry about doing an re-requests or
+doing any blocking of its own.  Along the way calls to the graphics package
+are made in the appropriate spots to keep the graphics in sync.
+
+HARBOUR_MASTER
+==============
+harbour_master is implemented internally as a server task called master_logic.
+The four calls that are public in the package are those that the ships make to
+enter, exit, dock, and leave.  When these calls come into the harbour master, an
+agent task is created an is passed the length and draught of the ship.  Then the
+agent is passed into master_logic on the associated request.  This call is
+immediately answered unless the master logic is already holding a reference to
+another agent for the same call.  This can be seen in the NULL checking gaurd
+conditions.
+
+The master_logic will assign a refernce variable to the agent that comes in on
+a call not previously containing a corresponding agent.
+
+Below the select is a while loop that will process the agents that are set as
+refernece variables.  It keeps looping until no more state changes take place,
+indicated by state_change being false.
+
+
+The various conditions are checked to see if the ship can proceed.  If it can,
+it is processed and the result is returned to the agent via the agents release
+method.  And then back to the original call via the get_result call.  When this
+call can be accepted not only is the result marshalled back to the original
+call, but also the original call will be unblocked and the ship can continue on
+its journey.
+
+If the reason a ship could not proceed is because of the tide a tide_notify
+call is made on the tide object.  This call makes it so the tide will call back
+later when the tide is acceptable for a ship with the given draught.  This will
+allow the server task to be re-awoken at the appropriate time for the situation
+to be evaluated again.
+
+One of the more challenging situations was how to determine if the tide was
+going to be ok for a ship to pass through the lock.  It seems as if this would
+have been easier to implement if the tide and lock had more functionality, such
+as the tide being able to report how long until everyone queued on the lock
+would be finished and the tide being able to state a tide height that would
+occur at a given time.
+
+So the implementation was somewhat of a compromise and not fully realistic.  For
+entering a calculation was made as the worst case time to move in position and
+do an entire fill or empty of the lock.  Then if the tide was alright at that
+time the ship was allowed to proceed.  In a similar fashion the worst case
+time to exit was calculated and the tide checked to see if it would be ok at
+that time.  In doing so I had to put future tide calculations directly in the
+harbour_master, and I hope I am using the same formulas as the person(s)
+implementing the tide.  I did a straight linear rise and fall of the tide.
+
+The harbour_master.adb file contains many comments explaining its operation.
+
+DISTRIBUTIONS
+=============
+I coded distributions before I realized it wasn't one of my packages.  It was
+helpful when I was trying to run test cases.

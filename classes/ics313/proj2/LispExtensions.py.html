@@ -1,0 +1,345 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.6.1
+by Lorenzo Bettini, bettini@gnu.org
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite">
+<title>LispExtensions.py</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+<i><font color=#9A1900>#!/usr/bin/python</font></i>
+<i><font color=#9A1900>#                             -*- Mode: Python -*- </font></i>
+<i><font color=#9A1900>#  LispExtensions.py -- </font></i>
+<i><font color=#9A1900>#  Author          : David J. Burger &amp; Bruce Harris</font></i>
+<i><font color=#9A1900>#  Created On      : Wed May  7 09:13:13 2003</font></i>
+<i><font color=#9A1900>#  Last Modified By: David J. Burger</font></i>
+<i><font color=#9A1900>#  Last Modified On: Sat May 10 15:15:18 2003</font></i>
+<i><font color=#9A1900>#  RCS: $Id$</font></i>
+<i><font color=#9A1900># </font></i>
+<i><font color=#9A1900>#  Copyright (c) 2003 David J. Burger &amp; Bruce Harris</font></i>
+<i><font color=#9A1900># </font></i>
+<i><font color=#9A1900># Extends Python with Classes and Functions with Lisp like capabilities</font></i>
+
+<b><font color=#0000FF>import</font></b> sys
+
+<b><font color=#0000FF>class</font></b> LispReader<font color=#990000>:</font>
+<i><font color=#9A1900>    "Implementation of a Lisp reader."</font></i>
+   
+    <i><font color=#9A1900># lexing constants</font></i>
+    __STRING_CODE <font color=#990000>=</font> <font color=#993399>0</font>
+    __SYMBOL_CODE <font color=#990000>=</font> <font color=#993399>1</font>
+    __NUMBER_CODE <font color=#990000>=</font> <font color=#993399>2</font>
+    __LEFT_PAREN_CODE <font color=#990000>=</font> <font color=#993399>3</font>
+    __RIGHT_PAREN_CODE <font color=#990000>=</font> <font color=#993399>4</font>
+    __SINGLE_QUOTE_CODE <font color=#990000>=</font> <font color=#993399>5</font>
+    __POUND_QUOTE_CODE <font color=#990000>=</font> <font color=#993399>6</font>
+    
+    <i><font color=#9A1900># these two also used to pass status back to client</font></i>
+    SYNTAX_ERROR <font color=#990000>=</font> <font color=#993399>7</font>
+    END_OF_INPUT <font color=#990000>=</font> <font color=#993399>8</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__init__</font></b><font color=#990000>(</font>self<font color=#990000>,</font> file<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Initializes the reader with the file handle to read from.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FILE is the file handle to read from</font></i>
+<i><font color=#9A1900>        """</font></i>
+        self<font color=#990000>.</font>__file <font color=#990000>=</font> file
+        self<font color=#990000>.</font>__lexeme <font color=#990000>=</font> <font color=#FF0000>""</font>
+        self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR
+        self<font color=#990000>.</font>__nextChar <font color=#990000>=</font> self<font color=#990000>.</font>__file<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>)</font>
+        self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>read</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Reads the next form from the file."</font></i>
+        <b><font color=#0000FF>return</font></b> self<font color=#990000>.</font><b><font color=#000000>__form</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__getChar</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Reads the next character from the file."</font></i>
+        self<font color=#990000>.</font>__nextChar <font color=#990000>=</font> self<font color=#990000>.</font>__file<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>)</font>
+        
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__addChar</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Appends __nextChar to the end of __lexeme."</font></i>
+        self<font color=#990000>.</font>__lexeme <font color=#990000>=</font> self<font color=#990000>.</font>__lexeme <font color=#990000>+</font> self<font color=#990000>.</font>__nextChar
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__lex</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Lexes the next lexeme and assigns the token code."</font></i>
+        self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR
+        self<font color=#990000>.</font>__lexeme <font color=#990000>=</font> <font color=#FF0000>""</font>
+
+        <i><font color=#9A1900># loop that consumes whitespace and comments before the next lexeme</font></i>
+        <b><font color=#0000FF>while</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>""</font> <b><font color=#0000FF>and</font></b> self<font color=#990000>.</font>__nextChar<font color=#990000>.</font><b><font color=#000000>isspace</font></b><font color=#990000>(</font><font color=#990000>)</font> <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                  self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>";"</font><font color=#990000>:</font>
+            <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>";"</font><font color=#990000>:</font>
+                <b><font color=#0000FF>while</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>""</font> <b><font color=#0000FF>and</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>"\n"</font><font color=#990000>:</font>
+                    self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+                self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+        <i><font color=#9A1900># check to see if reached the end of the file with no next lexeme</font></i>
+        <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>""</font><font color=#990000>:</font>
+            self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>END_OF_INPUT
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"("</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__LEFT_PAREN_CODE
+            self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>")"</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__RIGHT_PAREN_CODE
+            self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"'"</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__SINGLE_QUOTE_CODE
+            self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"#"</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"'"</font><font color=#990000>:</font>
+                self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__POUND_QUOTE_CODE
+                self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            <i><font color=#9A1900># else leave self.__nextToken == LispReader.SYNTAX_ERROR</font></i>
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"\""</font><font color=#990000>:</font>
+            <i><font color=#9A1900># look for the end of the quoted string</font></i>
+            prevChar <font color=#990000>=</font> <font color=#FF0000>"\\"</font>
+            <b><font color=#0000FF>while</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>""</font><font color=#990000>:</font>
+                <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextChar <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"\""</font> <b><font color=#0000FF>and</font></b> prevChar <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>"\\"</font><font color=#990000>:</font>
+                    self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                    self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                    self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__STRING_CODE
+                    <b><font color=#0000FF>break</font></b>
+                self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                prevChar <font color=#990000>=</font> self<font color=#990000>.</font>__nextChar
+                self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> <b><font color=#000000>isSymbolChar</font></b><font color=#990000>(</font>self<font color=#990000>.</font>__nextChar<font color=#990000>)</font><font color=#990000>:</font>
+            <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextChar<font color=#990000>.</font><b><font color=#000000>isdigit</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+                self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__NUMBER_CODE
+            <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+                self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__SYMBOL_CODE
+            <i><font color=#9A1900># look for the end of the symbol</font></i>
+            <b><font color=#0000FF>while</font></b> <b><font color=#000000>isSymbolChar</font></b><font color=#990000>(</font>self<font color=#990000>.</font>__nextChar<font color=#990000>)</font><font color=#990000>:</font>
+                <b><font color=#0000FF>if</font></b> <b><font color=#0000FF>not</font></b> self<font color=#990000>.</font>__nextChar<font color=#990000>.</font><b><font color=#000000>isdigit</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+                    self<font color=#990000>.</font>__nextToken <font color=#990000>=</font> LispReader<font color=#990000>.</font>__SYMBOL_CODE
+                self<font color=#990000>.</font><b><font color=#000000>__addChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                self<font color=#990000>.</font><b><font color=#000000>__getChar</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <i><font color=#9A1900># else leave self.__nextToken == LispReader.SYNTAX_ERROR</font></i>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__form</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Reads and returns the next form from the file."</font></i>
+        <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR<font color=#990000>:</font>
+            <b><font color=#0000FF>return</font></b> LispReader<font color=#990000>.</font>SYNTAX_ERROR
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>END_OF_INPUT<font color=#990000>:</font>
+            <b><font color=#0000FF>return</font></b> LispReader<font color=#990000>.</font>END_OF_INPUT
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__STRING_CODE <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                 self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__SYMBOL_CODE <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                 self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__NUMBER_CODE<font color=#990000>:</font>
+            current_lexeme <font color=#990000>=</font> self<font color=#990000>.</font>__lexeme
+            self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            <b><font color=#0000FF>return</font></b> current_lexeme
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__SINGLE_QUOTE_CODE <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                 self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__POUND_QUOTE_CODE<font color=#990000>:</font>
+            new_list <font color=#990000>=</font> <font color=#990000>[</font><font color=#990000>]</font>
+            <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__SINGLE_QUOTE_CODE<font color=#990000>:</font>
+                new_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font><font color=#FF0000>"quote"</font><font color=#990000>)</font>
+            <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+                new_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font><font color=#FF0000>"function"</font><font color=#990000>)</font>
+            self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            new_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font>self<font color=#990000>.</font><b><font color=#000000>__form</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font>
+            <b><font color=#0000FF>return</font></b> new_list
+        <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__LEFT_PAREN_CODE<font color=#990000>:</font>
+            <i><font color=#9A1900># loop to the end of list, appending forms</font></i>
+            self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            new_list <font color=#990000>=</font> <font color=#990000>[</font><font color=#990000>]</font>
+            <b><font color=#0000FF>while</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>!</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__RIGHT_PAREN_CODE<font color=#990000>:</font>
+                <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                       self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>END_OF_INPUT<font color=#990000>:</font>
+                    <i><font color=#9A1900># end of list not found</font></i>
+                    <b><font color=#0000FF>return</font></b> LispReader<font color=#990000>.</font>SYNTAX_ERROR
+                <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__STRING_CODE <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                         self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__SYMBOL_CODE <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                         self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__NUMBER_CODE<font color=#990000>:</font>
+                    new_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font>self<font color=#990000>.</font>__lexeme<font color=#990000>)</font>
+                    self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__SINGLE_QUOTE_CODE <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+                         self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__POUND_QUOTE_CODE<font color=#990000>:</font>
+                    quote_list <font color=#990000>=</font> <font color=#990000>[</font><font color=#990000>]</font>
+                    <b><font color=#0000FF>if</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__SINGLE_QUOTE_CODE<font color=#990000>:</font>
+                        quote_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font><font color=#FF0000>"quote"</font><font color=#990000>)</font>
+                    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+                        quote_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font><font color=#FF0000>"function"</font><font color=#990000>)</font>
+                    self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+                    <i><font color=#9A1900># recursive call to append nested form</font></i>
+                    quote_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font>self<font color=#990000>.</font><b><font color=#000000>__form</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font>
+                    new_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font>quote_list<font color=#990000>)</font>
+                <b><font color=#0000FF>elif</font></b> self<font color=#990000>.</font>__nextToken <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>__LEFT_PAREN_CODE<font color=#990000>:</font>
+                    <i><font color=#9A1900># recursive call to append nested form</font></i>
+                    new_list<font color=#990000>.</font><b><font color=#000000>append</font></b><font color=#990000>(</font>self<font color=#990000>.</font><b><font color=#000000>__form</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font>
+            self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+            <b><font color=#0000FF>return</font></b> new_list
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>return</font></b> LispReader<font color=#990000>.</font>SYNTAX_ERROR
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>lexAll</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Demonstration loop that lexes and prints every lexeme in the file.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        Used for extra credit 1</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>while</font></b> self<font color=#990000>.</font>__lexeme <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>""</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> self<font color=#990000>.</font>__lexeme
+            self<font color=#990000>.</font><b><font color=#000000>__lex</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+<i><font color=#9A1900># helper functions that work like functions available in Lisp</font></i>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>pushNew</font></b><font color=#990000>(</font>element<font color=#990000>,</font> list<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Places element at the head of list if not already in list.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>    ELEMENT is the element to add to the list</font></i>
+<i><font color=#9A1900>    LIST is the list to add to</font></i>
+<i><font color=#9A1900>    """</font></i>
+    <b><font color=#0000FF>if</font></b> element <b><font color=#0000FF>not</font></b> <b><font color=#0000FF>in</font></b> list<font color=#990000>:</font>
+        list<font color=#990000>.</font><b><font color=#000000>insert</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>,</font> element<font color=#990000>)</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>isList</font></b><font color=#990000>(</font>form<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Determines is form is a list.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>    FORM is object to determine if a list</font></i>
+<i><font color=#9A1900>    returns 1 if form is a list, otherwise 0</font></i>
+<i><font color=#9A1900>    """</font></i>
+    <b><font color=#0000FF>return</font></b> <b><font color=#000000>type</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <font color=#990000>=</font><font color=#990000>=</font> list <b><font color=#0000FF>or</font></b> form <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"nil"</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>isSymbolChar</font></b><font color=#990000>(</font>c<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Determines if c is a symbol character for Lisp symbols.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>    C is the character to check</font></i>
+<i><font color=#9A1900>    returns 1 if c is a symbol character, otherwise 0</font></i>
+<i><font color=#9A1900>    """</font></i>
+    <b><font color=#0000FF>return</font></b> c<font color=#990000>.</font><b><font color=#000000>isalnum</font></b><font color=#990000>(</font><font color=#990000>)</font> <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+           c <b><font color=#0000FF>in</font></b> <font color=#990000>[</font><font color=#FF0000>"+"</font><font color=#990000>,</font><font color=#FF0000>"-"</font><font color=#990000>,</font><font color=#FF0000>"*"</font><font color=#990000>,</font><font color=#FF0000>"/"</font><font color=#990000>,</font><font color=#FF0000>"@"</font><font color=#990000>,</font><font color=#FF0000>"$"</font><font color=#990000>,</font><font color=#FF0000>"%"</font><font color=#990000>,</font><font color=#FF0000>"^"</font><font color=#990000>,</font><font color=#FF0000>"&amp;"</font><font color=#990000>,</font>
+                 <font color=#FF0000>"_"</font><font color=#990000>,</font><font color=#FF0000>"\\"</font><font color=#990000>,</font><font color=#FF0000>"&lt;"</font><font color=#990000>,</font><font color=#FF0000>"&gt;"</font><font color=#990000>,</font><font color=#FF0000>"~"</font><font color=#990000>,</font><font color=#FF0000>"."</font><font color=#990000>,</font><font color=#FF0000>"="</font><font color=#990000>,</font><font color=#FF0000>":"</font><font color=#990000>]</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>isString</font></b><font color=#990000>(</font>form<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Determines if form is a string.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>    FORM is anything</font></i>
+<i><font color=#9A1900>    returns 1 if form is a string, otherwise 0</font></i>
+<i><font color=#9A1900>    """</font></i>
+    <b><font color=#0000FF>return</font></b> <b><font color=#000000>type</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <font color=#990000>=</font><font color=#990000>=</font> str <b><font color=#0000FF>and</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"\""</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>isInteger</font></b><font color=#990000>(</font>form<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Determines if form is an integer.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>    FORM is anything</font></i>
+<i><font color=#9A1900>    returns 1 if form is an integer, otherwise 0</font></i>
+<i><font color=#9A1900>    """</font></i>
+    <i><font color=#9A1900># ok, so actually need to check all characters as digits</font></i>
+    <b><font color=#0000FF>return</font></b> <b><font color=#000000>type</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <font color=#990000>=</font><font color=#990000>=</font> str <b><font color=#0000FF>and</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font><font color=#990000>.</font><b><font color=#000000>isdigit</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>isSymbol</font></b><font color=#990000>(</font>form<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Determines if form is a symbol.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>    FORM is anything</font></i>
+<i><font color=#9A1900>    returns 1 if form is a symbol, otherwise 0</font></i>
+<i><font color=#9A1900>    """</font></i>
+    <b><font color=#0000FF>return</font></b> <b><font color=#000000>type</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <font color=#990000>=</font><font color=#990000>=</font> str <b><font color=#0000FF>and</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font><font color=#990000>.</font><b><font color=#000000>isalpha</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+<i><font color=#9A1900># functions used to demonstrate the code</font></i>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>demo</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    "Demo entry point, parses command line and calls sub-demo."</font></i>
+    <b><font color=#0000FF>if</font></b> <b><font color=#000000>len</font></b><font color=#990000>(</font>sys<font color=#990000>.</font>argv<font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>3</font><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Proper usage is %s file demo"</font> <font color=#990000>%</font> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"where file is the file to process,"</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"and demo is \"lex\" or \"read\""</font>
+        sys<font color=#990000>.</font><b><font color=#000000>exit</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>)</font>
+    <b><font color=#0000FF>try</font></b><font color=#990000>:</font>
+        demo_file <font color=#990000>=</font> <b><font color=#000000>file</font></b><font color=#990000>(</font>sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>,</font> <font color=#FF0000>"r"</font><font color=#990000>)</font>
+    <b><font color=#0000FF>except</font></b> IOError<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Unable to open %s"</font> <font color=#990000>%</font> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font>
+        sys<font color=#990000>.</font><b><font color=#000000>exit</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>)</font>
+    <b><font color=#0000FF>if</font></b> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"lex"</font><font color=#990000>:</font>
+        <b><font color=#000000>lexDemo</font></b><font color=#990000>(</font>demo_file<font color=#990000>)</font>
+    <b><font color=#0000FF>elif</font></b> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"read"</font><font color=#990000>:</font>
+        <b><font color=#000000>readDemo</font></b><font color=#990000>(</font>demo_file<font color=#990000>)</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Demo option %s not understood"</font> <font color=#990000>%</font> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font>
+    demo_file<font color=#990000>.</font><b><font color=#000000>close</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>lexDemo</font></b><font color=#990000>(</font>lex_file<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Demonstrates the lexer by printing out every token in the file.</font></i>
+<i><font color=#9A1900>    </font></i>
+<i><font color=#9A1900>    LEX_FILE is the file to fully lex</font></i>
+<i><font color=#9A1900>    """</font></i>
+    lispReader <font color=#990000>=</font> <b><font color=#000000>LispReader</font></b><font color=#990000>(</font>lex_file<font color=#990000>)</font>
+    lispReader<font color=#990000>.</font><b><font color=#000000>lexAll</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>readDemo</font></b><font color=#990000>(</font>read_file<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    """Demonstrates the reader by printing out every form in the file.</font></i>
+<i><font color=#9A1900>    </font></i>
+<i><font color=#9A1900>    READ_FILE is the file to fully read.</font></i>
+<i><font color=#9A1900>    """</font></i>
+    lispReader <font color=#990000>=</font> <b><font color=#000000>LispReader</font></b><font color=#990000>(</font>read_file<font color=#990000>)</font>
+    form <font color=#990000>=</font> lispReader<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    <b><font color=#0000FF>while</font></b> form <font color=#990000>!</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR <b><font color=#0000FF>and</font></b> form <font color=#990000>!</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>END_OF_INPUT<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> form
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"=============================================================="</font>
+        form <font color=#990000>=</font> lispReader<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    <b><font color=#0000FF>if</font></b> form <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"A syntax error occurred!"</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"End of Input."</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>unitTest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    "Tests the integrity of the reader, file pmj-xref.el must be present."</font></i>
+    <b><font color=#0000FF>try</font></b><font color=#990000>:</font>
+        unitTestFile <font color=#990000>=</font> <b><font color=#000000>file</font></b><font color=#990000>(</font><font color=#FF0000>"pmj-xref.el"</font><font color=#990000>,</font> <font color=#FF0000>"r"</font><font color=#990000>)</font>
+    <b><font color=#0000FF>except</font></b> IOError<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Unable to open pmj-xref.el"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    lispReader <font color=#990000>=</font> <b><font color=#000000>LispReader</font></b><font color=#990000>(</font>unitTestFile<font color=#990000>)</font>
+    form <font color=#990000>=</font> lispReader<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    <b><font color=#0000FF>while</font></b> form <font color=#990000>!</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR <b><font color=#0000FF>and</font></b> form <font color=#990000>!</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>END_OF_INPUT<font color=#990000>:</font>
+        <i><font color=#9A1900># loop for the last defun</font></i>
+        <b><font color=#0000FF>if</font></b> form<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"pmj-xref-unit-test"</font><font color=#990000>:</font> <b><font color=#0000FF>break</font></b>
+        form <font color=#990000>=</font> lispReader<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        
+    unitTestFile<font color=#990000>.</font><b><font color=#000000>close</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    
+    <b><font color=#0000FF>if</font></b> form <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR <b><font color=#0000FF>or</font></b> form <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>END_OF_INPUT<font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"The last defun, 'pmj-xref-unit-test', was not found."</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"checking that the third item is a list"</font>
+        <b><font color=#0000FF>if</font></b> <b><font color=#0000FF>not</font></b> <b><font color=#000000>isList</font></b><font color=#990000>(</font>form<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font><font color=#990000>)</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"checking that the sixth item is an and"</font>
+        <b><font color=#0000FF>if</font></b> <b><font color=#0000FF>not</font></b> <b><font color=#000000>isList</font></b><font color=#990000>(</font>form<font color=#990000>[</font><font color=#993399>5</font><font color=#990000>]</font><font color=#990000>)</font> <b><font color=#0000FF>or</font></b> form<font color=#990000>[</font><font color=#993399>5</font><font color=#990000>]</font><font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>"and"</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"checking that the third item of the and is an equal"</font>
+        <b><font color=#0000FF>if</font></b> <b><font color=#0000FF>not</font></b> <b><font color=#000000>isList</font></b><font color=#990000>(</font>form<font color=#990000>[</font><font color=#993399>5</font><font color=#990000>]</font><font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font><font color=#990000>)</font> <b><font color=#0000FF>or</font></b> form<font color=#990000>[</font><font color=#993399>5</font><font color=#990000>]</font><font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font><font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>"equal"</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>return</font></b> <font color=#993399>1</font>
+
+<i><font color=#9A1900># can uncomment the demo or unitTest</font></i>
+<b><font color=#0000FF>if</font></b> __name__ <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"__main__"</font><font color=#990000>:</font> <b><font color=#000000>demo</font></b><font color=#990000>(</font><font color=#990000>)</font>
+<i><font color=#9A1900># if __name__ == "__main__": print unitTest()</font></i>
+</tt>
+</pre>
+</body>
+</html>

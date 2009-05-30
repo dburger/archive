@@ -1,0 +1,254 @@
+<html><head><title>ICS 651 project 2</title></head>
+<body>
+<h1>Computer Networks Project 2</h1>
+
+<br>
+<B><FONT SIZE="-1">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ document.write('<BR>' + 'This page was last modified on: ' + document.lastModified + ' HST</BR>');
+ //-->
+</SCRIPT>
+</FONT></B>
+
+<p>
+The goals of this project are:
+<ol>
+<li> to learn about signaling
+<li> to learn about TCP connection establishment and teardown
+<li> to become familiar with TCP header formats
+</ol>
+
+<p>This is an individual project.  You may discuss ideas with your
+colleagues, but you must be the sole author of all your code.
+
+<p>Your implementation must interoperate with the implementations of
+at least 2 other people.  Your implementation must be in C and compile
+and run on a Unix system.
+
+<p>The project is due Sunday, March 24th 2002, at any time.
+Submission is electronic:
+
+<ol>
+<li> all your code must be in a file named "tcp.c"
+<li> cd to the directory containing your project file "tcp.c"
+<li> run the command:
+<tt>
+/home/1/esb/turnin651
+</tt>
+<li> your file "tcp.c" must show, in a comment near the beginning:
+<ol>
+<li> your full name.
+<li> whether you think your program works, and if not, what you think
+the problem is.
+<li> the full name of the people (if any) with whom you have seen your
+code successfully interoperate.
+</ol>
+</ol>
+
+No credit will be given for late submissions.
+
+<p>Signaling is the management of connections by sending special
+messages.  The assignment is to implement the TCP state machine for
+connection establishment/teardown described starting on page 21 of the
+TCP specification, <a
+href="http://www.ietf.org/rfc/rfc793.txt">RFC
+793</a>.  To simplify your task, you are not required to implement any
+of the data transfer, retransmission, and window management operations
+of TCP, only the connection establishmeent and teardown.
+
+<h2>Project Specification</h2>
+
+Your job is to implement a file, tcp.c, which must provide the
+following functions:
+
+<ol>
+
+<li><tt>int tcp_connect(int local_IP, int IP_address, short local_port, short
+remote_port)</tt> opens a connection to the specified IP address if
+possible, returning -1 in case of failure (reset received, timeout,
+destination unreachable).  If the connection succeeds, tcp_connect
+returns a connection identifier, an integer in 1..10 representing the
+connection.
+
+<li><tt>int tcp_listen(int local_IP, short local_port, int * IP_address, int
+timeout)</tt> listens for a connection, and if a connection succeeds,
+fills in the IP address and returns the connection identifier.  If no
+connection is received within the given timeout (in milliseconds), or
+if the port is already in use for a different connection (or listen),
+tcp_listen must return -1.
+
+<li><tt>void tcp_close(int connection, int local_IP)</tt> closes the connection
+specified by the argument.
+
+<li><tt>void tcp_init()</tt>
+is called exactly once, before any call to connect or listen or close.
+
+</ol>
+
+tcp.c may use the following functions:
+
+<ol>
+
+<li><tt>int ip_send(int IP_address, char * packet, int bytes)</tt> will send
+the given number of bytes pointed to by "packet" to the specified IP address,
+returning 0.  The call may fail (for example if the IP address is unreachable),
+and then the return value will be -1.
+
+<li><tt>int ip_receive(char * packet, int size, int * from, int
+timeout)</tt> returns -1 if the call timed out (timeout is specified
+in milliseconds).  If the call succeeded (did not time out) the packet
+is filled with data (up to "size" -- any additional data in the packet
+is discarded), the integer pointed to by "from" is filled with the
+source IP address, and the number of bytes received is returned.
+
+</ol>
+
+Your project is to implement a small subset of TCP, but you must still
+use the TCP header format.  The following fields of the TCP header MUST
+be set appropriately:
+
+<ul>
+
+<li> source and destination ports -- remember to use big-endian byte order,
+see also htons and ntohs
+
+<li> sequence and acknowledgment numbers -- this means you must pick an
+initial sequence number, and increment it when you send "SYN" or "FIN"
+packets, as specified in the RFC.  Again, remember to send these in big-endian
+order, perhaps using htonl and ntohl
+
+<li> the ack, rst, syn, and fin flags
+
+<li> the "data offset" field always has the value 5, since there are
+no options and no padding.
+
+<li> the checksum field -- see <a
+href="http://www.ietf.org/rfc/rfc1071.txt">RFC 1071</a>.  You are
+welcome to adapt the code from the RFC, but you should be aware that you
+cannot use the code as given -- the C code in section 4.1 has bugs
+that prevent correct computation of the checksum.  The checksum includes
+the pseudo-header.
+
+</ul>
+
+I have made available the following files, on uhunix in directory
+<tt>/home/1/esb/651/p2</tt>:
+
+<ol>
+
+<li><tt>ip.c</tt>, implementing a simulated IP (the simulator only
+works with <tt>testtcp.c</tt>)
+
+<li><tt>testtcp.c</tt>, a simple program that calls the TCP functions.
+
+<li><tt>tcp.c</tt>, a skeleton for your implementation of
+<tt>tcp.c</tt>.
+
+<li><tt>ipsim.h</tt>, used by the C files.
+
+<li><tt>makefile</tt>, a makefile for this program.
+
+</ol>
+
+The test program, specified in testtcp.c, will accept as command-line
+arguments one of the following:
+
+<ul>
+
+<li> an IP number and four integers:
+<ol>
+<li> the simulated IP address
+<li>a UDP port number for the simulator
+<li>an initial timeout in milliseconds
+<li>a TCP port number
+<li>a delay in seconds.
+</ol>
+In this case, <tt>testtcp.c</tt> calls <tt>tcp_listen</tt> with the
+specified initial timeout and TCP port number and, if successful,
+waits the specified number of seconds before closing the connection
+and exiting.
+
+<p>For example, the following call: <tt> testtcp 1.2.3.4 5678 5000
+9999 20 </tt>
+<br> results in a call to
+<tt>int c = tcp_listen (9999, ip_address_ptr, 5000)</tt>,
+then if the call succeeds, waits 20
+seconds before calling <tt>tcp_close (c)</tt>.
+
+<li> an IP number and an integer (the simulated IP adddress and the
+UDP port number for the local simulator), followed by sets of six
+parameters:
+<ol>
+<li> the (real) IP number and
+<li> the UDP port for the remote simulator that we should connect to
+<li> the (simulated) IP address being implemented by the remote system
+<li> a local and
+<li> a remote TCP port number
+<li> a duration (in seconds) that the connection should be kept open
+</ol>
+<tt>testtcp.c</tt> will accept up to ten sets, connect to each system in
+turn (using <tt>tcp_connect</tt>), and close each connection after the
+specified time.
+
+<p>For example, the following call: <tt> testtcp 184.183.182.181 6789 128.171.44.7 5678 1.2.3.4
+11111 9999 15</tt>
+<br> results in a call to 
+<tt>int c = tcp_connect (1.2.3.4, 11111, 9999)</tt>,
+then if the call succeeds, waits 15
+seconds before calling <tt>tcp_close (c)</tt>.  This connect example matches
+and would connect to the listen example given in the previous line.
+
+</ul>
+
+<p>Note that some of the information given to <tt>testtcp.c</tt> is
+stored in global variables used by <tt>ip.c</tt>, to transparently
+perform the mapping between simulated IP addresses and underlying
+UDP port numbers and addresses.
+
+
+<h3>Details</h3>
+
+<p> The call to <tt>tcp_connect</tt> should time out if more than 10
+seconds expire without receiving a packet that was expected by the
+state machine.
+
+<p> Be sure your TCP works correctly when both sides call
+<tt>tcp_connect</tt> (the "SYN-SENT, SYN-RCVD, ESTAB" path through the
+state machine).
+
+<p> This specification does not ever require you to retransmit a packet.
+
+<p> This specification does not ever require you to transmit a packet
+with any data.  Therefore, the "bytes" parameter to <tt>ip_send</tt>
+should always have the value 20.  You should check the return value
+of <tt>ip_receive</tt> to make sure the packets are 20 bytes long.
+
+<p> See page 36 of the specification to find out when you need to send
+a reset (cases 1 and 2 only).
+
+<p> To correctly process an incoming reset, assume the window has size
+1 byte.
+
+<p> Both <tt>ip.c</tt> and <tt>testtcp.c</tt> can be compiled with the
+"-DDEBUG" flag to enable print statements and to slow down message
+generation.  See the source code for details.
+
+
+<p>I do make mistakes.  If you find mistakes in the design of this
+protocol, please send mail to <a href="mailto:esb@hawaii.edu">me</a>
+or to the <a href="mailto:ics651-l@hawaii.edu">mailing list</a>.
+
+<p>I am always happy to answer questions, but for this project, I
+would encourage you to spend a little time looking for the answer to
+your questions before you ask me.  All the source code is available --
+try to understand testtcp.c and ip.c to the extent that they affect
+your code.
+
+<p>Make sure all your code and significant comments are in file tcp.c,
+since that is the only file that will be turned in.
+
+</body></html>
+
+
+</body></html>

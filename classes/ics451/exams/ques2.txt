@@ -1,0 +1,103 @@
+From esb@hawaii.edu Thu Feb  7 07:27:46 2002
+Date: Fri, 26 Oct 2001 23:25:18 -1000
+From: esb@hawaii.edu
+To: ics451-l@hawaii.edu
+Subject: exam 2
+
+ICS 451 Fall 2001 Exam 2, October 26-October30.
+
+This is a mail-in take-home exam.  It is due at 11:59pm on Tuesday,
+October 30th, and must be mailed to esb@hawaii.edu in advance of that
+deadline.  Please mail two identical copies at least 10-15 minutes
+apart, and both of them before the deadline, since if I don't get a
+submission on time, you will fail the exam.
+
+The exam is open-book (any book), open notes, and calculators are
+allowed.  You are not allowed to use the web (except for the course
+web pages, including any web page referred to by the project, and the
+web pages for the textbook, and your own personal web pages) nor to
+consult with your friends or anybody else.  That means there is no
+talking about the exam with ANYBODY, from the moment you read this
+email until 12midnight on Tuesday.  If your answer includes any words
+that you haven't written yourself, you must clearly mark the text as
+such (give a complete reference, including title, author, and if
+relevant also page number, edition, or URL).  If I detect any
+violations of these rules, you may fail the exam.
+
+All emails must be plain text only -- I will discard any email that
+has attachments.  I will not answer any questions about the exam -- if
+there is a question that you think is unclear, please read it more
+carefully, considering all possible interpretations, and if it is
+still unclear or ambiguous for you, please simply give your best
+answer.  Please double-check and spell-check ("man spell" on uhunix2)
+all your answers before turning in the exam.  All questions have the
+same weight, 20% of the score.
+
+
+
+======================================================================
+Question 1.
+The following IP packet (for which the header is shown) must be
+divided into fragments to be sent over a network with an MTU of
+576 bytes.  Show all the IP headers for all the fragments.  You do not
+need to compute the IP header checksums.
+
+45 00 04 B0
+90 AB 03 21
+18 11 -- --
+80 AB 0A 01
+80 AB 0A 02
+
+
+======================================================================
+Question 2.
+List all the values of all the fields (including ethernet headers) of
+all the packets sent in the following ARP exchange.  The Address
+Resolution Protocol is invoked to find the hardware address of the
+next hop for a packet with destination 1.2.3.4.  Assume the exchange
+is over Ethernet, assume the sender's IP (on this Ethernet) is 2.3.4.5
+and its ethernet address is 12:13:14:15:16:17, the next hop IP is
+2.3.4.1, and the next hop ethernet address is 12:13:14:AB:CD:EF.
+
+
+======================================================================
+Question 3.
+Given the IP network shown at
+http://www2.ics.hawaii.edu/~esb/2001fall.ics451/ex21.gif, show the
+routing table for router R5.  The table must contain an entry for each
+interface of the router, and an entry for every network on the
+Internet.  The columns of the routing table must be destination,
+gateway, mask, interface, and cost (the cost of each link is 1, the
+cost of various routes will of course vary).  Be sure to show multiple
+routes where multiple, equal-cost routes exist.
+
+
+======================================================================
+Question 4.
+When a packet is received by a learning bridge, the bridge assumes
+that the sender of that packet can be reached through the interface on
+which the packet was received.
+
+Now assume an extension to the learning bridge algorithm.  In a
+traditional bridged network there can be no loops.  The purpose of the
+extension is to allow loops in the connections among bridges.  Using
+this extension, a bridge keeps copies of all the packets it has
+received in the last second.  If a packet received has the same exact
+contents (including header) of a packet that the bridge has already
+received, the bridge does not send this second copy or any subsequent
+copies.
+
+Does this scheme allow broadcasts to work correctly on networks that
+have loops?  Briefly but clearly explain why or why not.  State any
+assumptions you need to make.
+
+
+======================================================================
+Question 5.
+ATM and IP both carry data end-to-end, and therefore work at the
+network layer, but ATM is connection-oriented, whereas IP is
+connectionless.  Compare and contrast the two, in your own words.
+What are the advantages of a connectionless network layer, what are
+the advantages of a connection-oriented network layer?  A full answer
+will have a brief list of advantages/disadvantages, and a paragraph or
+two of qualitative discussion about the differences.

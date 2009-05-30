@@ -1,0 +1,269 @@
+title Towers of Hanoi
+.model small
+.stack 100h
+.data
+    srce_pole db 22h,00h
+    dest_pole db 27h,00h
+    spar_pole db 2Ch,00h
+    char db ?
+    num_disks db ?
+    delay dw ?
+    num_disks_prompt db "Enter the number of disks(1-15)",0
+    delay_prompt db "Enter the number of moves per second(1-5)",0
+.code
+extrn Clrscr:proc, Writestring:proc, \
+      Readint:proc
+      
+main proc
+    mov ax,@data
+    mov ds,ax
+
+    call Clrscr
+    
+DisksPrompt:
+    mov dx, offset num_disks_prompt
+    call Writestring
+    call Readint      ;read into ax
+    cmp ax,1
+    jb DisksPrompt
+    cmp ax,15
+    ja DisksPrompt
+    
+    mov num_disks, al
+
+    
+DelayPrompt:
+    mov dx, offset delay_prompt
+    call Writestring
+    call Readint      ;read into ax
+    cmp ax,1
+    jb DelayPrompt
+    cmp ax,5
+    ja DelayPrompt
+
+
+    mov bx, ax        ;the number of mov/sec they entered
+    mov ax,100
+    div bl            ;divide 1000 by number of moves/sec
+    mov ah, 0         ;get rid of remainder
+    mov delay, ax     ;put result in delay
+
+    call Clrscr
+    call DrawBase      
+    
+    mov al, num_disks
+    mov byte ptr srce_pole+1,al
+    
+    call drawSourcePole
+    
+    mov ah,0                     ;the number of disks
+    mov al,srce_pole+1
+    push ax
+    mov ax, offset srce_pole     ;the source pole
+    push ax
+    mov ax, offset dest_pole     ;the destination pole
+    push ax
+    mov ax, offset spar_pole     ;the spare pole
+    push ax
+    
+    call solveTowers
+
+    mov ax,4C00h
+    int 21h
+main endp
+
+;the recursive solveTowers procedure
+solveTowers proc
+    mov bp,sp
+    mov ax,[bp+8] ;the n, number of disks?
+    cmp ax,1
+    jne ST1
+    mov ah,0
+    call delayHunds
+    call moveDisk
+    call checkEscape
+    jmp ST2
+ST1:
+    mov bp,sp    
+    mov ax,[bp+8]  ; the n, number of disks
+    dec ax
+    push ax
+    mov ax,[bp+6] ; source
+    push ax
+    mov ax,[bp+2] ; spare
+    push ax
+    mov ax,[bp+4] ; dest
+    push ax
+    
+    call solveTowers
+    
+    mov bp,sp
+    mov ax,1      ; the n, number of disks
+    push ax
+    mov ax,[bp+6] ; source
+    push ax
+    mov ax,[bp+4] ; dest
+    push ax
+    mov ax,[bp+2] ; spare
+    push ax
+    
+    call solveTowers
+    
+    mov bp,sp
+    mov ax,[bp+8] ; the n, number of disks
+    dec ax
+    push ax
+    mov ax,[bp+2] ;spare
+    push ax
+    mov ax,[bp+4] ; dest
+    push ax
+    mov ax,[bp+6] ; source
+    push ax
+    call solveTowers   
+ST2:
+    ret 8
+solveTowers endp
+
+;move a disk from the source to destination pole
+moveDisk proc
+    mov si,[bp+6] ;source pole
+    mov ah, byte ptr [si]
+    inc si
+    mov al, byte ptr [si]
+    dec byte ptr [si]
+    mov dh,11h ;row
+    sub dh, al ;get to top character        
+    mov dl, ah ;col
+
+    mov ah,2   ;position the cursor
+    mov bh,0
+    int 10h
+    
+    mov ah,8   ;get the character
+    int 10h
+    
+    mov char, al
+    
+
+    mov ah,0Ah ;blank it out
+    mov al,' '
+    mov bh,0
+    mov cx,1
+    int 10h
+
+    mov si,[bp+4]  ;dest pole
+    mov ah, byte ptr [si]
+    inc si
+    inc byte ptr [si]
+    mov al, byte ptr [si]
+    mov dh,11h
+    sub dh, al    
+    mov dl, ah
+    
+    mov ah,2   ;position the cursor
+    mov bh,0
+    int 10h
+
+    mov ah,0Ah ;draw the character
+    mov al,char
+    mov bh,0
+    mov cx,1
+    int 10h
+    
+    ret
+moveDisk endp
+
+;used to draw the source pole at start of the program
+drawSourcePole proc
+    mov dh,10h                ;row
+    mov dl,byte ptr srce_pole ;col
+    mov al,01h
+PoleLoop:    
+    mov ah,2   ;position the cursor
+    mov bh,0
+    int 10h
+
+    mov ah,0Ah ;draw the character
+    mov bh,0
+    mov cx,1
+    int 10h
+        
+    inc al
+    dec num_disks
+    dec dh
+    cmp num_disks,0
+    jne PoleLoop    
+    ret
+drawSourcePole endp
+
+;draw the base table the towers sit on
+DrawBase proc
+    mov ah,2     ;set cursor position for left corner
+    mov dx,1120h 
+    mov bh,0     ;write to video page 0
+    int 10h
+
+    mov ah,0Ah   ;write character only int 10h
+    mov al,0C8h
+    mov bh,0
+    mov cx,1
+    int 10h
+    
+    mov ah,2     ;set cursor position for right corner
+    mov dx,112Fh
+    mov bh,0
+    int 10h
+    
+    mov ah,0Ah   ;write character only int 10h
+    mov al,0BCh
+    mov bh,0
+    mov cx,1
+    int 10h
+        
+    mov ah,2     ;set cursor for table
+    mov dx,1121h
+    mov bh,0
+    int 10h
+    
+    mov ah,0Ah   ;write 14 characters
+    mov al,0CDh
+    mov bh,0
+    mov cx,14
+    int 10h
+
+    ret
+DrawBase endp
+
+;checks for a waiting escape keystoke and quits if found
+checkEscape proc
+CheckChar:
+    mov ax,1100h
+    int 16h
+    cmp al,0
+    je Continue  ;no character waiting, just continue
+    cmp al,1Bh   ;character waiting, is it escape?
+    je Exit      
+    mov ah,6h    ;remove waiting character
+    mov dl,0FFh
+    int 21h    
+    jmp CheckChar;check for another
+Continue:
+    ret
+Exit:
+    mov ax,4C00h
+    int 21h
+checkEscape endp
+
+delayHunds proc
+    mov ah,2Ch      ;dh = sec, dl = hundths
+    int 21h
+    mov bx, dx      ;sec/hundths in bx
+DelayLoop:    
+    int 21h         ;dh = sec, dl = hundths
+    sub dx, bx      ;subtract old time from current
+    cmp dx, delay   ;compare to delay value
+    jb DelayLoop    
+    ret
+delayHunds endp
+    
+end main

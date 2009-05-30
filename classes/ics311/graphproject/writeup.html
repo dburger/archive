@@ -1,0 +1,347 @@
+<html>
+<head>
+<title>Graph Testing Results</title>
+</head>
+<body topmargin="0" leftmargin="0" rightmargin="0">
+<table width="100%" bgcolor="#ffcc00">
+  <tr height="49">
+    <td>
+    <font size="7">digitalOverflow</font><font size="1">101010</font>
+    </td>
+  </tr>
+</table>
+<blockquote>
+<a href="#testing">testing results</a> | <a href="#responsibilities">group responsibilities</a>
+<h3><a name="testing">Graph Testing Results</a></h3>
+This document presents the results of a project to implement a graph adt and perform max flow and minimum
+spanning tree algorithms on the graph.  The main applet used in testing our implementations is shown below
+(if you don't see the applet you probably need to make sure the provided jar file is in the same directory
+as this file, also note that this applet can be found in our presentation area):
+<table border="1" cellpadding="0" cellspacing="0" align="center">
+  <tr>
+    <td><applet code=GraphApp.class archive=graph.jar height=300 width=475>
+      </applet></td>
+  </tr>
+</table>
+
+NOTE:  We chose SAK softwares heap implementation.  It was actually the only one we could get to work so the choice was
+not hard.  Their code also seemed well written and they used a naming convention that was close enough to ours so that
+only minor changes were necessary.<p>
+
+The first phase of the project was to implement the graph adt.  Our implementation would need to be weighted
+and directed in order to support the algorithms that we wished to perform upon it.  We decided to implement
+the adjacency list graph for its superior performance in certain operations, such as determining adjacent
+neighbors on outgoing edges which is O(d<sub>v</sub>) for an adjacency list and O(n) for an adjacency matrix.
+In retrospect an adjacency matrix probably would have been easier to implement, however, after our first difficulties
+things started to fall in place and our adjacency list graph started to come together nicely.<p>
+After we had finished our graph adt we performed a series of tests upon it to make sure that all operations worked as
+they should and the graph was always maintained in the correct state.  Our tests found several "features," which were
+corrected, and we prepared to move on the second phase of the project, graph algorithms.<p>
+The second phase of the project involved two distinct tasks.  One was the implementation of minimum spanning tree (MST)
+algorithms and the other was the implementation of maximum flow algorithms with heuristics.  Although the instructions
+for this project said that this would be easier than making the graph adt we found this phase more difficult, even though
+we felt we had a solid graph adt to work with.  However, as before, our understanding grew and we began to make significant
+progress with graph algorithms.<p>
+
+We chose to implement Baruvka and Kruskal algorithms for finding MSTs.  After implementing these algorithms we thoroughly
+tested them for correctness.  This involved a multitude of test runs, significant code review, and, of course, a plethra
+of System.out.println statements.  In the applet above you can find MST Example 1 and MST Example 2 in the combo box which
+can be executed by pressing on the Go button.  MST Example 1 comes from Goodrich and Tamassia p. 414.  MST Example 2 is based
+upon the graph/solution found at <a href="http://www.me.utexas.edu/~jensen/exercises/mst_spt/mst_spt.html">http://www.me.utexas.edu/~jensen/exercises/mst_spt/mst_spt.html</a>.<p>
+Both of these examples are completed by our MST algorithms faster than our Java timer can record them, so, while they were good
+for demonstrating the correctness of our implementations they did little to help us analyze algorithm performance.  We were also
+somewhat disappointed with the quality of MST example graphs we were able to locate.  While several web sites had
+graphs which were used to demonstrate how to construct an MST, most of them were quite small and trivial in nature and were
+worthless when comparing time complexities.  We also found that manually typing in the code to construct a large graph from scratch to be a time consuming and arduous task, therefore, it
+became apparent that we needed to create an algorithm for creating random graphs.  This would help us to analyze our MST and max flow
+algorithms.<p>
+
+We quickly put together an algorithm for constructing random graphs.  For our MST tests, we developed an algorithm that creates
+undirected weighted graphs with no double edges.  The algorithm accepts two parameters, one for the number of vertices and one
+for the edge density.  Using this function, the expected number of edges in the resultant graph is:<p>
+<pre>
+n(n-1)/2*e, where e = the edge density for this graph.
+</pre>
+You can test the running times for our MST implementations against these random graphs using the applet above.  This is done
+by choosing Random MST in the combo box and then setting the values for the number of vertices and edge density.  Pressing Go
+will begin the test.<p>
+
+We decided that our tests would provide the best comparison of our algorithms if we fed them two different types of graphs, one with
+a low number of vertices but high edge density (150,90%) and one with a high number of vertices and low edge density (500,10%).
+Here is the output from a typical test run for (150,90%):
+
+<pre>
+Vertices:  150
+Edge density:  90 percent
+Expected # edges:  10057.0
+Actual # edges:    10033
+All edges undirected and no double edges.
+=======================================
+Results:
+=======================================
+Baruvka span weight:  3180
+Baruvka time:  380
+Kruskal span weight:  3180
+Kruskal time:  610
+</pre>
+
+As you can see, our Baruvka implementation was the better performer with this type of vertex/edge density.  Here are the results
+of a typical test run for (500,10%):
+
+<pre>
+Vertices:  500
+Edge density:  10 percent
+Expected # edges:  12475.0
+Actual # edges:    12504
+All edges undirected and no double edges.
+=======================================
+Results:
+=======================================
+Baruvka span weight:  17040
+Baruvka time:  2080
+Kruskal span weight:  17040
+Kruskal time:  1100
+</pre>
+
+These results indicate our Kruskal implementation is the better performer with this type of vertex/edge density.  This
+was quite interesting as both algorithms are O(mlogn) algorithms, however, this O(mlogn) analysis from the book is based
+upon cluster handling with "collections of sets" that support the needed operations in O(nlogn) time.  Our cluster handling
+techniques are based upon a more primitive technique using identifiers for clusters that require O(n) operations for find
+and union operations and the overall needed operations in O(n<sup>2</sup>) time.  This degrades the performance of our
+algorithms to O(n<sup>2</sup> + mlogn).  We have since developed methods to handle the clusters in a more effective manner
+however these were not fully implemented by the submission deadline.<p>
+
+We believe that the differences in the running times that we found are directly related to our cluster implementation.  Baruvka's
+algorithm repeats these cluster operations until it has found n-1 edges, while Kruskal's repeats these edge operations for
+each edge pulled out of the priority queue.  Therefore we can see performance gains for Kruskal in relation to Baruvka as we
+lower the edge density of a given graph, however, it is apparent that the Kruskal algorithm as described in the book does more
+work than necessary.  The psuedo code description keeps processing the edges until the heap is empty while it is certainly only
+necessary to process the heap until we have the n-1 edges of a minimum spanning tree.  Given our cluster implementation this
+extra work was resulting in an even greater performance hit with a high number of edges.  We decided to change the major while
+loop to stop on the condition of the number of edges in our MST reaching n-1.  This resulted in our Kruskal implemenation beating
+our Baruvka implementation in the type of test runs indicated above.  Here is the new typical data:<p>
+
+<pre>
+Vertices:  150
+Edge density:  90 percent
+Expected # edges:  10057.0
+Actual # edges:    10070
+All edges undirected and no double edges.
+=======================================
+Results:
+=======================================
+Baruvka span weight:  3240
+Baruvka time:  380
+Kruskal span weight:  3240
+Kruskal time:  160
+</pre>
+
+<pre>
+Vertices:  500
+Edge density:  10 percent
+Expected # edges:  12475.0
+Actual # edges:    12475
+All edges undirected and no double edges.
+=======================================
+Results:
+=======================================
+Baruvka span weight:  17660
+Baruvka time:  2030
+Kruskal span weight:  17660
+Kruskal time:  660
+</pre>
+
+
+For max flow we once again used examples which we could find to demonstrate our algorithms.  Three such max flow problems can be
+found in the above applet by selecting Max Flow example 1, Max Flow example 2, or Max Flow example 3 from the combo box and
+pressing Go.  These examples correspond to the max flow example  on p. 429 Goodrich and Tamassia, the max flow example from
+the midterm 2 practice test, and the max flow example  from p. 426 Goodrich and Tamassia.  Once again these examples were great
+for demonstrating the correctness of our algorithms but proved to be insufficient for comparing time complexities.  Therefore we
+once again turned to our random graph creation algorithm.  We had to modify the algorithm to create weighted directed graphs
+and to also insert the back edges that are necessary for our algorithm.  In this implementation edges between vertices are allowed
+in both directions and therefore the expected number of edges (not counting our back edges) in a graph is:<p>
+<pre>
+(n-1)(n-1)*e, where e is the edge density for this graph
+</pre>
+You can test the running times for our different max flow augmentation techniques against these random graphs using the applet above.  This is done
+by choosing Random Max Flow in the combo box and then setting the values for the number of vertices and edge density.  Pressing Go
+will begin the test.<p>
+
+As indicated by Goodrich and Tamassia, the time complexity of the Ford-Fulkerson algorithm is largely determined by the
+method of selecting the augmenting path.  Therefore, we developed a max flow algorithm that accepted an object implementing the PathFinder interface
+as a paramter.  The PathFinder interface contains a findPath method.  In this way we were able to create different
+objects that implement the PathFinder interface and then pass these objects to our max flow algorithm as a parameter
+to effectively and easily compare augmenentation methods.  We created four such objects:<p>
+<ul>
+  <li>DFSPathFinder - finds a path from source to sink using a dfs traversal
+  <li>BFSPathFinder - finds a path from source to sink using a bfs traversal
+  <li>MaxWeightPathFinder - finds the maximum augmenting path from source to sink
+  <li>MaxWeightBFSPathFinder - finds a path from source to sink using the bfs path providing maximum augmentation
+</ul>
+Here is a typical set of results for (50,20%):
+<pre>
+Vertices:  50
+Edge density:  20 percent
+Expected # edges:  480.0
+Actual # edges:    466
+=======================================
+dfs flow found:      5020
+bfs flow found:      5020
+max flow found:      5020
+max bfs flow found:  5020
+=======================================
+dfs augmentation time:  27130
+bfs augmentation time:  500
+max augmentation time:  720
+max bfs augmentation time:  550
+</pre>
+As you can see, using dfs as an augmentation technique is a very inefficient.  In fact, using dfs
+as an augmentation technique was so slow that we decided to program our tester to not perform dfs
+style augmentation tests if the number of expected edges is greater than 500.<p>
+
+Once again we decided it would be helpful to perform comparisons of the running times for two different
+types of graph, a high vertex low edge density graph (500,5%) and a low vertex high density graph (100,80%).
+Here are two test runs for (500,5%):<p>
+<table border="0" width="100%">
+  <tr>
+    <td>
+<pre>
+Vertices:  500
+Edge density:  5 percent
+Expected # edges:  12450.0
+Actual # edges:    12393
+=======================================
+Expected edges > 500, dfs augmentation
+will not be tested.
+(It's just too slow!)
+bfs flow found:      10520
+max flow found:      10520
+max bfs flow found:  10520
+=======================================
+bfs augmentation time:  36580
+max augmentation time:  30980
+max bfs augmentation time:  38060
+</pre>
+    </td>
+    <td>
+<pre>
+Vertices:  500
+Edge density:  5 percent
+Expected # edges:  12450.0
+Actual # edges:    12285
+=======================================
+Expected edges > 500, dfs augmentation
+will not be tested.
+(It's just too slow!)
+bfs flow found:      9020
+max flow found:      9020
+max bfs flow found:  9020
+=======================================
+bfs augmentation time:  34820
+max augmentation time:  28340
+max bfs augmentation time:  30380
+</pre>    
+    </td>
+  </tr>
+</table>
+This data and other similar tests showed no clear cut winner with graphs of this type.  We then tried test runs test runs for (100,80%)<p>
+<table border="0" width="100%">
+  <tr>
+    <td>
+<pre>
+Vertices:  100
+Edge density:  80 percent
+Expected # edges:  7840.0
+Actual # edges:    7711
+=======================================
+Expected edges > 500, dfs augmentation
+will not be tested.
+(It's just too slow!)
+bfs flow found:      37460
+max flow found:      37460
+max bfs flow found:  37460
+=======================================
+bfs augmentation time:  44870
+max augmentation time:  56630
+max bfs augmentation time:  69260
+</pre>
+    </td>
+    <td>
+<pre>
+Vertices:  100
+Edge density:  80 percent
+Expected # edges:  7840.0
+Actual # edges:    7758
+=======================================
+Expected edges > 500, dfs augmentation
+will not be tested.
+(It's just too slow!)
+bfs flow found:      37320
+max flow found:      37320
+max bfs flow found:  37320
+=======================================
+bfs augmentation time:  53600
+max augmentation time:  64380
+max bfs augmentation time:  87930
+</pre>    
+    </td>
+  </tr>
+</table>
+With the (100,80%) settings bfs augmentation seemed to be the best followed by max flow augmentation and
+then max bfs augmentation coming in last.  These results were not what we expected as we thought the
+combination heuristic of choosing the maximum available bfs path would certainly come in with the fastest
+times.  By looking at the big O running times for max flow when using various heuristics we were able to
+adjust the ratio of vertices to edges in such a way as to effect the running times, however, in most cases
+the difference between these heuristics was slight.  We were able to spot places in our code where we thought
+we could optimize that max bfs augmentation technique so that it would turn out to be the better performer.
+One such technique was for the BFSObjects that we created to keep track of the least weight edge
+in a BFS path as they were constructed.  This made it so that when we wished to find which of the BFS
+paths provided the greatest augmentation we only needed to cycle through our BFSObjects looking for the greatest
+least edge rather than cycling through the set of edges in each BFSObject.  We were very shocked when this
+did not result in greater running times.  In fact, it appeared to actually result in slower running times therefore
+this methodology is not implemented within the submitted code.<p>
+
+This got us to thinking if a max bfs augmentation should really be able to beat a straight bfs augmentation in the first
+place.  At this point, we have come to the conclusion that for the way we implemented bfs a max bfs augmentation would, in fact,
+be slower than a straight bfs augmentation.  Why?  It seems that a given graph could have several bfs paths from source to sink
+of the same distance, however, none of these paths would share an edge.  Therefore, augmenting one of them does not help
+to eliminate the other BFS paths of the same length.  All of these BFS paths will need to be augmented before the algorithm
+moves on to BFS paths of a longer length.  Therefore the time spent to figure out which BFS path to augment
+based on the greatest augmentation weight is actually wasted time.  This would explain why we weren't getting
+the results we expected and would also indicate that straight bfs augmentation should actually beat maximum bfs augmentation.
+In order for this max bfs technique to be effective it would be necessary to rewrite our bfs code to allow for shared edges
+and a totally different vertex marking method.  This also suggests an improved max flow algorithm.  Because it appears that
+no BFS edges are shared, all BFS paths of the same length could be returned in a collection and augmented in one cycle.
+This is something we look forward to investigating.<p>
+
+In all of our graph testing, our random graph creation methods were, of course, a major factor.  While we feel
+comfortable with the randomness of our graphs, we have a greater appreciation for the difficulty in creating
+random graphs that would be representitive of the "real world."  Normally when we think of real world graphs,
+we think of something like highways and cities.  In these types of maps, vertices which are far apart are less
+likely to have direct edges, and if they do, it is probably one major edge.  Closer vertices, on the other hand,
+have a very high probably of having an edge or several edges between them.  Graphs that represent the internet,
+phone networks, water systems, and other systems must be equally difficult to simulate with a random structure.<p>
+
+<h3><a name="responsibilities">Group Responsibilities</a></h3>
+<blockquote>
+  <h4>Coding</h4>
+  <blockquote>
+    We decided to tackle the tougher coding issues of this assignment as a team, therefore all
+    key algorithms were programmed in a team environment.
+  </blockquote>
+  <h4>Web Site Updates</h4>
+  <blockquote>
+    Web site updates to reflect our new product were done by Robert Griffis.
+  </blockquote>
+  <h4>Testing Results Write Up</h4>
+  <blockquote>
+    The testing results write up was done by David Burger.
+  </blockquote>
+  <h4>Testing Applet</h4>
+  <blockquote>
+    The testing applet was written by Robert Griffis.
+  </blockquote>
+</blockquote>
+</blockquote>
+</body>
+</html>

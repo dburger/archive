@@ -1,0 +1,23 @@
+David J. Burger
+ICS 313
+Project #1
+
+This is my project number one submission.  It is a simple cross referencer
+for Emacs Lisp code.  Please note that I have added an enhancement to the
+code that was not required, but makes the program a little nicer.  Specifically
+I have added code that automatically figures out what functions will result
+from the macro expansion of defstruct, and adds these functions to a list of
+functions available via macro expansion while making sure that these functions
+haven't already found their way into the hash table.  You can find more
+details in the included code.
+
+There is commented out unit testing code at the bottom of the file.
+
+Please note that if you are grading this on a Windows box my program was
+developed totally on a Linux box...so if you have trouble with line endings
+or something let me know.  For example I noticed that my Linux distribution
+of Emacs doesn't need the (require 'cl) line but the distributions on
+Windows seem to need it.  So if you see any strange problems like this let me
+know so that I can correct.
+
+djb

@@ -1,0 +1,240 @@
+From esb@hawaii.edu Thu Feb  7 07:35:20 2002
+Date: Sun, 23 Dec 2001 23:21:30 -1000
+From: esb@hawaii.edu
+To: ics451-l@hawaii.edu
+Subject: grading sheet for exam 3.
+
+This grading sheet that has been my guide in assigning points for the
+exam and also document correct solutions.  Please let me know ASAP of
+any mistakes in grading your exam.
+
+thanks
+
+	edo
+
+
+
+
+ICS 451 Fall 2001 Final Exam 3, December 7th-December 21st.
+
+This is a take-home final exam.  By University regulation, it is due
+at 4:15pm on Friday, December 21st, but you are encouraged to turn it
+in sooner if you so desire.
+
+The exam must be mailed to esb@hawaii.edu in advance of that deadline.
+If you mail it in more than 2 days before the deadline, please mail
+only one copy -- the instructor will mail you back a copy (within 48
+hours) that you can check to make sure it has been received correctly.
+If you turn the exam in at any time on or after Dec 18th, please mail
+two identical copies at least 10-15 minutes apart, and both of them
+before the deadline, since if I don't get a submission on time, you
+will fail the exam.  All emails must be plain text only, with no
+attachments.
+
+The exam is open-book (any book), open notes, and calculators are
+allowed.  You are not allowed to use the web (except for the course
+web pages, including any web page referred to by the project, and the
+web pages for the textbook, and your own personal web pages) nor to
+consult with your friends or anybody else.  That means there is no
+talking about the exam with ANYBODY, from the moment you read this
+email until after the final deadline on December 21st.  All the words
+in your answer must be your own -- you may not quote the book or a web
+page or anything.  Evidence of copying from somewhere else will be
+sufficient cause for failing the entire exam.
+
+I will not answer any questions about the exam -- if there is a
+question that you think is unclear, please read it more carefully,
+considering all possible interpretations, and if it is still unclear
+or ambiguous for you, please simply give your best answer, stating
+your assumptions if necessary.  Please double-check and spell-check
+all your answers before turning in the exam.  All questions have the
+same weight.  You are encouraged to keep your answers brief and to
+the point, but without leaving out anything essential.
+
+Good luck!
+
+
+
+======================================================================
+Question 1.
+
+Using your own words, explain the TCP sliding window system:
+- when does the left edge of the window move?
+- when does the right edge of the window move?
+- can both edges of the window move simultaneously?
+  if yes, explain when that happens, if no, explain why not
+- give the simplest possible formula for the number of bytes
+  (call it B) that a TCP sender is allowed to send.  The
+  formula may only use the variables specified in RFC 793.
+  The formula must be of the form B = ..., where you replace
+  the ... with the appropriate calculation.
+
+Answer:
+
+The left edge of the window moves when new data is acknowledged, both
+at the sender and at the receiver (5 points)
+
+The right edge of the window moves at the receiver when more buffer
+space becomes available, and at sender when an acknowledgent is
+received that carries the new, larger window (5 points, even for only
+1/2 the answer)
+
+I am looking for insight on the third part of the question.
+Basically, at the sender, since both edges of the window are set by
+receiving an acknowledgement, they can move simultaneously (for one
+thing, different individuals have different definitions of
+"simultaneously" -- as one pointed out, in a single-processor
+computer, only one thing can happen at a time).  At the receiver they
+usually do not because it is unusual to get new data and new buffer
+space simultaneously (5 points)
+
+B = SND.UNA + SND.WND - SND.NXT.  For details, see page 20 of RFC 793
+(5 points).  Alternatives, such as B = SND.WND + SND.UNA or
+B = SND.WND, which are technically incorrect but generally reasonable and
+show understanding, may get partial credit of up to 3 points
+(unreasonable answers will get 0 points).
+
+======================================================================
+Question 2.
+
+A TCP connection is the state, stored at each end system, that
+"remembers" information about the connection.  Using your own
+words, explain how the three-way handshake initializes this
+state.
+
+Looking for insight and understanding of the three-way handshake and
+of the notion of state and connection.  Basically, the pieces of
+information that are exchanged by the 3-way handshake are some of the
+ones I predetermined for you on project 3, namely the receive window
+and the initial receiver sequence number (and the one bit of
+information that the peer actually agrees to this connection).
+20 points overall.
+
+Some answers refer to the state of the connection state machine.
+Words are tricky here, because the state of the connection state
+machine (CLOSED, SYN-SENT, etc) is only a small part of the state of
+the connection, so I didn't give any (additional) credit for talking
+about the connection state machine.
+
+Partial credit: up to 15 points if only explaining the three-way
+handshake.  2 points each for mentioning the exchange of sequence
+numbers and of windows, the last point for mentioning the above 1 bit
+of infomation or for answers that are in some way particularly good.
+
+======================================================================
+Question 3.
+
+When configuring a domain name server for an internet-connected
+computer, I must specify the server's IP address, not its domain name.
+- Why?
+Usually, I also specify default search domains, for example
+ics.hawaii.edu or hawaii.edu.
+- How are these used?
+- Which Unix system call takes an arbitrary domain name and
+  returns one or more corresponding IP addresses?
+
+Why: because I cannot do a domain name resolution without a domain
+name server, so the domain name of a domain name server is useless.
+(bootstrap, chicken-and-egg problem).  8 points.
+
+Default search domains are used in case a domain name resolution
+fails.  If a resolution for "x" fails, the DNS resolver tries to
+resolve "x.ics.hawaii.edu", then "x.hawaii.edu" before giving up.  8 points.
+
+gethostbyname (4 points)
+lots of people seem to be answering "nslookup", which is not a system
+call.  nslookup is a Unix command.  A system call is a function that
+is implemented by the operating system.  nslookup is a regular
+user-level program.
+
+======================================================================
+Question 4.
+
+When writing a quiz server, I had (at least) the following choices:
+- write a standalone server to serve quizzes
+- write a CGI program that will be called by a web server and
+  serve the quizzes.
+Compare the two approaches, specifying all the advantages and disadvantages
+of one or the other.  Include one sentence for each advantage or disadvantage.
+
+Looking for insight into CGI and servers and architecture for servers.
+Here's one list (20 points).
+
+Some advantages of CGI:
+
+- If the script crashes, only a single session is lost, the web server
+can keep running.
+
+- This lack of longevity excludes whole classes of bugs, and especially
+memory leaks, and might make existing bugs less severe
+
+- I don't have to write code to parse the HTTP header.
+
+- I don't have to write code to deal with the possible HTTP errors.
+
+- I can focus on the functionality of the quiz server itself.
+
+- I can test if the web server is running without having to get a quiz.
+
+- statistics about each access are gathered automatically
+
+Some advantages of a standalone server:
+
+- I don't have to depend on software someone else wrote, which may
+have bugs that I might find hard to understand.
+
+- I don't have to configure a separate web server.
+
+- More efficient, since there is no need for one program to begin
+execution of another, as CGI would have.
+
+- smaller memory footprint -- why run an entire web server if I
+only need a quiz server?  The machine running the quiz server
+only has 32MB of memory.
+
+- I can gather statistics or not, as seems appropriate
+
+- it is possible to make sure passwords never appear in plaintext in the logs
+
+
+Note that I subtract 2 points if you said the CGI program is somehow
+more dynamic than a standalone server -- the two have exactly the same
+capabilities.  Think of your project 1 standalone server, it generated
+the pages dynamically, just as a CGI program might.  I am interpreting
+this statement as evidence that you are uncritically repeating what
+some other source says, and the purpose of the exam is to test your
+own thinking.  Some of you may have seen the words "standalone server"
+and thought "this is a standard web server" -- then you would deserve
+an even lower grade, since one of the purposes of this class is to
+make sure you understand that the Internet is more than just the Web,
+and that a server might or might not be a "standard web server" which
+serves static HTTP content.
+
+
+Incidentally, my quiz server is a standalone server, mostly because I
+enjoy writing servers and I don't much enjoy writing CGI programs and
+trying to configure web servers (I have done it, but I don't choose to
+do it if there is a reasonable alternative).  Most of the work is not
+in the HTTP and connection management, so the total amount of work
+might be about the same.
+
+======================================================================
+Question 5.
+
+Design a reliable transmission system that does not use TCP.  At the
+end of your design, analyze it and tell me how it detects and corrects for:
+- missing packets
+- duplicate packets
+- errors in the packets
+- mis-delivered packets
+
+This is a design problem, with many possible good answers.  Answers
+might range from variations on stop-and-wait, to a window
+retransmission system, to any other scheme you might come up with,
+including the idea of RAID (send redundant data that relies on getting
+MOST of the packets).  8 of the points are reserved for answers to the
+specific questions, the other 12 are hard to miss if you gave any
+reasonable answer at all.
+
+======================================================================
+

@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.6.1
+by Lorenzo Bettini, bettini@gnu.org
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite">
+<title>LispXrefer.py</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+<i><font color=#9A1900>#!/usr/bin/python</font></i>
+<i><font color=#9A1900>#                             -*- Mode: Python -*- </font></i>
+<i><font color=#9A1900>#  LispXrefer.py -- </font></i>
+<i><font color=#9A1900>#  Author          : David J. Burger &amp; Bruce Harris</font></i>
+<i><font color=#9A1900>#  Created On      : Wed May  7 09:15:13 2003</font></i>
+<i><font color=#9A1900>#  Last Modified By: David J. Burger</font></i>
+<i><font color=#9A1900>#  Last Modified On: Sat May 10 15:15:26 2003</font></i>
+<i><font color=#9A1900>#  RCS: $Id$</font></i>
+<i><font color=#9A1900># </font></i>
+<i><font color=#9A1900>#  Copyright (c) 2003 David J. Burger &amp; Bruce Harris</font></i>
+<i><font color=#9A1900># </font></i>
+<i><font color=#9A1900>#  A cross referencer for Lisp code.</font></i>
+
+<b><font color=#0000FF>import</font></b> sys
+<b><font color=#0000FF>from</font></b> LispExtensions <b><font color=#0000FF>import</font></b> LispReader<font color=#990000>,</font> isList<font color=#990000>,</font> isString<font color=#990000>,</font> isSymbol<font color=#990000>,</font> isInteger
+<b><font color=#0000FF>from</font></b> XrefDb <b><font color=#0000FF>import</font></b> XrefDb
+
+<b><font color=#0000FF>class</font></b> LispXrefer<font color=#990000>:</font>
+<i><font color=#9A1900>    "Cross referencing application for Lisp code."</font></i>
+    
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__init__</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Creates the database used to store cross referencing information."</font></i>
+        self<font color=#990000>.</font>__xrefDb <font color=#990000>=</font> <b><font color=#000000>XrefDb</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>xrefFile</font></b><font color=#990000>(</font>self<font color=#990000>,</font> filename<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Cross references the give file.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FILENAME is the name of the file to cross reference</font></i>
+<i><font color=#9A1900>        returns the number of defuns in the file, or -1 if an error occurred</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>try</font></b><font color=#990000>:</font>
+            f <font color=#990000>=</font> <b><font color=#000000>file</font></b><font color=#990000>(</font>filename<font color=#990000>,</font> <font color=#FF0000>"r"</font><font color=#990000>)</font>
+        <b><font color=#0000FF>except</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>return</font></b> <font color=#990000>-</font><font color=#993399>1</font>
+        num_defuns <font color=#990000>=</font> <font color=#993399>0</font>
+        lispReader <font color=#990000>=</font> <b><font color=#000000>LispReader</font></b><font color=#990000>(</font>f<font color=#990000>)</font>
+        form <font color=#990000>=</font> lispReader<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>while</font></b> form <font color=#990000>!</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR <b><font color=#0000FF>and</font></b> <font color=#990000>\</font>
+                  form <font color=#990000>!</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>END_OF_INPUT<font color=#990000>:</font>
+            <b><font color=#0000FF>if</font></b> <b><font color=#000000>isList</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <b><font color=#0000FF>and</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"defun"</font><font color=#990000>:</font>
+                self<font color=#990000>.</font><b><font color=#000000>__parseDefun</font></b><font color=#990000>(</font>form<font color=#990000>,</font> filename<font color=#990000>)</font>
+                num_defuns <font color=#990000>=</font> num_defuns <font color=#990000>+</font> <font color=#993399>1</font>
+            form <font color=#990000>=</font> lispReader<font color=#990000>.</font><b><font color=#000000>read</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        f<font color=#990000>.</font><b><font color=#000000>close</font></b><font color=#990000>(</font><font color=#990000>)</font>        
+        <b><font color=#0000FF>if</font></b> form <font color=#990000>=</font><font color=#990000>=</font> LispReader<font color=#990000>.</font>SYNTAX_ERROR<font color=#990000>:</font>
+            <b><font color=#0000FF>return</font></b> <font color=#990000>-</font><font color=#993399>1</font>
+        <b><font color=#0000FF>return</font></b> num_defuns
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__parseDefun</font></b><font color=#990000>(</font>self<font color=#990000>,</font> form<font color=#990000>,</font> filename<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Parses a defun form, performing cross referencing.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FORM is the defun form to parse</font></i>
+<i><font color=#9A1900>        FILENAME is the name of the file containing the defun</font></i>
+<i><font color=#9A1900>        """</font></i>
+        functionName <font color=#990000>=</font> form<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font>
+        self<font color=#990000>.</font>__xrefDb<font color=#990000>.</font><b><font color=#000000>registerFunction</font></b><font color=#990000>(</font>functionName<font color=#990000>,</font> filename<font color=#990000>)</font>
+        <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>3</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>f<font color=#990000>,</font> functionName<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>self<font color=#990000>,</font> form<font color=#990000>,</font> functionName<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Parses a form, performing cross referencing.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FORM is the form to parse</font></i>
+<i><font color=#9A1900>        FUNCTIONNAME is the name of the function containing the form</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>if</font></b> <b><font color=#000000>isString</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <b><font color=#0000FF>or</font></b> <b><font color=#000000>isSymbol</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <b><font color=#0000FF>or</font></b> <b><font color=#000000>isInteger</font></b><font color=#990000>(</font>form<font color=#990000>)</font> <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+               form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"quote"</font> <b><font color=#0000FF>or</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"function"</font><font color=#990000>:</font>
+            <b><font color=#0000FF>pass</font></b> <i><font color=#9A1900># ignore</font></i>
+        <b><font color=#0000FF>elif</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"cond"</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__parseCond</font></b><font color=#990000>(</font>form<font color=#990000>,</font> functionName<font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"condition-case"</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__parseConditionCase</font></b><font color=#990000>(</font>form<font color=#990000>,</font> functionName<font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"dolist"</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__parseDoList</font></b><font color=#990000>(</font>form<font color=#990000>,</font> functionName<font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font> <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"let"</font><font color=#990000>:</font>
+            self<font color=#990000>.</font><b><font color=#000000>__parseLet</font></b><font color=#990000>(</font>form<font color=#990000>,</font> functionName<font color=#990000>)</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            self<font color=#990000>.</font>__xrefDb<font color=#990000>.</font><b><font color=#000000>registerCaller</font></b><font color=#990000>(</font>form<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font><font color=#990000>,</font> functionName<font color=#990000>)</font>
+            <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>f<font color=#990000>,</font> functionName<font color=#990000>)</font>
+            
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__parseCond</font></b><font color=#990000>(</font>self<font color=#990000>,</font> form<font color=#990000>,</font> functionName<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Parses a cond form, performing cross referencing.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FORM is the cond form to parse</font></i>
+<i><font color=#9A1900>        FUNCTIONNAME is the name of the function containing the form</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <i><font color=#9A1900># parse the cond clauses</font></i>
+        <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font>
+            <b><font color=#0000FF>for</font></b> g <b><font color=#0000FF>in</font></b> f<font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>g<font color=#990000>,</font> functionName<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__parseConditionCase</font></b><font color=#990000>(</font>self<font color=#990000>,</font> form<font color=#990000>,</font> functionName<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Parses a condition-case form, performing cross referencing.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FORM is the condition-case form to parse</font></i>
+<i><font color=#9A1900>        FUNCTIONNAME is the name of the function containing the form</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <i><font color=#9A1900># parse the body</font></i>
+        self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>form<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font><font color=#990000>,</font> functionName<font color=#990000>)</font>
+        <i><font color=#9A1900># parse the error handlers</font></i>
+        <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>3</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font>
+            <b><font color=#0000FF>for</font></b> g <b><font color=#0000FF>in</font></b> f<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>g<font color=#990000>,</font> functionName<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__parseDoList</font></b><font color=#990000>(</font>self<font color=#990000>,</font> form<font color=#990000>,</font> functionName<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Parses a dolist form, performing cross referencing.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FORM is the dolist form to parse</font></i>
+<i><font color=#9A1900>        FUNCTIONNAME is the name of the function containing the form</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <i><font color=#9A1900># parse the dolist bindings</font></i>
+        <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>[</font><font color=#993399>1</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>f<font color=#990000>,</font> functionName<font color=#990000>)</font>
+        <i><font color=#9A1900># parse the dolist body</font></i>
+        <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>f<font color=#990000>,</font> functionName<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>__parseLet</font></b><font color=#990000>(</font>self<font color=#990000>,</font> form<font color=#990000>,</font> functionName<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Parses a let form, performing cross referencing.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FORM is the let form to parse</font></i>
+<i><font color=#9A1900>        FUNCTIONNAME is the name of the function containing the form</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <i><font color=#9A1900># parse the let bindings</font></i>
+        <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>:</font>
+            <b><font color=#0000FF>if</font></b> <b><font color=#000000>type</font></b><font color=#990000>(</font>f<font color=#990000>)</font> <font color=#990000>=</font><font color=#990000>=</font> list<font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>f<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>,</font> functionName<font color=#990000>)</font>
+        <i><font color=#9A1900># parse the let body</font></i>
+        <b><font color=#0000FF>for</font></b> f <b><font color=#0000FF>in</font></b> form<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font> self<font color=#990000>.</font><b><font color=#000000>__parseForm</font></b><font color=#990000>(</font>f<font color=#990000>,</font> functionName<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font>self<font color=#990000>,</font> function<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Retrives the defining file for the given function.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FUNCTION the name of the function to retrieve the defining file for</font></i>
+<i><font color=#9A1900>        returns the name of the defining file or None if function not found</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>return</font></b> self<font color=#990000>.</font>__xrefDb<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font>function<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getCallers</font></b><font color=#990000>(</font>self<font color=#990000>,</font> function<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Retrieves a list of the callers of the given function.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FUNCTION is the name of the function to retrieve list of callers for</font></i>
+<i><font color=#9A1900>        returns the list of callers, possibly None</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>return</font></b> self<font color=#990000>.</font>__xrefDb<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font>function<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getDbString</font></b><font color=#990000>(</font>self<font color=#990000>,</font> filter<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        """Returns a string representation of the contents in the database.</font></i>
+<i><font color=#9A1900></font></i>
+<i><font color=#9A1900>        FILTER set to true to filter those without a defining file</font></i>
+<i><font color=#9A1900>        returns the database string</font></i>
+<i><font color=#9A1900>        """</font></i>
+        <b><font color=#0000FF>return</font></b> self<font color=#990000>.</font>__xrefDb<font color=#990000>.</font><b><font color=#000000>getDbString</font></b><font color=#990000>(</font>filter<font color=#990000>)</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>clearDb</font></b><font color=#990000>(</font>self<font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Clears all entries in the database."</font></i>
+        self<font color=#990000>.</font>__xrefDb<font color=#990000>.</font><b><font color=#000000>clearDb</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>demo</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    "Used to demonstrate the functionality of the cross referencer."</font></i>
+    <b><font color=#0000FF>if</font></b> <b><font color=#000000>len</font></b><font color=#990000>(</font>sys<font color=#990000>.</font>argv<font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>2</font><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Proper usage is %s file"</font> <font color=#990000>%</font> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"where file is the file to process"</font>
+        sys<font color=#990000>.</font><b><font color=#000000>exit</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>)</font>
+    lispXrefer <font color=#990000>=</font> <b><font color=#000000>LispXrefer</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    result <font color=#990000>=</font> lispXrefer<font color=#990000>.</font><b><font color=#000000>xrefFile</font></b><font color=#990000>(</font>sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>)</font>
+    <b><font color=#0000FF>if</font></b> result <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>-</font><font color=#993399>1</font><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"An error occurred while parsing %s"</font> <font color=#990000>%</font> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"%d defuns processed from %s"</font> <font color=#990000>%</font> <font color=#990000>(</font>result<font color=#990000>,</font> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>)</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>unitTest</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    "Tests the cross referencer, pmj-xref.el must be present."</font></i>
+    lispXrefer <font color=#990000>=</font> <b><font color=#000000>LispXrefer</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    result <font color=#990000>=</font> lispXrefer<font color=#990000>.</font><b><font color=#000000>xrefFile</font></b><font color=#990000>(</font><font color=#FF0000>"pmj-xref.el"</font><font color=#990000>)</font>
+    <b><font color=#0000FF>if</font></b> result <font color=#990000>=</font><font color=#990000>=</font> <font color=#990000>-</font><font color=#993399>1</font><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"An error occurred while parsing pmj-xref.el"</font>
+        <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+    <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"13 defuns should have been parsed."</font>
+        <b><font color=#0000FF>if</font></b> result <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>13</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure, "</font> <font color=#990000>+</font> result <font color=#990000>+</font> <font color=#FF0000>" parsed"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"defining file of 'pmj-xref-parse-let' should be pmj-xref.el"</font>
+        <b><font color=#0000FF>if</font></b> lispXrefer<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font><font color=#FF0000>"pmj-xref-parse-let"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> <font color=#FF0000>"pmj-xref.el"</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"callers of 'pmj-xref-trace' should be a long list..."</font>
+        callers <font color=#990000>=</font> lispXrefer<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font><font color=#FF0000>"pmj-xref-trace"</font><font color=#990000>)</font>
+        <b><font color=#0000FF>if</font></b> <font color=#FF0000>"pmj-xref-parse-defun"</font> <b><font color=#0000FF>not</font></b> <b><font color=#0000FF>in</font></b> callers <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+           <font color=#FF0000>"pmj-xref-parse-form"</font> <b><font color=#0000FF>not</font></b> <b><font color=#0000FF>in</font></b> callers <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+           <font color=#FF0000>"pmj-xref-parse-let"</font> <b><font color=#0000FF>not</font></b> <b><font color=#0000FF>in</font></b> callers <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+           <font color=#FF0000>"pmj-xref-parse-cond"</font> <b><font color=#0000FF>not</font></b> <b><font color=#0000FF>in</font></b> callers <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+           <font color=#FF0000>"pmj-xref-parse-condition-case"</font> <b><font color=#0000FF>not</font></b> <b><font color=#0000FF>in</font></b> callers <b><font color=#0000FF>or</font></b> <font color=#990000>\</font>
+           <b><font color=#000000>len</font></b><font color=#990000>(</font>callers<font color=#990000>)</font> <font color=#990000>&gt;</font> <font color=#993399>5</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"has: "</font>
+            <b><font color=#0000FF>print</font></b> callers
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"defining file for 'notHere' should be None"</font>
+        <b><font color=#0000FF>if</font></b> lispXrefer<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font><font color=#FF0000>"notHere"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> None<font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"callers of 'notHere' should be None"</font>
+        <b><font color=#0000FF>if</font></b> lispXrefer<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font><font color=#FF0000>"notHere"</font><font color=#990000>)</font> <font color=#990000>!</font><font color=#990000>=</font> None<font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"failure"</font>
+            <b><font color=#0000FF>return</font></b> <font color=#993399>0</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"check"</font>
+
+        <b><font color=#0000FF>return</font></b> <font color=#993399>1</font>
+
+<b><font color=#0000FF>def</font></b> <b><font color=#000000>run</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>    "Runs the Lisp cross referencing program."</font></i>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>printMenu</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Presents the cross referencing menu to the user."</font></i>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"0) xref file"</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"1) print database string"</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"2) get defining file"</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"3) get callers"</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"4) clear database"</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"5) quit"</font>
+
+    <b><font color=#0000FF>def</font></b> <b><font color=#000000>getSelection</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>:</font>
+<i><font color=#9A1900>        "Returns the users menu selection, or -1 if not int."</font></i>
+        <b><font color=#0000FF>try</font></b><font color=#990000>:</font>
+            selection <font color=#990000>=</font> <b><font color=#000000>int</font></b><font color=#990000>(</font><b><font color=#000000>raw_input</font></b><font color=#990000>(</font><font color=#FF0000>"enter selection: "</font><font color=#990000>)</font><font color=#990000>)</font>
+        <b><font color=#0000FF>except</font></b> ValueError<font color=#990000>:</font>
+            selection <font color=#990000>=</font> <font color=#990000>-</font><font color=#993399>1</font>
+        <b><font color=#0000FF>return</font></b> selection
+
+    lispXrefer <font color=#990000>=</font> <b><font color=#000000>LispXrefer</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+    <i><font color=#9A1900># process files passed from command line</font></i>
+    <b><font color=#0000FF>for</font></b> filename <b><font color=#0000FF>in</font></b> sys<font color=#990000>.</font>argv<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>:</font><font color=#990000>]</font><font color=#990000>:</font>
+        result <font color=#990000>=</font> lispXrefer<font color=#990000>.</font><b><font color=#000000>xrefFile</font></b><font color=#990000>(</font>filename<font color=#990000>)</font>
+        <b><font color=#0000FF>if</font></b> result <font color=#990000>&gt;</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"%d defuns parsed from %s"</font> <font color=#990000>%</font> <font color=#990000>(</font>result<font color=#990000>,</font> filename<font color=#990000>)</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"An error occurred parsing %s"</font> <font color=#990000>%</font> filename
+
+    <b><font color=#0000FF>print</font></b> <font color=#FF0000>"====================================================="</font>    
+    <b><font color=#000000>printMenu</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    selection <font color=#990000>=</font> <b><font color=#000000>getSelection</font></b><font color=#990000>(</font><font color=#990000>)</font>
+    <b><font color=#0000FF>while</font></b> selection <font color=#990000>!</font><font color=#990000>=</font> <font color=#993399>5</font><font color=#990000>:</font>
+        <b><font color=#0000FF>if</font></b> selection <font color=#990000>=</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>:</font>
+            filename <font color=#990000>=</font> <b><font color=#000000>raw_input</font></b><font color=#990000>(</font><font color=#FF0000>"Enter filename: "</font><font color=#990000>)</font>
+            result <font color=#990000>=</font> lispXrefer<font color=#990000>.</font><b><font color=#000000>xrefFile</font></b><font color=#990000>(</font>filename<font color=#990000>)</font>
+            <b><font color=#0000FF>if</font></b> result <font color=#990000>&gt;</font><font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>:</font>
+                <b><font color=#0000FF>print</font></b> <font color=#FF0000>"%d defuns parsed"</font> <font color=#990000>%</font> result
+            <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+                <b><font color=#0000FF>print</font></b> <font color=#FF0000>"An error occurred parsing %s"</font> <font color=#990000>%</font> filename
+        <b><font color=#0000FF>elif</font></b> selection <font color=#990000>=</font><font color=#990000>=</font> <font color=#993399>1</font><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> lispXrefer<font color=#990000>.</font><b><font color=#000000>getDbString</font></b><font color=#990000>(</font><font color=#993399>1</font><font color=#990000>)</font><font color=#990000>,</font>
+        <b><font color=#0000FF>elif</font></b> selection <font color=#990000>=</font><font color=#990000>=</font> <font color=#993399>2</font><font color=#990000>:</font>
+            functionName <font color=#990000>=</font> <b><font color=#000000>raw_input</font></b><font color=#990000>(</font><font color=#FF0000>"Enter function name: "</font><font color=#990000>)</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Defining file for %s is %s"</font> <font color=#990000>%</font> <font color=#990000>\</font>
+                  <font color=#990000>(</font>functionName<font color=#990000>,</font> lispXrefer<font color=#990000>.</font><b><font color=#000000>getDefiningFile</font></b><font color=#990000>(</font>functionName<font color=#990000>)</font><font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> selection <font color=#990000>=</font><font color=#990000>=</font> <font color=#993399>3</font><font color=#990000>:</font>
+            functionName <font color=#990000>=</font> <b><font color=#000000>raw_input</font></b><font color=#990000>(</font><font color=#FF0000>"Enter function name: "</font><font color=#990000>)</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Callers of %s are %s"</font> <font color=#990000>%</font> <font color=#990000>\</font>
+                  <font color=#990000>(</font>functionName<font color=#990000>,</font> lispXrefer<font color=#990000>.</font><b><font color=#000000>getCallers</font></b><font color=#990000>(</font>functionName<font color=#990000>)</font><font color=#990000>)</font>
+        <b><font color=#0000FF>elif</font></b> selection <font color=#990000>=</font><font color=#990000>=</font> <font color=#993399>4</font><font color=#990000>:</font>
+            lispXrefer<font color=#990000>.</font><b><font color=#000000>clearDb</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        <b><font color=#0000FF>else</font></b><font color=#990000>:</font>
+            <b><font color=#0000FF>print</font></b> <font color=#FF0000>"Unknown selection"</font>
+        <b><font color=#0000FF>print</font></b> <font color=#FF0000>"====================================================="</font>
+        <b><font color=#000000>printMenu</font></b><font color=#990000>(</font><font color=#990000>)</font>
+        selection <font color=#990000>=</font> <b><font color=#000000>getSelection</font></b><font color=#990000>(</font><font color=#990000>)</font>
+
+<i><font color=#9A1900># if __name__ == "__main__": demo()</font></i>
+<i><font color=#9A1900># if __name__ == "__main__": print unitTest()</font></i>
+<b><font color=#0000FF>if</font></b> __name__ <font color=#990000>=</font><font color=#990000>=</font> <font color=#FF0000>"__main__"</font><font color=#990000>:</font> <b><font color=#000000>run</font></b><font color=#990000>(</font><font color=#990000>)</font>
+</tt>
+</pre>
+</body>
+</html>

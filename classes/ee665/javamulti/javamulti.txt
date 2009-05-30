@@ -1,0 +1,64 @@
+Presentation Summary - Multimedia Programming in Java
+
+My presentation topic was using Java to work with multimedia.  I also covered
+some of the fundamentals of Java so that the C and C++ programmers in the class
+would get a glimpse of Java technology and understand the code examples better.
+
+I began my presentation with a brief overview of the history of Java.  Java
+began as a "The Green Project" at Sun Microsystems.  This was a closed-door
+project and the goal was to anticipate the next wave in computer technology.
+The computer scientists involved began developing a platform independent
+language that would run on the devices found around the home.  I then explained
+how the transition to the language for the Internet took place as the original
+target for the technology, namely the set-top-box industry, did not create the
+needed demand.
+
+The next topic I covered was the fundamentals of the Java language.  This was,
+of course, presented in such a way so that C and C++ programmers could draw
+upon their current knowledge to understand Java.  This is not difficult, as
+Java was designed to be easy to learn for the C and C++ programmers.  Java is
+kind of like an object-oriented version of C with some of the dangerous
+features removed.  Java has garbage collection, doesn't have pointers, and runs
+in a virtual machine.  This means that any platform with a compliant virtual
+machine can run a Java program.  I went on to explain the three key features of
+object-oriented programming, encapsulation, inheritance, and polymorphism, for
+those students who are not familiar with object-oriented programming languages
+like C++ and Java.
+
+With the background and fundamentals out of the way I began to talk about the
+different ways of creating multimedia with the Java language.  I explained that
+using multimedia involved knowing the Java libraries that could be used with
+specific media types.  The first object I talked about was the AudioClip object
+of the Applet library.  I showed a simple code example that could be used to
+play a sound in a Java application.  I then showed some of the graphics
+primitives available for drawing directly to the screen.  After showing code
+examples of both graphic primitives and image manipulation I went through a
+simple example that put both graphics and sound together in a simple Applet.
+
+With the basics out of the way, I talked briefly about some of the more
+advanced libraries available for Java multimedia development.  The first one I
+talked about was the popular Quicktime library available from Apple Computer.
+This library makes it easy to play Quicktime movie formats and will even
+stream such content over the web.  I showed a small code example that would
+load and play a Quicktime movie.
+
+The last topic I covered was the Java Media Framework.  While Java 1.0 had very
+limited multimedia capabilities, the recently release Java SDK 1.4 has the very
+extensive Java Media Framework libraries.  These libraries contain objects that
+make it easy to capture, manipulate, and play various media formats such as
+MPEG-1, MPEG-2, AVI, AU, WAV, and more.  I then showed a code snippet to play a
+movie using the Java Media Framework.
+
+
+Project Resources:
+
+Java Technology: An Early History,
+http://java.sun.com/features/1998/05/birthday.html, Jon Byous.
+
+Teach Yourself Java in 21 Days, Laura Lemay, Roger Cadenhead, Sams, September
+2000.
+
+Quicktime for Java, http://developer.apple.com/quicktime/qtjava, Apple Computer.
+
+The Java Media Framework, http://java.sun.com/products/java-media/jmf/, Sun
+Microsystems.

@@ -1,0 +1,849 @@
+Dr. Peterson, here is my aes assignment submission.  First is the output of
+running my program which is ran by typing ./aestest:
+
+*******************************************************************************
+uhunix2:/home/23/dburger/classes/ics623/aes% ./aestest
+
+Test #1
+Plain text:
+5365637265742064
+6520646575782c20
+7365637265742064
+6520446965752c20
+7365637265742064
+652074726f69732c
+2073656372657420
+646520746f75732e
+
+Cipher text:
+d8306f9eab91f76d
+68e9fa85f2468bda
+3f0e2ff1725a752f
+532e6d7a56d5017f
+0001961063ea714c
+10b5c01c4b034d28
+5cdcedb2d0d3c396
+90f48ffdc6899db3
+
+Test #2
+Deciphered text:
+596f752063616e6e You cann
+6f74207472757374 ot trust
+20636f6465207468  code th
+617420796f752064 at you d
+6964206e6f742074 id not t
+6f74616c6c792063 otally c
+726561746520796f reate yo
+757273656c662e20 urself. 
+
+uhunix2:/home/23/dburger/classes/ics623/aes% 
+*******************************************************************************
+
+Here is the makefile for the program:
+
+*******************************************************************************
+aestest: aes.o
+	gcc aes.o -o aestest
+aes.o: aes.h aes.c
+	gcc aes.c -c
+
+*******************************************************************************
+
+Here is aes.h, which contains the mathematical tables:
+
+*******************************************************************************
+/* RCON                   */
+unsigned long RCON[] = { 0x00000000,
+                         0x01000000,
+                         0x02000000,
+                         0x04000000,
+                         0x08000000,
+                         0x10000000,
+                         0x20000000,
+                         0x40000000,
+                         0x80000000,
+                         0x1b000000,
+                         0x36000000 };
+
+
+/* GF(256) logarithm      */
+int L[256] = {
+-1,   0xff, 0x19, 0x01, 0x32, 0x02, 0x1a, 0xc6, 
+0x4b, 0xc7, 0x1b, 0x68, 0x33, 0xee, 0xdf, 0x03, 
+0x64, 0x04, 0xe0, 0x0e, 0x34, 0x8d, 0x81, 0xef, 
+0x4c, 0x71, 0x08, 0xc8, 0xf8, 0x69, 0x1c, 0xc1, 
+0x7d, 0xc2, 0x1d, 0xb5, 0xf9, 0xb9, 0x27, 0x6a, 
+0x4d, 0xe4, 0xa6, 0x72, 0x9a, 0xc9, 0x09, 0x78, 
+0x65, 0x2f, 0x8a, 0x05, 0x21, 0x0f, 0xe1, 0x24, 
+0x12, 0xf0, 0x82, 0x45, 0x35, 0x93, 0xda, 0x8e, 
+0x96, 0x8f, 0xdb, 0xbd, 0x36, 0xd0, 0xce, 0x94, 
+0x13, 0x5c, 0xd2, 0xf1, 0x40, 0x46, 0x83, 0x38, 
+0x66, 0xdd, 0xfd, 0x30, 0xbf, 0x06, 0x8b, 0x62, 
+0xb3, 0x25, 0xe2, 0x98, 0x22, 0x88, 0x91, 0x10, 
+0x7e, 0x6e, 0x48, 0xc3, 0xa3, 0xb6, 0x1e, 0x42, 
+0x3a, 0x6b, 0x28, 0x54, 0xfa, 0x85, 0x3d, 0xba, 
+0x2b, 0x79, 0x0a, 0x15, 0x9b, 0x9f, 0x5e, 0xca, 
+0x4e, 0xd4, 0xac, 0xe5, 0xf3, 0x73, 0xa7, 0x57, 
+0xaf, 0x58, 0xa8, 0x50, 0xf4, 0xea, 0xd6, 0x74, 
+0x4f, 0xae, 0xe9, 0xd5, 0xe7, 0xe6, 0xad, 0xe8, 
+0x2c, 0xd7, 0x75, 0x7a, 0xeb, 0x16, 0x0b, 0xf5, 
+0x59, 0xcb, 0x5f, 0xb0, 0x9c, 0xa9, 0x51, 0xa0, 
+0x7f, 0x0c, 0xf6, 0x6f, 0x17, 0xc4, 0x49, 0xec, 
+0xd8, 0x43, 0x1f, 0x2d, 0xa4, 0x76, 0x7b, 0xb7, 
+0xcc, 0xbb, 0x3e, 0x5a, 0xfb, 0x60, 0xb1, 0x86, 
+0x3b, 0x52, 0xa1, 0x6c, 0xaa, 0x55, 0x29, 0x9d, 
+0x97, 0xb2, 0x87, 0x90, 0x61, 0xbe, 0xdc, 0xfc, 
+0xbc, 0x95, 0xcf, 0xcd, 0x37, 0x3f, 0x5b, 0xd1, 
+0x53, 0x39, 0x84, 0x3c, 0x41, 0xa2, 0x6d, 0x47, 
+0x14, 0x2a, 0x9e, 0x5d, 0x56, 0xf2, 0xd3, 0xab, 
+0x44, 0x11, 0x92, 0xd9, 0x23, 0x20, 0x2e, 0x89, 
+0xb4, 0x7c, 0xb8, 0x26, 0x77, 0x99, 0xe3, 0xa5, 
+0x67, 0x4a, 0xed, 0xde, 0xc5, 0x31, 0xfe, 0x18, 
+0x0d, 0x63, 0x8c, 0x80, 0xc0, 0xf7, 0x70, 0x07};
+/* GF(256) antilogarithm  */
+int F[256] = {
+0x01, 0x03, 0x05, 0x0f, 0x11, 0x33, 0x55, 0xff, 
+0x1a, 0x2e, 0x72, 0x96, 0xa1, 0xf8, 0x13, 0x35, 
+0x5f, 0xe1, 0x38, 0x48, 0xd8, 0x73, 0x95, 0xa4, 
+0xf7, 0x02, 0x06, 0x0a, 0x1e, 0x22, 0x66, 0xaa, 
+0xe5, 0x34, 0x5c, 0xe4, 0x37, 0x59, 0xeb, 0x26, 
+0x6a, 0xbe, 0xd9, 0x70, 0x90, 0xab, 0xe6, 0x31, 
+0x53, 0xf5, 0x04, 0x0c, 0x14, 0x3c, 0x44, 0xcc, 
+0x4f, 0xd1, 0x68, 0xb8, 0xd3, 0x6e, 0xb2, 0xcd, 
+0x4c, 0xd4, 0x67, 0xa9, 0xe0, 0x3b, 0x4d, 0xd7, 
+0x62, 0xa6, 0xf1, 0x08, 0x18, 0x28, 0x78, 0x88, 
+0x83, 0x9e, 0xb9, 0xd0, 0x6b, 0xbd, 0xdc, 0x7f, 
+0x81, 0x98, 0xb3, 0xce, 0x49, 0xdb, 0x76, 0x9a, 
+0xb5, 0xc4, 0x57, 0xf9, 0x10, 0x30, 0x50, 0xf0, 
+0x0b, 0x1d, 0x27, 0x69, 0xbb, 0xd6, 0x61, 0xa3, 
+0xfe, 0x19, 0x2b, 0x7d, 0x87, 0x92, 0xad, 0xec, 
+0x2f, 0x71, 0x93, 0xae, 0xe9, 0x20, 0x60, 0xa0, 
+0xfb, 0x16, 0x3a, 0x4e, 0xd2, 0x6d, 0xb7, 0xc2, 
+0x5d, 0xe7, 0x32, 0x56, 0xfa, 0x15, 0x3f, 0x41, 
+0xc3, 0x5e, 0xe2, 0x3d, 0x47, 0xc9, 0x40, 0xc0, 
+0x5b, 0xed, 0x2c, 0x74, 0x9c, 0xbf, 0xda, 0x75, 
+0x9f, 0xba, 0xd5, 0x64, 0xac, 0xef, 0x2a, 0x7e, 
+0x82, 0x9d, 0xbc, 0xdf, 0x7a, 0x8e, 0x89, 0x80, 
+0x9b, 0xb6, 0xc1, 0x58, 0xe8, 0x23, 0x65, 0xaf, 
+0xea, 0x25, 0x6f, 0xb1, 0xc8, 0x43, 0xc5, 0x54, 
+0xfc, 0x1f, 0x21, 0x63, 0xa5, 0xf4, 0x07, 0x09, 
+0x1b, 0x2d, 0x77, 0x99, 0xb0, 0xcb, 0x46, 0xca, 
+0x45, 0xcf, 0x4a, 0xde, 0x79, 0x8b, 0x86, 0x91, 
+0xa8, 0xe3, 0x3e, 0x42, 0xc6, 0x51, 0xf3, 0x0e, 
+0x12, 0x36, 0x5a, 0xee, 0x29, 0x7b, 0x8d, 0x8c, 
+0x8f, 0x8a, 0x85, 0x94, 0xa7, 0xf2, 0x0d, 0x17, 
+0x39, 0x4b, 0xdd, 0x7c, 0x84, 0x97, 0xa2, 0xfd, 
+0x1c, 0x24, 0x6c, 0xb4, 0xc7, 0x52, 0xf6, 0x01};
+/* GF(256) inverse        */
+int I[256] = {
+-1,   0x01, 0x8d, 0xf6, 0xcb, 0x52, 0x7b, 0xd1, 
+0xe8, 0x4f, 0x29, 0xc0, 0xb0, 0xe1, 0xe5, 0xc7, 
+0x74, 0xb4, 0xaa, 0x4b, 0x99, 0x2b, 0x60, 0x5f, 
+0x58, 0x3f, 0xfd, 0xcc, 0xff, 0x40, 0xee, 0xb2, 
+0x3a, 0x6e, 0x5a, 0xf1, 0x55, 0x4d, 0xa8, 0xc9, 
+0xc1, 0x0a, 0x98, 0x15, 0x30, 0x44, 0xa2, 0xc2, 
+0x2c, 0x45, 0x92, 0x6c, 0xf3, 0x39, 0x66, 0x42, 
+0xf2, 0x35, 0x20, 0x6f, 0x77, 0xbb, 0x59, 0x19, 
+0x1d, 0xfe, 0x37, 0x67, 0x2d, 0x31, 0xf5, 0x69, 
+0xa7, 0x64, 0xab, 0x13, 0x54, 0x25, 0xe9, 0x09, 
+0xed, 0x5c, 0x05, 0xca, 0x4c, 0x24, 0x87, 0xbf, 
+0x18, 0x3e, 0x22, 0xf0, 0x51, 0xec, 0x61, 0x17, 
+0x16, 0x5e, 0xaf, 0xd3, 0x49, 0xa6, 0x36, 0x43, 
+0xf4, 0x47, 0x91, 0xdf, 0x33, 0x93, 0x21, 0x3b, 
+0x79, 0xb7, 0x97, 0x85, 0x10, 0xb5, 0xba, 0x3c, 
+0xb6, 0x70, 0xd0, 0x06, 0xa1, 0xfa, 0x81, 0x82, 
+0x83, 0x7e, 0x7f, 0x80, 0x96, 0x73, 0xbe, 0x56, 
+0x9b, 0x9e, 0x95, 0xd9, 0xf7, 0x02, 0xb9, 0xa4, 
+0xde, 0x6a, 0x32, 0x6d, 0xd8, 0x8a, 0x84, 0x72, 
+0x2a, 0x14, 0x9f, 0x88, 0xf9, 0xdc, 0x89, 0x9a, 
+0xfb, 0x7c, 0x2e, 0xc3, 0x8f, 0xb8, 0x65, 0x48, 
+0x26, 0xc8, 0x12, 0x4a, 0xce, 0xe7, 0xd2, 0x62, 
+0x0c, 0xe0, 0x1f, 0xef, 0x11, 0x75, 0x78, 0x71, 
+0xa5, 0x8e, 0x76, 0x3d, 0xbd, 0xbc, 0x86, 0x57, 
+0x0b, 0x28, 0x2f, 0xa3, 0xda, 0xd4, 0xe4, 0x0f, 
+0xa9, 0x27, 0x53, 0x04, 0x1b, 0xfc, 0xac, 0xe6, 
+0x7a, 0x07, 0xae, 0x63, 0xc5, 0xdb, 0xe2, 0xea, 
+0x94, 0x8b, 0xc4, 0xd5, 0x9d, 0xf8, 0x90, 0x6b, 
+0xb1, 0x0d, 0xd6, 0xeb, 0xc6, 0x0e, 0xcf, 0xad, 
+0x08, 0x4e, 0xd7, 0xe3, 0x5d, 0x50, 0x1e, 0xb3, 
+0x5b, 0x23, 0x38, 0x34, 0x68, 0x46, 0x03, 0x8c, 
+0xdd, 0x9c, 0x7d, 0xa0, 0xcd, 0x1a, 0x41, 0x1c};
+/* S-Box                  */
+int SB[256] = {
+0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 
+0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
+0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 
+0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
+0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 
+0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, 
+0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 
+0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75, 
+0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 
+0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84, 
+0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 
+0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf, 
+0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 
+0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8, 
+0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 
+0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2, 
+0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 
+0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73, 
+0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 
+0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 
+0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 
+0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79, 
+0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 
+0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08, 
+0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 
+0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a, 
+0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 
+0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e, 
+0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 
+0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf, 
+0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 
+0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16};
+/* S-Box Inverse          */
+int SBI[256] = {
+0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 
+0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb, 
+0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 
+0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb, 
+0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 
+0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e, 
+0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 
+0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25, 
+0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 
+0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92, 
+0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 
+0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84, 
+0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 
+0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06, 
+0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 
+0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b, 
+0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 
+0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73, 
+0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 
+0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e, 
+0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 
+0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b, 
+0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 
+0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4, 
+0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 
+0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f, 
+0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 
+0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef, 
+0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 
+0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61, 
+0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 
+0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d};
+*******************************************************************************
+
+And here is the aes.c file which contains the aes code and the main entry point
+to the program:
+
+*******************************************************************************
+/*=============================================================================
+Assignment: AES project
+Author:     David J. Burger
+Language:   ANSI C running on UHUNIX2 (Solaris)
+Compile:    by running "make" with included makefile
+
+Class:      ICS 623
+Instructor: Dr. Peterson
+Due Date:   10/29/01
+===============================================================================
+File:         aes.c
+
+Description:  this program implements and demonstrates the AES encription
+              algorithm.  The main routine runs two tests.  The first is the
+              encription of:
+              
+            "Secret de deux, secret de Dieu, secret de trois, secret de tous."
+            
+              The resulting encripted bytes are written to the screen.  The
+              second test decripts some hex supplied by Dr. Peterson and 
+              displays the resulting hex and ascii text on the screen.
+=============================================================================*/
+#include <stdio.h>
+#include "aes.h"
+
+#define Nk 4 /* Nk the number of 32 bit words in the cipher key */
+#define Nb 4 /* Nb the number of 32 bit words in the block size */
+#define Nr 10 /* Nr the number of rounds used in the algorithm */
+
+
+void keyExpansion(unsigned char key[], unsigned long w[]);
+unsigned long makeWord(unsigned char b3, unsigned char b2,
+                       unsigned char b1, unsigned char b0);
+unsigned long getByteFromULong(unsigned long l, int byte);
+unsigned long subWord(unsigned long l);
+unsigned long circShiftLeft(unsigned long l, int bits);
+unsigned long rotWord(unsigned long l);
+void addRoundKey(unsigned char state[][Nb], unsigned long w[], int round);
+void cipher(unsigned char in[], unsigned char out[], unsigned long w[]);
+void invCipher(unsigned char in[], unsigned char out[], unsigned long w[]);
+void shiftRows(unsigned char state[][Nb]);
+void invShiftRows(unsigned char state[][Nb]);
+void mixColumns(unsigned char state[][Nb]);
+void invMixColumns(unsigned char state[][Nb]);
+void subBytes(unsigned char state[][Nb]);
+void invSubBytes(unsigned char state[][Nb]);
+
+void printState(unsigned char state[][Nb]);
+void print16(unsigned char arr[]);
+int f(int a, int b);
+
+
+/*=============================================================================
+Function main
+
+Purpose:  this is the main entry point to the program, it performs the two
+          encryption test specified by Dr. Peterson and outputs the results to
+          the screen
+          
+Parameters:
+          not used
+          
+Returns:  nothing, outputs results of encription/decription on screen
+=============================================================================*/
+int main(int argc, char *argv[]) {
+
+  /* Dr. Peterson's test 1*/ 
+  unsigned char key[] = { 0x47, 0x43, 0x87, 0x35, 0xb4, 0xf5, 0x18, 0x57, 
+                          0x13, 0x11, 0x1d, 0xb7, 0x54, 0xd9, 0x90, 0xc5 };
+  unsigned char input[] =
+      "Secret de deux, secret de Dieu, secret de trois, secret de tous.";
+
+  /* Dr. Peterson's test 2 */
+  unsigned char cipherText[]={0x21, 0xaf, 0x2e, 0xb6, 0x25, 0xc2, 0x4e, 0x75, 
+                              0xfa, 0x95, 0x7f, 0xea, 0xce, 0x98, 0x52, 0x27,  
+                              0x2a, 0x52, 0x3b, 0xa2, 0xe6, 0x34, 0x9d, 0xac, 
+                              0xe6, 0x73, 0x6b, 0x4b, 0x9b, 0x9e, 0x44, 0x1a,
+                              0x9d, 0xa7, 0x3e, 0x15, 0x2a, 0x68, 0x19, 0x83, 
+                              0x61, 0xcd, 0x7a, 0xbd, 0x8b, 0x9a, 0x43, 0xce,
+                              0x62, 0xff, 0x17, 0xcb, 0x97, 0x10, 0x06, 0xc2, 
+                              0x9e, 0xf7, 0x4b, 0x1d, 0xad, 0x87, 0x97, 0xbd,
+                              0x6d, 0x75, 0x4f, 0x9a, 0xd4, 0xf4, 0x4f, 0x91, 
+                              0xc5, 0xc5, 0xcd, 0xe1, 0x37, 0x3a, 0x80, 0xcc };
+
+  unsigned long w[Nb * (Nr+1)]; /* to hold the key schedule */
+  unsigned char out[4*Nb]; /* to hold the output of one ciphered block */
+  int i, j; /* used for loops */
+
+  keyExpansion(key,w); /* calculate the key schedule and put it in w */
+
+  #ifdef DEBUG
+    printf("key schedule\n");
+    for (i=0;i<Nb*(Nr+1);i++)
+      printf("%d %08x\n",i, w[i]);
+  #endif
+  
+  printf("\nTest #1\n");
+
+  /* encipher Dr. Peterson's test # 1 */
+  printf("Plain text:");
+  for (i=0;i<strlen(input);i++) {
+    if (i%8==0) printf("\n");
+    printf("%02x",input[i]);
+  }
+  
+  printf("\n\n");
+
+  printf("Cipher text:");
+  for (i=0;i<4;i++) {
+    cipher(input+(i*16),out,w);
+    for (j=0;j<sizeof(out);j++) {
+      if (j%8==0) printf("\n");
+      printf("%02x",out[j]);
+    }
+  }
+
+  printf("\n\n");
+
+  printf("Test #2\n");
+
+  printf("Deciphered text:\n");
+  for (i=0;i<4;i++) {
+    invCipher(cipherText+(i*16),out,w);
+    printf("%02x%02x%02x%02x%02x%02x%02x%02x %c%c%c%c%c%c%c%c\n",
+           out[0],out[1],out[2],out[3],out[4],out[5],out[6],out[7],
+           out[0],out[1],out[2],out[3],out[4],out[5],out[6],out[7]);
+    printf("%02x%02x%02x%02x%02x%02x%02x%02x %c%c%c%c%c%c%c%c\n",
+           out[8],out[9],out[10],out[11],out[12],out[13],out[14],out[15],
+           out[8],out[9],out[10],out[11],out[12],out[13],out[14],out[15]);
+  }
+
+  printf("\n");
+
+}
+
+
+/*=============================================================================
+Function invCipher
+
+Purpose:  creates a deciphered block using the AES standard
+          
+Parameters:
+    unsigned char in[] (IN) - the data to decipher
+    unsigned char out[] (OUT) - deciphered block
+    unsigned long w[] (IN) - the key schedule
+
+Returns:  out[] contains the deciphered text
+=============================================================================*/
+void invCipher(unsigned char in[], unsigned char out[], unsigned long w[]) {
+    int r,c; /* rows and columns of the state array */
+    unsigned char state[4][Nb]; /* the state array */
+    int round; /* keeps track of the round */
+
+    /* copy in to the state */
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        state[r][c] = in[r+4*c];
+
+    #ifdef DEBUG
+      printf("iinput ");
+      printState(state);
+    #endif
+
+    addRoundKey(state,w,Nr);
+
+    for (round=Nr-1;round>0;round--) {
+
+      #ifdef DEBUG
+        printf("%d isstart ",round);
+        printState(state);
+      #endif
+      
+      invShiftRows(state);
+
+      #ifdef DEBUG
+        printf("%d is_row  ",round);
+        printState(state);
+      #endif
+
+      invSubBytes(state);
+
+      #ifdef DEBUG
+        printf("%d is_box  ",round);
+        printState(state);
+      #endif
+
+      addRoundKey(state,w,round);
+
+      #ifdef DEBUG
+        printf("%d ik_add  ",round);
+        printState(state);
+      #endif
+
+      invMixColumns(state);
+
+    }
+
+    invShiftRows(state);
+    invSubBytes(state);
+    addRoundKey(state,w,0);
+
+    /* copy state to out */
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        out[r+c*4] = state[r][c];
+
+}
+
+/*=============================================================================
+Function cipher
+
+Purpose:  creates a cipher block using the AES standard
+          
+Parameters:
+    unsigned char in[] (IN) - the data to encipher
+    unsigned char out[] (OUT) - enciphered block
+    unsigned long w[] (IN) - the key schedule
+
+Returns:  out[] contains the enciphered text
+=============================================================================*/
+void cipher(unsigned char in[], unsigned char out[], unsigned long w[]) {
+    int r,c; /* rows and columns of the state array */
+    unsigned char state[4][Nb]; /* the state array */
+    int round = 0; /* used to keep track of the round */
+
+    /* copy in to the state */
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        state[r][c] = in[r+4*c];
+
+    
+    #ifdef DEBUG
+      printf("start ");
+      printState(state);
+    #endif
+    
+    addRoundKey(state, w, round);
+
+    for (round=1;round<Nr;round++) {
+
+      #ifdef DEBUG
+        printf("%d start ",round);
+        printState(state);
+      #endif
+
+      subBytes(state);
+      
+      #ifdef DEBUG
+        printf("%d s_box ",round);
+        printState(state);
+      #endif
+      
+      shiftRows(state);
+
+      #ifdef DEBUG
+        printf("%d s_row ",round);
+        printState(state);
+      #endif
+
+      mixColumns(state);
+      
+      #ifdef DEBUG
+        printf("%d m_col ",round);
+        printState(state);
+      #endif 
+
+      addRoundKey(state,w,round);
+            
+    }
+
+    subBytes(state);
+    shiftRows(state);
+    addRoundKey(state,w,Nr);    
+
+    /* copy state to out */
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        out[r+c*4] = state[r][c];
+
+}
+
+/*=============================================================================
+Function addRoundKey
+
+Purpose:  manipulates the state according to the AES standard
+          
+Parameters:
+    unsigned char state[][Nb] (IN/OUT) - current state in AES
+    unsigned long w[] (IN) - the key schedule
+    int round (IN) - the current round # of the AES algorithm
+
+Returns:  the state is manipulated according to the AES standard
+=============================================================================*/
+void addRoundKey(unsigned char state[][Nb], unsigned long w[], int round) {
+  
+  int c; /* for a column loop */
+  unsigned long temp; /* to hold a temporary long to back in state */
+  for (c=0;c<Nb;c++) {
+    temp = makeWord(state[0][c],state[1][c],state[2][c],state[3][c]) ^ w[round*Nb+c];
+    state[0][c] = getByteFromULong(temp,3);
+    state[1][c] = getByteFromULong(temp,2);
+    state[2][c] = getByteFromULong(temp,1);
+    state[3][c] = getByteFromULong(temp,0);
+  }
+
+}
+
+
+/*=============================================================================
+Function keyExpansion
+
+Purpose:  to create the key schedule for the AES standard
+          
+Parameters:
+    unsigned char key[] (IN) - the key
+    unsigned long w[] (OUT) - the computed key schedule
+
+Returns:  the computed key schedule is returned in w[] according to the AES
+          standard
+=============================================================================*/
+void keyExpansion(unsigned char key[], unsigned long w[]) {
+  int i = 0; /* for the key expansion loop */
+  unsigned long temp;
+  while (i<Nk)
+    w[i++] = makeWord(key[4*i],key[4*i+1],key[4*i+2],key[4*i+3]);
+
+  i = Nk;
+
+  while (i < Nb * (Nr + 1)) {
+    temp = w[i-1];
+
+    if (i % Nk==0)
+      temp = subWord(rotWord(temp)) ^ RCON[i / Nk];
+    else if ((Nk == 8) && (i % Nk == 4))
+      temp = subWord(temp);
+
+    w[i++] = w[i-Nk] ^ temp;
+  }
+
+}
+
+/*=============================================================================
+Function makeWord
+
+Purpose:  to create a word from the passed in bytes, used in the AES standard
+          
+Parameters:
+    unsigned char b3 (IN) - high byte
+    unsigned char b2 (IN) - next byte    
+    unsigned char b1 (IN) - next byte    
+    unsigned char b0 (IN) - low byte    
+
+Returns:  an unsigned long is made of the bytes and returned
+=============================================================================*/
+unsigned long makeWord(unsigned char b3, unsigned char b2, unsigned char b1, unsigned char b0) {
+  return (b3<<24) | (b2<<16) | (b1<<8) | b0;
+}
+
+/*=============================================================================
+Function subWord
+
+Purpose:  returns the S-Box transformation of the bytes of an unsigned long
+          
+Parameters:
+    unsigned long l (IN) - word to apply S-Box transformation to
+
+Returns:  an S-Box transformation representation of the passed in word
+=============================================================================*/
+unsigned long subWord(unsigned long l) {
+  return (SB[getByteFromULong(l,3)]<<24 | SB[getByteFromULong(l,2)]<<16
+          | SB[getByteFromULong(l,1)] << 8 | SB[getByteFromULong(l,0)]);
+}
+
+/*=============================================================================
+Function subBytes
+
+Purpose:  to manipulate the state as specified in the AES standard
+          
+Parameters:
+    int unsigned char state[][Nb] (IN/OUT) - current state
+
+Returns:  state is manipulated as specified in AES standard
+=============================================================================*/
+void subBytes(unsigned char state[][Nb]) {
+    int r, c;
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        state[r][c] = SB[state[r][c]];
+}
+
+/*=============================================================================
+Function invSubBytes
+
+Purpose:  to manipulate the state as specified in the AES standard
+          
+Parameters:
+    int unsigned char state[][Nb] (IN/OUT) - current state
+
+Returns:  state is manipulated as specified in AES standard
+=============================================================================*/
+void invSubBytes(unsigned char state[][Nb]) {
+    int r, c;
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        state[r][c] = SBI[state[r][c]];
+}
+
+/*=============================================================================
+Function shiftRows
+
+Purpose:  to manipulate the state as specified in the AES standard
+          
+Parameters:
+    int unsigned char state[][Nb] (IN/OUT) - current state
+
+Returns:  state is manipulated as specified in AES standard
+=============================================================================*/
+void shiftRows(unsigned char state[][Nb]) {
+    unsigned char stateCopy[4][Nb];
+    int r, c;
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        stateCopy[r][c] = state[r][c];
+
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        state[r][c] = stateCopy[r][(c+r) % Nb];
+
+}
+
+/*=============================================================================
+Function invShiftRows
+
+Purpose:  to manipulate the state as specified in the AES standard
+          
+Parameters:
+    int unsigned char state[][Nb] (IN/OUT) - current state
+
+Returns:  state is manipulated as specified in AES standard
+=============================================================================*/
+void invShiftRows(unsigned char state[][Nb]) {
+    unsigned char stateCopy[4][Nb];
+    int r, c;
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        stateCopy[r][c] = state[r][c];
+
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        state[r][(c+r) % Nb] = stateCopy[r][c];
+}
+
+
+/*=============================================================================
+Function mixColumns
+
+Purpose:  to manipulate the state as specified in the AES standard
+          
+Parameters:
+    int unsigned char state[][Nb] (IN/OUT) - current state
+
+Returns:  state is manipulated as specified in AES standard
+=============================================================================*/
+void mixColumns(unsigned char state[][Nb]) {
+    int r, c;
+    unsigned char stateCopy[4][Nb];
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        stateCopy[r][c] = state[r][c];
+
+    for (c=0;c<Nb;c++) {
+      state[0][c] = f(0x02,stateCopy[0][c]) ^ f(0x03,stateCopy[1][c]) ^ stateCopy[2][c] ^ stateCopy[3][c];
+      state[1][c] = stateCopy[0][c] ^ f(0x02,stateCopy[1][c]) ^ f(0x03,stateCopy[2][c]) ^ stateCopy[3][c];
+      state[2][c] = stateCopy[0][c] ^ stateCopy[1][c] ^ f(0x02,stateCopy[2][c]) ^ f(0x03,stateCopy[3][c]);
+      state[3][c] = f(0x03,stateCopy[0][c]) ^ stateCopy[1][c] ^ stateCopy[2][c] ^ f(0x02,stateCopy[3][c]);
+    }
+}
+
+/*=============================================================================
+Function invMixColumns
+
+Purpose:  to manipulate the state as specified in the AES standard
+          
+Parameters:
+    int unsigned char state[][Nb] (IN/OUT) - current state
+
+Returns:  state is manipulated as specified in AES standard
+=============================================================================*/
+void invMixColumns(unsigned char state[][Nb]) {
+    int r, c;
+    unsigned char stateCopy[4][Nb];
+    for (r=0;r<4;r++)
+      for (c=0;c<Nb;c++)
+        stateCopy[r][c] = state[r][c];
+
+    for (c=0;c<Nb;c++) {
+            state[0][c] = f(0x0e,stateCopy[0][c]) ^ f(0x0b,stateCopy[1][c]) ^ f(0x0d,stateCopy[2][c]) ^ f(0x09,stateCopy[3][c]);
+            state[1][c] = f(0x09,stateCopy[0][c]) ^ f(0x0e,stateCopy[1][c]) ^ f(0x0b,stateCopy[2][c]) ^ f(0x0d,stateCopy[3][c]);
+            state[2][c] = f(0x0d,stateCopy[0][c]) ^ f(0x09,stateCopy[1][c]) ^ f(0x0e,stateCopy[2][c]) ^ f(0x0b,stateCopy[3][c]);
+            state[3][c] = f(0x0b,stateCopy[0][c]) ^ f(0x0d,stateCopy[1][c]) ^ f(0x09,stateCopy[2][c]) ^ f(0x0e,stateCopy[3][c]);
+    }
+}
+
+
+/*=============================================================================
+Function f
+
+Purpose:  a wrapper around the tables - F[(L[a]+L[b])%255]; with a or b = 0
+          this returns 0 as desired, otherwise uses the tables
+
+Parameters:
+    int a (IN) - first parameter of Gf multiplication
+    int b (IN) - second parameter of Gf multiplication    
+
+Returns:  0 if a or b are 0, otherwise F[L[a]+L[b]%255]
+=============================================================================*/
+int f(int a, int b) {
+    if (a==0 || b==0)
+      return 0;
+    else
+      return F[(L[a]+L[b])%255];
+}
+
+/*=============================================================================
+Function printState
+
+Purpose:  This function prints out the values in the state array, useful in
+          debugging
+          
+Parameters:
+    unsigned char state[][Nb] (IN) - state table to print
+
+Returns:  nothing, but prints out the hex values to stdout
+=============================================================================*/
+void printState(unsigned char state[][Nb]) {
+    int r, c;
+    for (c=0;c<Nb;c++)
+      for (r=0;r<4;r++)
+        printf("%02x",state[r][c]);
+    printf("\n");
+}
+
+/*=============================================================================
+Function print16
+
+Purpose:  This function prints out the hex values of a 16 byte buffer
+          
+Parameters:
+    unsigned char arr[] (IN) - value to print
+
+Returns:  nothing, but prints out the hex values to stdout
+=============================================================================*/
+void print16(unsigned char arr[]) {
+    int i;
+    for (i=0;i<16;i++)
+        printf("%02x ",arr[i]);
+    printf("\n");
+}
+
+/*=============================================================================
+Function rotWord
+
+Purpose:  This function does a left circular shift of 8 bits
+          
+Parameters:
+    unsigned long l (IN) - value to shift
+
+Returns:  the value of unsigned long l shifted left 8 bits
+=============================================================================*/
+unsigned long rotWord(unsigned long l) {
+    return circShiftLeft(l,8);
+}
+
+/*=============================================================================
+Function getByteFromULong
+
+Purpose:  This function returns the indicated byte in an unsigned long isolated
+          at the low position
+          
+Parameters:
+    unsigned long l (IN) - value to retrieve a byte from
+    int byte (IN) - byte to return
+
+Returns:  the value of the byte
+=============================================================================*/
+unsigned long getByteFromULong(unsigned long l, int byte) {
+  if (byte<0 || byte >3) return 0;
+  return (l >> (byte*8)) & 0x000000ff;
+}
+
+/*=============================================================================
+Function circShiftLeft
+
+Purpose:  This function does a left circular shift on unsigned long values
+          
+Parameters:
+    unsigned long l (IN) - value to shift
+    int bits (IN) - # of places to shift
+
+Returns:  the value of unsigned long l shifted left int bits
+=============================================================================*/
+unsigned long circShiftLeft(unsigned long l, int bits) {
+  return (l << bits) | (l >> 32 - bits);
+}
+

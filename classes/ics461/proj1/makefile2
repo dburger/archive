@@ -1,0 +1,6 @@
+driver: driver.o Configuration.o
+	g++ driver.o Configuration.o -o driver
+driver.o: driver.cc
+	g++ -c driver.cc
+Configuration.o: Configuration.cc
+	g++ -c Configuration.cc

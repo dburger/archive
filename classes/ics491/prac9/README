@@ -1,0 +1,32 @@
+This is a very simple example of MPI used with SIMD.  To run the program you
+need to type:
+
+poe primes -procs n m
+
+Where n is the number of processes to create, and m is the command line
+parameter to the primes program.
+
+It workers by having the last process act as a manager, dividing the m
+array positions into slices for the other processes acting as workers.  Each
+of the other processes determines which numbers are prime in its range and
+then passes the results back to the manager process.  The manager process
+collects this information and then prints the primes on the screen.
+
+Here are instructions on what needs to be done on the IBM RS6000 to run
+such a program.
+
+1. Create an .rhosts file in your login directory containing the names of
+the two controller nodes, in this case bh02n01 and bh02n02, on separate lines.
+
+2. Create a host list file that contains each node that you would want to use
+listed on separate lines.  In this case from bh01n01 to bh01n16 and also
+bh02n03 to bh02n16 (must skip controller nodes).  Call this file .host.list
+and drop it in your login directory.  Set up an environment variable to point
+at this file:
+
+export MP_HOSTFILE=~/.host.list
+
+3.  If you like labeled ordered output, you can also add:
+
+export MP_LABELIO=yes
+export MP_STDOUTMODE=ordered

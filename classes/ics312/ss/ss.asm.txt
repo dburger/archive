@@ -1,0 +1,317 @@
+title Screen Saver
+;Screen Saver by David J. Burger
+;for Dr. Sugihara, ICS 312
+;this program is a screen saver
+;it draws a diamond shape that expands
+;from a center point and then contracts
+;back, rotating colors on each cycle.
+;when started it will prompt for the
+;center point as well as the number of
+;pixels expansion/contraction per second.
+;if the user just presses enter the defaults
+;of x center 320, y center 240 and 10 pixels
+;per second are used
+.model small
+.stack 100h
+.data
+    video_mode db ?     ;used to restore mode upon termination
+    display_page db ?   ;used to restore page upon termination
+    radius dw 0         ;current drawing offset from center
+    increment db 1      ;1 for expanding, -1 for contracting
+    centerx dw 320
+    centery dw 240
+    targetx dw ?
+    NEcolor db 04h      ;color values
+    NextNEcolor db ?
+    SEcolor db 02h
+    NextSEcolor db ?
+    SWcolor db 01h
+    NextSWcolor db ?
+    NWcolor db 0FFh
+    NextNWcolor db ?
+    TMPcolor db ?
+    xcoor_prompt db "Enter the starting x coordinate(1-638):  ",0
+    ycoor_prompt db "Enter the starting y coordinate(1-478):  ",0
+    speed_prompt db "Enter the speed (pixels/sec)(1-10):  ",0
+    delay dw 10
+    mousex dw ?
+    mousey dw ?
+.code
+extrn Clrscr:proc, Writestring:proc, Readint:proc, Crlf:proc
+main proc
+
+    mov ax, @data         ;initialize the data segment
+    mov ds, ax
+            
+XCoorPrompt:              ;get the starting x coordinate
+    call Clrscr           ;defaults to 320
+    mov dx, offset xcoor_prompt
+    call Writestring
+    call Readint
+    cmp ax,0
+    jb XCoorPrompt
+    cmp ax,638
+    ja XCoorPrompt
+    
+    cmp ax, 0
+    je YCoorPrompt
+    mov centerx, ax
+        
+YCoorPrompt:              ;get the starting y coordination
+    call Crlf             ;defaults to 240
+    mov dx, offset ycoor_prompt
+    call Writestring
+    call Readint
+    cmp ax,0
+    jb YCoorPrompt
+    cmp ax,478
+    ja YCoorPrompt
+    
+    cmp ax, 0
+    je SpeedPrompt
+    mov centery, ax
+        
+SpeedPrompt:              ;get the pixels/sec, default 10
+    call Crlf
+    mov dx, offset speed_prompt
+    call Writestring
+    call Readint      ;read into ax
+    cmp ax, 0
+    je DefaultSpeed
+    cmp ax,1
+    jb SpeedPrompt
+    cmp ax,10
+    ja SpeedPrompt
+
+    mov bx, ax        ;the number of mov/sec they entered
+    mov ax,100
+    div bl            ;divide 100 by number of moves/sec
+    mov ah, 0         ;get rid of remainder
+
+    mov delay, ax     ;put result in delay
+    jmp ChangeDisplay
+    
+DefaultSpeed:
+    mov ax, 10
+    mov delay, ax
+    
+ChangeDisplay:    
+    mov ah,0Fh            ;function to get display mode
+    int 10h
+    mov video_mode, al    ;store present video mode
+    mov display_page, bh  ;store present display page
+
+    mov ah,0              ;function to set display mode
+    mov al,12h            ;640x480 w/16 colors
+    mov bh,0              ;video page 0
+    int 10h
+    
+    call getMousePos      ;store the current mouse pos.
+                          ;to check for movement later
+L1:    
+    mov ax, radius
+    add al, increment
+    mov radius, ax
+
+    call drawBox          ;routine to draw the box
+    call checkKey         ;check for a key press
+    call checkMouse       ;checks for mouse click/movement
+    call delayHunds       ;delay between drawings
+    mov ax, centerx
+    sub ax, radius
+    cmp ax, 0             ;hitting the left?
+    je SwapDirection
+    mov ax, centerx
+    add ax, radius
+    cmp ax, 639           ;hitting the right?
+    je SwapDirection
+    mov ax, centery
+    add ax, radius
+    cmp ax, 479           ;hitting the bottom?
+    je SwapDirection
+    mov ax, centery
+    sub ax, radius
+    cmp ax, 0             ;hitting the top?
+    je SwapDirection
+    cmp radius, 0
+    je SwapDirection      ;hitting the center?
+
+    jmp L1
+SwapDirection:            ;this routine swaps the direction
+    cmp increment, 1      ;expansion/contraction
+    je ChangeShrinking
+    mov al, NextNEcolor   ;rotate the colors
+    mov NEcolor, al
+    mov al, NextSEcolor
+    mov SEcolor, al
+    mov al, NextSWcolor
+    mov SWcolor, al
+    mov al, NextNWcolor
+    mov NWcolor, al
+    mov increment, 1      ;expansion size
+    jmp L2
+ChangeShrinking:
+    mov al, NWcolor       ;store the colors
+    mov NextNEcolor, al
+    mov al, NEcolor
+    mov NextSEcolor, al
+    mov al, SEcolor
+    mov NextSWcolor, al
+    mov al, SWcolor
+    mov NextNWcolor, al
+    mov NEColor, 0h       ;set the colors to black
+    mov SEColor, 0h
+    mov SWColor, 0h
+    mov NWColor, 0h    
+    call drawBox    ;to blank out the outside line before shrinking
+    mov increment, -1     ;contraction size
+L2:
+    jmp L1    
+    
+    mov ah, 10h           ;set the video state back to prev.
+    mov al, video_mode
+    mov bh, display_page
+    mov bl, 0
+    int 10h
+            
+    mov ax,4C00h
+    int 21h
+
+main endp
+
+;checks for a waiting escape keystoke and quits if found
+checkKey proc
+    mov ax,1100h
+    int 16h
+    cmp al,0
+    jne ExitCheckChar
+    ret
+ExitCheckChar:
+    mov ax,4C00h
+    int 21h
+checkKey endp
+
+checkMouse proc
+    mov ax, 03h                 ;check for mouse click
+    int 33h
+    test bx, 0000000000000111b  ;left/right/middle
+    jnz ExitCheckMouse
+    mov ax, 0Bh                 ;check for mouse movement
+    int 33h
+    cmp cx, mousex
+    jne ExitCheckMouse
+    cmp dx, mousey
+    jne ExitCheckMouse
+    ret
+ExitCheckMouse:
+    mov ax, 4C00h
+    int 21h
+checkMouse endp
+
+drawBox proc
+
+    cmp radius,0
+    je ExitDrawBox
+    mov ah,0Ch            ;function to display a pixel
+    
+    ;starting with the north pixel    
+    ;set up the targetx for east pixel
+    mov cx, centerx
+    add cx, radius
+    mov targetx, cx
+    ;set cx and dx to north pixel
+    mov cx, centerx
+    mov dx, centery
+    sub dx, radius    
+
+    mov al, NEcolor         ;pixel value        
+NELoop:
+    inc cx
+    inc dx
+    int 10h
+    cmp cx, targetx
+    jne NELoop
+    
+    ;moving on with the east pixel
+    ;set up the targetx for the south pixel
+    mov cx, centerx
+    mov targetx, cx
+    ;set cx and dx to east pixel
+    mov cx, centerx
+    mov dx, centery
+    add cx, radius
+
+    mov al, SEColor            ;new pixel value    
+SELoop:
+    dec cx
+    inc dx
+    int 10h
+    cmp cx, targetx
+    jne SELoop
+
+    ;moving on with the south pixel
+    ;set up the targetx for the west pixel
+    mov cx, centerx
+    sub cx, radius
+    mov targetx, cx
+    ;set cx and dx to south pixel
+    mov cx, centerx
+    mov dx, centery
+    add dx, radius
+
+    mov al, SWColor           ;new pixel value    
+SWLoop:
+    dec cx
+    dec dx
+    int 10h
+    cmp cx, targetx
+    jne SWLoop
+    
+    ;moving on with the west pixel
+    ;set up the targetx for the north pixel
+    mov cx, centerx
+    mov targetx, cx
+    ;set cx and dx to south pixel
+    mov cx, centerx
+    mov dx, centery
+    sub cx, radius
+
+    mov al, NWColor            ;new pixel value    
+NWLoop:
+    inc cx
+    dec dx
+    int 10h
+    cmp cx, targetx
+    jne NWLoop
+    
+ExitDrawBox:        
+    ret
+drawBox endp
+
+delayHunds proc
+    push ax
+    push bx
+    push dx
+    mov ah,2Ch      ;dh = sec, dl = hundths
+    int 21h
+    mov bx, dx      ;sec/hundths in bx
+DelayLoop:    
+    int 21h         ;dh = sec, dl = hundths
+    sub dx, bx      ;subtract old time from current
+    cmp dx, delay   ;compare to delay value
+    jb DelayLoop
+    pop dx
+    pop bx
+    pop ax
+    ret
+delayHunds endp
+
+getMousePos proc
+    mov ax, 0Bh     ;store away original mouse position
+    int 33h
+    mov mousex, cx
+    mov mousey, dx
+    ret
+getMousePos endp
+
+end main

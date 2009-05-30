@@ -1,0 +1,20 @@
+Presentation Summary - TCP/IP Programming in C
+
+My presentation topic was writing TCP/IP enabled programs using the C programming language.  I enjoyed presenting on this topic as most of the class has more of an engineering background and I felt that they would enjoy seeing the details of TCP/IP programming.
+
+I started my presentation by providing some background information about TCP/IP programming.  Specifically, I explained that two major types of communication over IP exist, that is, TCP and UDP.  TCP is a reliable transport mechanism in which data is treated as a stream while UDP is a datagram delivery method with no reliability mechanism.  I went on to give some examples of real world services that use each protocol.  For example, HTTP communicates using the reliable TCP while DNS messages are exchanged with UDP.  With this background I felt that the students would better understand what type of programs would require TCP/IP and which programs could get by with the simpler and less robust UDP/IP.
+
+The next topic I covered was the four layer model called "Internet Architecture."  I explained that this model is easily mapped into the seven layer model.  I also explained what protocols reside in each layer so that the students could see the exact relationship between TCP and its neighbor's in the protocol stack.  These layers consist of the applications in the process layer above and the IP in the network layer below TCP.  I finished up the introduction to TCP/IP by briefly going over the layout of the headers of IP and TCP so that students would better understand some of the parameters present in the TCP/IP function calls.
+
+At this point I began to go over programming TCP/IP in the C language.  The first thing I talked about in this phase was the concept of an API or Application Programming Interface.  With this concept out of the way, I then went on to talk about Berkeley Sockets, developed at the University of California at Berkeley.  Berkeley Sockets is the defacto standard for network programming.  I then explained all of the major function calls present in the socket interface by separating them into two major categories.  The first category was socket calls for managing connections.  This included all the calls necessary to create and close a connection.  The second category was socket calls for sending and receiving data.  I also briefly talked about two calls, WSAStartup, and WSACleanup, which are only necessary when writing sockets programs for the Windows operating system.  I wrapped up the brief introduction to the various socket calls by showing a slide that demonstrated the typical call sequence that a server and client would use.
+
+In the final segment of my presentation I presented source code to implement a client and a server.  I stepped through the code explaining each line of the code referring back to the call sequence slide when necessary.  The client and server that I showed implemented a very simple chat program.
+
+At the conclusion of my presentation I answered some questions posed by the class.  Some very good questions were asked.  One of those questions was if any user process could start a server process.  I explained that it could but in most cases would only be allowed to listen on ports greater than port 1024.  Another very good question was what Java programming for TCP/IP would be like.  I explained that because the operating system has Berkeley Sockets underneath, the Java code necessary to implement TCP/IP is very similar, although object oriented.
+Project Resources:
+
+Computer Networks and Internet with Internet Applications, Douglass E. Comer, Prentice Hall, 2001.
+
+Computer Networks a Systems Approach, Peterson and Davie, Morgan Kaufmann Publishers, 2000.
+
+Beej's Guide to Network Programming, http://www.ecst.csuchico.edu/~beej/guide/net/html/, last update: Oct. 8, 2001.

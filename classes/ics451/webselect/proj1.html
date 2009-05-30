@@ -1,0 +1,281 @@
+<html><head><title>ICS 451 project 1</title></head>
+<body>
+<h1>Computer Networks Project 1</h1>
+
+<br>
+<B><FONT SIZE="-1">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ document.write('<BR>' + 'This page was last modified on: ' + document.lastModified + ' HST</BR>');
+ //-->
+</SCRIPT>
+</FONT></B>
+
+The goals of this project are:
+<ol>
+<li> to implement a web server
+<li> to learn HTTP
+<li> to practice using the sockets interface
+</ol>
+
+<p>This is an individual project.  You may discuss concepts and ideas
+with other students, but you should be the sole author of all your
+code.  All your code must be written in C.
+
+<p> Submission is electronic (see <a href="#results">below</a>).
+Submission must be on time -- late submissions will not be graded and
+will receive no credit.  So please submit what you have
+on the due date, by 11:59pm HST on September 28th.
+
+<p>The assignment is to write a simple HTTP/1.0 web server.  The server
+is unusual in that it does not serve the file specified in the URL.
+Instead, it accesses the specified file, searches through it for
+references, randomly selects one of the references, and
+and forwards the contents of that reference to the client.
+
+<p> Forwarding the contents is similar to what a web proxy might do.
+
+<p> Selecting one of the links at random is similar to what the quiz
+server does.
+
+<h2>HTTP version 1.0</h2>
+
+HTTP version 1.0 is described in <a
+href="http://www.ietf.org/rfc/rfc1945.txt?number=1945">RFC
+1945</a>.  Do NOT print out the entire RFC on the departmental printer
+-- there are large sections you do not need.  Please read it online
+and only print out the sections you really need (or print it on a
+printer you own with paper you bought).
+
+<p>Note: RFC 1945 is a long document.  Part of this assignment is to
+read and understand the document, and identify which parts are
+relevant to this project and useful to you.
+
+<a name="results"> </a>
+<h2>Project Deliverables</h2>
+
+I will expect the following from each student:
+
+<ol>
+
+<li> The source code (source and makefile only -- no objects,
+binaries, or random files) for your implementation.  The source code
+must compile and run on uhunix2.  Compilation must be achieved by
+running ``make'' with no arguments (see <tt>make(1S)</tt>).  You
+should also include a file <tt>status</tt> that describes whether
+your program works and if not, what problems you are having.
+
+<li> Create a web page with links to each of your source files,
+make file, and status file, and make it readable to the entire
+world.  You do not need to publish the web page.
+
+<li> Send the URL for that web page to the <a
+href="mailto:esb@hawaii.edu">instructor</a>.  Your web page must
+remain available for at least one week, giving the instructor, TAs,
+and your colleagues plenty of time to download it and review it.  If
+we are unable to download your page automatically on the deadline, you
+will get no credit for the course.  I suggest posting the web page and
+placing the files in your <tt>public_html</tt> directory on
+<tt>uhunix</tt>, and making sure you can access them through
+<tt>http://www2.hawaii.edu/~yourlogin</tt>.
+
+<li> Please follow the naming instructions: name your makefile
+<tt>makefile</tt> (all lower case), and your status file
+<tt>status</tt> (no extension).
+
+<li> Please turn in your project by the deadline.  After the deadline
+you will be asked to review others' projects, and therefore you can
+get no credit for any work turned in after the deadline.
+
+</ol>
+
+<h2>Program</h2>
+
+<p>I want you to write a forwarding web server (called
+<tt>webselect</tt>).  The web server loads the specified html file
+(only files ending in <tt>.html</tt> or <tt>.htm</tt> should be loaded
+in this first step) and parses it.
+
+<p> The path <tt>/home/1/esb/public_html/</tt> (or, for your own
+testing, <tt>/home/n/yourlogin</tt> -- but remember to change it back
+before submitting) should be placed before whatever path is specified
+in the URL itself, so that all html files specified to your server are
+relative to <tt>/home/1/esb/public_html/</tt>.
+
+<p> The purpose of parsing is to extract all the HTML references in
+the page.  References are identified by the string "<tt>href=</tt>",
+which may have arbitrary capitalization.  <tt>webselect</tt> must then
+return to the client the contents of one, randomly selected reference.
+
+<p>The references themselves may point to pages that are not HTML pages, for
+example images or plain text.  For this project, you must be able
+to process references to files with the following extension and MIME type:
+
+<ul>
+<li> extension <tt>.html</tt> or <tt>.htm</tt>, type <tt>text/html</tt>
+<li> extension <tt>.txt</tt> or <tt>.text</tt>, type <tt>text/plain</tt>
+<li> extension <tt>.jpeg</tt> or <tt>.jpg</tt>, type <tt>image/jpeg</tt>
+<li> extension <tt>.gif</tt>, type <tt>image/gif</tt>
+</ul>
+
+<p> The references may be to files that are on the local machine or on
+other servers.  If the files are on other servers, <tt>webselect</tt>
+must act as a proxy, retrieving the file from the other server and
+sending the contents to the client.  The header sent by the other
+server may be forwarded, unchanged, directly to the client.
+
+<p> If the references are to files that are on the local machine,
+<tt>webselect</tt> must act as a server, returning a header to the
+client, reading the file, and sending it back.  The file reference
+might be absolute, if it begins with a <tt>"/"</tt> character, or
+relative to the directory in which the original html file was found.
+
+<p> In summary, <tt>webselect</tt> should return the contents of one
+of the references, randomly chosen.
+
+<p><b>Calling Sequence</b>: <tt>webselect</tt> must take one or two
+arguments.  The first argument is the port number and is required, and
+<tt>webselect</tt> should terminate if it is not present.  The second
+argument is optional.  If it is present, it is an integer <tt>n</tt>
+giving the number of the selection to return.  When this argument is
+present, <tt>webselect</tt> <b>must</b>, the first time it is called,
+return the <tt>n</tt>th reference (<tt>n</tt> can take any value from
+1, 2, 3, ...).  If <tt>n</tt> is out of range (i.e. there is no
+<tt>n</tt>th reference), <tt>webselect</tt> <b>must</b> terminate the
+first time a client connects to it with a valid file.  After the first
+connection, <tt>webselect</tt> <b>must</b> return to using the random
+selection.
+
+<p> Synopsis of the calling sequence:
+<pre>
+usage: webselect port [selection]
+
+webselect will terminate if the arguments are not integers,
+if the port is already in use, or if the selection (if specified)
+fails to identify a valid reference in the URL specified in the first
+access to the server.  The first reference is number 1.
+</pre>
+
+<a name="Hints"> </a><h2>Hints</h2>
+
+<ol>
+
+<li><strong>Solaris Warning</strong>
+
+On Solaris, you should be aware that the <tt>accept</tt> system call
+will return -1 if it is interrupted by a signal.  You must then
+compare the global variable <tt>errno</tt> (see <tt>man errno</tt>) to
+<tt>EINTR</tt> to see if it failed because of the interrupt, and if
+so, repeat the call.  Other Unixes don't have this property, but if
+you write code that works on Solaris, it should work well on other
+Unixes as well.
+
+<li><strong>Random selection</strong>
+
+Please use <tt>random(3C)</tt> to make your random selection.  Do not
+use <tt>rand(3C)</tt>.  I suggest you do NOT call
+<tt>srandom(3C)</tt>, <tt>initstate(3C)</tt>, or <tt>setseed(3C)</tt>,
+so your program will be repeatable and easier for you to test.
+
+<li><strong>Telnet Program</strong>
+
+The telnet program on Unix accepts an optional second argument: a port
+number.  If you telnet to uhunix2 (or whatever machine you are running
+your server on) and specify the port number your server is listening
+on, you will be able to enter text and see the responses.  Telnet
+on Unix generally terminates lines with the single character <tt>\n</tt>,
+so in order to test in this manner, your program will need to be
+flexible about how lines are terminated.
+
+<p>If you want to use telnet to connect to a server on the same machine,
+you can simply <tt>telnet localhost portnumber</tt>
+
+<p>Port numbers below 1025 are generally reserved for systems servers
+(the <tt>root</tt> user on Unix), so use higher numbers
+
+<li><strong>Testing</strong>
+
+<p>After testing using telnet, you should test using a regular web
+browser (or two, or 10).  Most machines have a specific web browser,
+for example Netscape or IE, and <tt>uhunix2</tt> also has the
+<tt>lynx</tt> text-only browser.  Be sure your server works with both
+Netscape or IE, and with lynx.  You can specify port numbers in URLs
+by putting a colon after the machine name followed by the port:
+<pre> http://www.ics.hawaii.edu:99/path </pre> does an HTTP request on port
+99 of www.ics.hawaii.edu, requesting <tt>/path</tt>.
+
+<p>You should also test using the TA's test program, which should be
+available at least a week before the deadline.  Plan for this
+debugging phase to take at least a week.
+
+<p>When testing a network program, there is always the question of
+knowing what exactly my program is sending, and what exactly it is
+receiving from the peer.  I strongly suggest that you add to your
+program a compile-time option (disable it before turning in the
+program) that allows you to see, and maybe save in a file, the entire
+exchange between your server and the client.
+
+
+<p><li> <strong>Strings</strong>.
+
+<p> Data read from the network is not in C string format (even though
+HTTP uses ASCII encoding), and specifically does not include the
+terminating NULL character.
+
+<p> When sending a C string, you can use <tt>strlen</tt> to decide how
+many bytes to write (because you are sending ASCII -- if you were
+sending binary, you would be unable to use <tt>strlen</tt>).  When
+reading from the network, specify the buffer length and use the return
+value from <tt>read</tt> to determine how many bytes were read.
+
+<p> Remember that your program may or may not get all the data in a
+single read.  The test program will specifically test to make sure
+your program handles the case where not all the data is received at
+once.  You may have to do multiple reads to get the entire request
+header, and you may have to do multiple reads to get the entire
+contents when you are acting as a proxy.  Be sure you have received
+the entire request header before processing the request (however, when
+acting as a proxy you may start to forward data as soon as you receive
+it -- just make sure you don't stop until you are done).
+
+<p><li> <strong>Line Termination</strong>.
+
+<p>HTTP uses CRLF (<tt>\r\n</tt>) as a line terminator, but not all
+browsers and servers implement that, and your program should work
+correctly whether lines are terminated with CR, LF, or CRLF.  Remember
+that you should be generous in what you accept, and strict in what you
+send.
+
+<p>Part of this project is to parse data received from the network.
+Parsing in C is often done with "lex" and "yacc".  Both of these are
+available on uhunix2.  I suggest that you study them to decide whether
+they might be the best way of implementing your parser.  There is no
+requirement that you use lex or yacc -- you may do your own parsing if
+you prefer.
+
+<p><li> <strong>Server</strong>.
+
+<p>The server I gave in <a
+href="http://www2.ics.Hawaii.Edu/~esb/1997fall.ics651/uxcliser.html">homework
+1 in a past course</a> may give you ideas for <tt>webselect</tt> (I
+also encourage you to study that homework for more ideas about
+client-server programming).  Feel free to use both that server and the
+code in the textbook as a basis for this project.  Do not use any
+other code, unless you have written it yourself.
+
+<p><li> <strong>Debugging</strong>.
+
+<p>If you haven't done so already, you may want to learn to use the
+<tt>gdb</tt> debugger, or any other debugger available on your system.
+If you use <tt>gdb</tt>, you may want to check the <a
+href="http://sourceware.cygnus.com/gdb/onlinedocs/gdb_toc.html">
+GDB Manual</a>.
+
+<p><li> <strong>String Searching</strong>.
+
+<p>You are welcome to use this <a href="strcasestr.html">
+case-independent string matching function</a>.
+
+</ol>
+
+</body></html>

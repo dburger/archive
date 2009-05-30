@@ -1,0 +1,67 @@
+--- STATUS ----
+============================================================================
+My program works perfectly with the testselect program.
+
+I have also tested my program with about 5 different web browsers.  You can
+find some information on a couple of interesting problems that I ran into and
+the manner in which I fixed them below.  In summary my program seems to work
+perfectly with all the browsers except for one small glitch that occurs very
+rarely with Netscape 6.1.  In very rare cases a file that is usually proxied
+perfectly will not work correctly.  The result will be just the ip address
+(http://128.171.44.7:2000/index.html for example) showing up in the browser
+window.  This is a problem that I researched very thoroughly.  I looked at
+the headers that were being proxied in the case of a successful send versus a
+failed send and found them to be identical.  I then looked at the recv/
+send loop in the proxy process and determined that for some reason Netscape 6.1
+was not accepting data midway through the proxy process.  No other browser
+exhibited this behaviour and Netscape 6.1 did this only very rarely and on the
+same page that would be sent perfectly most of the time.
+
+2 Interesting problems that I fixed for those that are interested:
+============================================================================
+1.  Originally my program had a problem when trying to send images back to the
+client.  This only occurred on my home computer and only with jpegs.  I
+wrestled with this bug for many hours until I discovered that a third party
+program that I was running in the background called AdSubtract was causing the
+problem.  As soon as I shut down AdSubtract this behavior disappeared.
+AdSubtract is a filtering program that removes advertisements from web pages.
+I am not sure why it interfered with my proxy server and with jpegs in 
+particular.
+
+2.  When I began to test my program with Netscape 4.7 I noticed that a couple
+of the pages would not load completely into that browser.  This is another
+problem that I tried to track down for several hours.  After a lot of work I
+stumbled upon this web site:
+
+http://www.peacefire.org/bypass/Proxy/akamai.html
+
+This web site explained that Netscape 4.7 has a bug in dealing with web pages
+that have references to .css or .js files that don't exist.  Netscape 4.7
+refuses to render pages if the associated .css or .js file doesn't exist.  Thus
+my proxy server, which wasn't designed to proxy .css or .js files, would
+result in a page that wouldn't load.  The website said that the solution was
+to turn off javascript and cascading style sheets in the browser.  I thought
+this was a bad solution for my proxy server so I set it up so that the proxy
+server would send a "fake," and pretty much empty .css or .js file to the
+client so that Netscape 4.7 would be happy with my proxy server regardless of
+whether the user had shut off javascript and cascading style sheets.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

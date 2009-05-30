@@ -1,0 +1,586 @@
+<html><head><title>ICS 451 project 2</title></head>
+<body>
+<h1>Computer Networks Project 2</h1>
+
+<br>
+<B><FONT SIZE="-1">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ document.write('<BR>' + 'This page was last modified on: ' + document.lastModified + ' HST</BR>');
+ //-->
+</SCRIPT>
+</FONT></B>
+
+The goals of this project are:
+<ol>
+<li> to implement a learning ethernet bridge
+<li> to learn about the ethernet protocol
+<li> to practice using threads and queues
+</ol>
+
+<p> This is a group project.  A group may have 1, 2, 3, or 4 people.
+Send the instructor email if you wish to join a group and would like
+the instructor to match you up with others.  You may discuss concepts
+and ideas with other students, but your group should be the sole
+author of all your code.  All your code must be written in C.
+
+<p> Submission is electronic and must be on time -- late submissions
+will not be graded and will receive no credit.  So please submit what
+you have on the due date, by 11:59pm HST on October 26th.  Please plan
+to be done early if at all possible.
+
+<p> The assignment is to write software for an Ethernet Learning
+Bridge.  The software receives Ethernet packets over one of several
+possible interfaces, and transmits them as appropriate.  Your software
+must simulate the underlying hardware as well as implement the
+bridging function.
+
+<h2>Ethernet Bridging</h2>
+
+Ethernet Bridging was discussed in the lecture, and is presented in
+chapter 10 (second edition) or 11 (third edition) of the textbook.  A
+learning bridge must:
+
+<ul>
+
+<li> Forward broadcast packets to all other interfaces
+
+<li> Forward a packet for an unknown destination address A to all other interfaces
+
+<li> Forward a packet for a known destination address A to the interface on
+which A is connected
+
+<li> Record as known any source address of a packet received on any interface
+
+<li> Time out "known" addresses after 1 minute of inactivity
+
+</ul>
+
+<h2>Project Deliverables</h2>
+
+I will expect the following from each group:
+
+<ol>
+
+<li> As soon as possible, an email from one representative of each
+group specifying the names and emails of all the members of the group
+(please Cc the other members of your group on the email).
+
+<li> By the deadline, the source code (source and makefile only -- no
+objects, binaries, or random files) for your implementation.  The
+source code must compile and run on uhunix2.  Compilation must be
+achieved by running ``make'' with no arguments (see
+<tt>make(1S)</tt>).  You should also include a file <tt>status</tt>
+that describes whether your program works and if not, what problems
+you are having.
+
+<li> Create a web page with links to each of your source files,
+make file, and status file, and make it readable to the entire
+world.  You do not need to publish the web page.  You do not need
+to try and make the web page look good -- any extensions such
+as ".txt" will make it harder to download the data automatically
+(if you wish, you may make another web page for your formatted
+sources).
+
+<li> Send the URL for that web page to the <a
+href="mailto:esb@hawaii.edu">instructor</a>.  Your web page must
+remain available for at least one week, giving the instructor, TAs,
+and your colleagues plenty of time to download it and review it.  If
+we are unable to download your page automatically on the deadline, you
+will get no credit for the project.
+
+<li> Please follow the naming instructions: name your makefile
+<tt>makefile</tt> (all lower case), and your status file
+<tt>status</tt> (no extension).
+
+<li> Please turn in your project by the deadline.  After the deadline
+you will be asked to review others' projects, and therefore you can
+get no credit for any work turned in after the deadline.
+
+</ol>
+
+All code must be your own, except for what you take from
+<tt>testbridge</tt>, below.
+
+<h2>Program</h2>
+
+<p>I want you to write a learning ethernet bridge (the executable
+should be called <tt>bridge</tt>).  The bridge reads its configuration
+from the command line, and immediately starts forwarding any packets
+it receives.
+
+<p>The command line has one argument for each simulated interface.
+The argument identifies the local UDP port used for communicating on
+that interface, and the remote system that the bridge is connected to
+in our simulation.  The remote system can be another bridge or a
+simulated end-system.  An interface is described by an IP number (of
+the form 12.34.56.79) and a UDP port number (a decimal number between
+1025 and 65535).  As command-line arguments, interfaces are given as
+<tt>1234:12.34.56.79:2345</tt>, with the first number being the UDP
+port number of this interface for this bridge, the second number the
+IP number of the peer, and the third number the UDP port on which the
+peer is listening for this simulated connection.  The maximum number
+of connections your bridge must be able to simulate is 20.
+
+<p>An example command-line invocation would be
+
+<pre>
+bridge 8956:1.2.3.4:24356 8957:128.171.44.7:5577
+</pre>
+
+This bridge has two simulated interfaces, the first listening on port
+8956 and the second on port 8957.  The first one will send packets to
+another simulated ethernet system (another simulated bridge, or a
+simulated end-system) running on port 24356 of machine 1.2.3.4.  The
+second interface will send packets to another simulated ethernet
+system running on port 5577 of uhunix2.
+
+<p>Your software must open a UDP socket for each simulated interface,
+and be always prepared to receive packets coming in on these
+interfaces (it doesn't matter which machine/port they are coming from,
+you should receive them and process them).  Please be aware that if
+your software is not receiving on an interface at all times, UDP
+packets may be lost.  Consequently, you must structure your program as
+a collection of POSIX threads (pthreads -- see
+<tt>pthreads(3THR)</tt>), at least one receive thread per
+interface.
+
+<p> Once a packet is received, your software must decide which
+interface, or interfaces, to send it on (the packet is always sent
+unchanged).  Since there is limited bandwidth on each simulated
+interface, you must make sure you do not send more than one packet per
+second.  This generally is best done by having a send thread for each
+interface (in addition to the receive thread for that interface), and
+having the send thread wake up every second, check its queue, and send the
+first packet in the queue if there is one there.
+
+<p> This means you must implement a queue of packets for each
+interface.  Packets should be stored in buffers created using
+<tt>malloc(3C)</tt>.  Pointers to packets should be stored in your
+queues.  Queues should have a maximum length of 10 packets.  When
+inserting a packet into a queue, only insert it if there is room.  If
+there is no room, do not insert the packet -- instead, continue
+processing (i.e. insert it into any other queues that it must be
+placed on).  Once a packet is sent, it should be removed from the
+queue and its memory deallocated using <tt>free(3C)</tt>.  Note that
+if the same buffer is placed on more than one queue, you can only call
+<tt>free(3C)</tt> once, the last time you send the packet.  Packets
+each have a maximum length of 1514 bytes (including the Ethernet
+header), so buffers should all be allocated to be of that size.
+
+<p> Note that since multiple threads may be trying to insert a
+packet into a queue at the same time, and at the same time
+that the sender thread for that queue is may be trying to remove
+the first packet in the queue, you should synchronize access to
+each queue.  I suggest you look at <tt>pthread_mutex_init(3THR)</tt>
+for ways to synchronize access to your queues.
+
+<p> Each packet you receive has a standard 14-byte Ethernet header,
+beginning with a 6-byte destination address, 6-byte source address,
+and 2-byte ethernet type.  Your program will only be concerned
+with the destination and source addresses.  When you receive a
+packet, its length (as given by <tt>recvfrom(2)</tt>) may be
+less than the size of the buffer.  You should keep track of this
+length and only send that many bytes when you forward the packet.
+You should discard any packets received that are less than 60 bytes
+long.
+
+<p> Your program also need a central forwarding table that keeps track
+of which interface has seen packets from which source address, and
+also the most recent time a packet has been seen on that interface
+from that address.  One additional thread should wake up every second
+and remove entries more than 60 seconds old.  All accesses that modify
+this central table must be synchronized to prevent concurrent accesses
+from making the table inconsistent.
+
+<p> The Ethernet broadcast address is the all-ones address, conventionally
+written as ff:ff:ff:ff:ff:ff (or alternately FF:FF:FF:FF:FF:FF).
+
+<p> In summary, <tt>bridge</tt> should forward packets according to
+the algorithms for a learning bridge.
+
+</a><h2>Test Program</h2>
+
+I am providing a test program, <tt>testbridge</tt>.  This program
+simulates an ethernet host, and takes as arguments:
+
+<ol>
+
+<li> a UDP port number that this program should listen on
+
+<li> a simulated ethernet number that this program uses as its source address
+
+<li> zero or more arguments indicating the packets to be sent, one
+at a time, one second apart.  Each of these arguments has a simulated
+ethernet number, followed by the IP address of the peer, and the UDP
+port number of the peer.  The form of these arguments is
+<tt>12:34:56:78:9A:BC/1.2.3.4:5678</tt>, with the first six
+(hexadecimal) numbers giving the Ethernet address, the next four
+(decimal) the IP address, and the final number the UDP port number.
+
+</ol>
+
+An example invocation would be
+<pre>
+testbridge 5786 11:66:22:55:33:44 11:01:02:03:04:05/128.171.44.7:7856 11:66:22:55:33:05/128.171.44.7:7856 12:67:23:56:34:46/128.171.44.7:7856 
+</pre>
+
+This invocation calls <tt>testbridge</tt> and tells it to send three
+packets, all to port 7856 of <tt>uhunix2</tt>.  The first two packets
+should have 11:01:02:03:04:05 as the destination Ethernet address, and
+the third should have 12:67:23:56:34:46.  All three packets would have
+11:66:22:55:33:44 as the source Ethernet address.  <tt>testbridge</tt>
+will also keep running and print any packets it receives.
+
+<p><tt>testbridge</tt> listens for incoming packets while it sends its
+own packets, and keeps listening after it is done sending -- you must
+kill it with ^C (Control-C) when you are done using it.
+
+<p>You are welcome to write your own test program(s) if there is some
+aspect of your program that <tt>testbridge</tt> doesn't address.  You
+are also requested to forward to the instructor any bug reports about
+testbridge.  The binary for testbridge is available at
+<tt>~esb/testbridge</tt>.  The source code for testbridge is shown at
+the end of this web page.  You may reuse any code you wish, but note
+that your code <strong>must</strong> use pthreads, whereas
+<tt>testbridge</tt> uses <tt>select</tt>.
+
+</a><h2>Hints</h2>
+
+<ol>
+
+<li><strong>Binary Data</strong>
+
+<p>
+All the data in this project are binary.  There are no strings.  If
+you ever find yourself using a string operation such as
+<tt>strlen(3C)</tt>, think again.  The only exception is when parsing
+the command-line arguments to <tt>bridge</tt>.
+
+<p> This means that you have to explicitly keep track of the length of
+each buffer, by keeping an integer variable or field that has the
+number of bytes in the buffer.
+
+<p> This also means you will need a way to visualize your data.  I
+strongly suggest you start by creating a function that will print
+the bytes in a buffer, one at a time, in hexadecimal.  For example,
+a buffer with five bytes might print as:
+
+<pre>
+  xFE xDC xBA x98 x76
+</pre>
+
+Then you can use this function while debugging your code, for example
+to print out incoming packets, ethernet addresses, or even the contents
+of queues.
+
+<li><strong>Linking</strong>
+
+<p> Be sure to link with <tt>-lpthread</tt>.
+
+<li><strong>Prioritizing</strong>
+
+<p> It seems to me that some of you run out of time, with nothing to show
+for all your hard work.  You should try and get a prototype working as
+soon as possible, and then proceed to add the refinements required for
+this project.
+
+<p> The most important functionality is the packet forwarding,
+followed by a correct implementation of the forwarding table.
+
+<p> The least essential part of the project are the queues -- you
+should first implement queues of size 1 (i.e. no queues, the sender is
+either busy or idle), with no synchronization, then enlarge the queues
+to 10 packets and then add synchronization.  You may also want to
+start with fixed, global buffers, and only later move to using
+<tt>malloc</tt>.  There are many other ways to split up the project to
+make sure you have at least a basic ethernet bridge working by the
+deadline.
+
+
+
+<li><strong>Testing</strong>
+
+<p>I suggest you start testing with one bridge at a time, making
+sure the threads are working correctly and the forwarding mechanism
+is correct.  Copious output from your program may help testing.
+
+<p> After one bridge is working correctly, both for the first packet
+from a source, for subsequent packets from a source, and for broadcast
+packets, I suggest you connect multiple bridges to each other and
+verify that the behavior is correct.  If your bridges are connected in
+a loop, broadcast packets should live forever. If you have two or more
+loops, broadcast packets should increase forever (and you should get
+lots of queue overflows).  If you have no loops, broadcast packets and
+the first packet from a new sender should go everywhere, and every
+other packet should only be seen on the route to the destination.
+
+<p><li> <strong>Strings</strong>.
+
+<p> Data read from the network is not in C string format and is
+encoded in binary.
+
+<p><li> <strong>Read or Recv or Recvfrom</strong>.
+
+<p> Since we are using UDP and not TCP, remember that your program
+will get all of a packet data in a single read.
+
+<p><li> <strong>Debugging</strong>.
+
+<p>If you haven't done so already, you may want to learn to use the
+<tt>gdb</tt> debugger, or any other debugger available on your system.
+If you use <tt>gdb</tt>, you may want to check the <a
+href="http://sourceware.cygnus.com/gdb/onlinedocs/gdb_toc.html">
+GDB Manual</a>.
+
+</ol>
+
+</a><h2>Testbridge</h2>
+<pre>
+/* testbridge.c: test a simulated ethernet bridge, printing all
+ * incoming packets.
+ *
+ * esb@hawaii.edu, October 2001.
+ */
+
+#include &lt;stdio.h>
+#include &lt;string.h>
+#include &lt;strings.h>
+#include &lt;sys/types.h>
+#include &lt;sys/socket.h>
+#include &lt;sys/time.h>
+#include &lt;netinet/in.h>
+#include &lt;netdb.h>
+#include &lt;unistd.h>
+
+
+#define ETHSIZE 1514		/* make all packets the maximum size */
+
+static void usage (char * name)
+{
+  fprintf (stderr, "usage: testbridgeport simulated-ether packet*\n");
+  fprintf (stderr, " the zero or more packets each have the form:\n");
+  fprintf (stderr, "   destination-ether/IP:UDP\n");
+  fprintf (stderr, " IP is the real IP number of the machine running the simulated bridge\n");
+  fprintf (stderr, " UDP is the real UDP number of the socket the simulated bridge is receiving on\n");
+}
+
+static char * parseether (char * string, char * result)
+{
+  int b0, b1, b2, b3, b4, b5;
+  char * p0; char * p1; char * p2;
+  char * p3; char * p4; char * endptr;
+  char * copy = (char *) malloc (strlen (string) + 1);
+
+  strcpy (copy, string);
+  p0 = index (copy  , ':'); if (p0 == NULL) { free (copy); return NULL; }
+  p1 = index (p0 + 1, ':'); if (p1 == NULL) { free (copy); return NULL; }
+  p2 = index (p1 + 1, ':'); if (p2 == NULL) { free (copy); return NULL; }
+  p3 = index (p2 + 1, ':'); if (p3 == NULL) { free (copy); return NULL; }
+  p4 = index (p3 + 1, ':'); if (p4 == NULL) { free (copy); return NULL; }
+  *p0 = *p1 = *p2 = *p3 = *p4 = '\0';
+  p0++; p1++; p2++; p3++; p4++;
+
+  b0 = strtol (copy, &endptr, 16);
+  if ((endptr + 1 != p0) || (b0 > 255) || (b0 &lt; 0)) { free (copy);return NULL;}
+  b1 = strtol (p0, &endptr, 16);
+  if ((endptr + 1 != p1) || (b1 > 255) || (b1 &lt; 0)) { free (copy);return NULL;}
+  b2 = strtol (p1, &endptr, 16);
+  if ((endptr + 1 != p2) || (b2 > 255) || (b2 &lt; 0)) { free (copy);return NULL;}
+  b3 = strtol (p2, &endptr, 16);
+  if ((endptr + 1 != p3) || (b3 > 255) || (b3 &lt; 0)) { free (copy);return NULL;}
+  b4 = strtol (p3, &endptr, 16);
+  if ((endptr + 1 != p4) || (b4 > 255) || (b4 &lt; 0)) { free (copy);return NULL;}
+  b5 = strtol (p4, &endptr, 16);
+  if ((endptr == p4) || (b5 > 255) || (b5 &lt; 0)) { free (copy); return NULL; }
+  
+  result [0] = b0;
+  result [1] = b1;
+  result [2] = b2;
+  result [3] = b3;
+  result [4] = b4;
+  result [5] = b5;
+
+  string += (endptr - copy);
+  free (copy);
+
+  return string;
+}
+
+/* send the packet specified by the string (if any), then wait up
+ * to 1 second before returning.
+ */
+static void sendpacket (char * packet, int socket, char * myeth)
+{
+  char * p0; char * p1; char * p2;
+  char ether [6];
+  int ip, port;
+  struct timeval start;
+  int deltaus;
+
+  gettimeofday (&start, NULL);
+  if (packet != NULL) {
+    p0 = parseether (packet, ether);
+    if (p0 == NULL) {
+      fprintf (stderr,
+	       "error: unable to find ethernet address in '%s'\n", packet);
+    } else if (*p0 != '/') {	/* bad format */
+      fprintf (stderr,
+	       "error: no '/' after ethernet address in '%s'\n", packet);
+    } else {			/* found ether, find the rest */
+      p1 = index (p0, ':');
+      if (p1 == NULL) {
+	fprintf (stderr, "error: no ':' after '/' in '%s'\n", packet);
+      } else {
+	*p1 = '\0';
+	p0++; p1++;
+	/* "ip" is in network byte order, "port" is not */
+	ip = inet_addr (p0);
+	port = strtol (p1, &p2, 10);
+#ifndef INADDR_NONE
+#define INADDR_NONE -1
+#endif
+	if (ip == INADDR_NONE) {
+	  fprintf (stderr,
+		   "error: IP address '%s' must be in dotted-decimal\n", p0);
+	} else if ((*p2 != '\0') || (p2 == p1)) {
+	  fprintf (stderr, "error: unable to read port number in '%s'\n", p1);
+	} else if ((port &lt; 0) || (port > 0xffff)) {
+	  fprintf (stderr, "error: illegal port %d\n", port);
+	} else {		/* parsing succeeded, send a packet */
+	  char buffer [ETHSIZE];
+	  int i, sent;
+	  struct sockaddr_in address;
+
+	  printf ("sending to %02x:%02x:%02x:%02x:%02x:%02x, IP %x, port %d\n",
+		  ether [0] &0xff, ether [1] &0xff, ether [2] &0xff,
+		  ether [3] &0xff, ether [4] &0xff, ether [5] &0xff, ip, port);
+	  for (i = 14; i &lt; ETHSIZE; i++) { /* initialize the buffer to */
+	    buffer [i] = i & 0xff; /* something more interesting than 0s */
+	  }
+	  memcpy (buffer, ether, 6);
+	  memcpy (buffer + 6, myeth, 6);
+	  buffer [12] = 0x08;	/* put an ethertype for an IP packet */
+	  buffer [13] = 0x00;	/* even though nobody is likely to use this */
+
+	  memset ((char *)&address, 0, sizeof (address));
+	  address.sin_family = AF_INET;
+	  address.sin_port = htons(port);
+	  memcpy (&address.sin_addr, &ip, sizeof (ip));
+	  sent = sendto (socket, buffer, ETHSIZE, 0,
+			 (struct sockaddr *) (&address), sizeof (address));
+	  if (sent != ETHSIZE) {
+	    perror ("sendto");
+	    fprintf (stderr, "sent %d bytes when call specified %d\n",
+		     sent, ETHSIZE);
+	  }
+	}
+      }
+    }
+  } /* packet sent or not, now it's time to listen for a second. */
+
+  deltaus = 0;
+  do {
+    struct timeval timeout;
+    struct timeval finish;
+    fd_set listening, empty;
+    int count;
+
+    FD_ZERO (& empty);
+    FD_ZERO (&listening);
+    FD_SET (socket, &listening);
+    if (deltaus == 0) {
+      timeout.tv_sec = 1;
+      timeout.tv_usec = 0;
+    } else {
+      timeout.tv_sec = 0;
+      timeout.tv_usec = 1000000 - deltaus;
+    }
+
+    if ((count = select (socket + 1, & listening, & empty, & empty, & timeout))
+	&lt; 0) {
+      perror ("select");
+    }
+    if (count > 0) {		/* got a packet, not a timeout */
+      char buffer [ETHSIZE];
+      int i, received, length;
+      struct sockaddr_in address;
+
+      length = sizeof (address);
+      count = recvfrom (socket, buffer, ETHSIZE, 0,
+			(struct sockaddr *) &address, &length);
+      if (count &lt; 0) {
+	perror ("recvfrom");
+      } else if (count == 0) {
+	fprintf (stderr, "error: zero data from recvfrom\n");
+      } else {
+	printf ("received %d bytes starting with: ", count);
+	for (i = 0; (i &lt; count) && (i &lt; 14); i++) {
+	  printf ("%02x ", buffer [i] & 0xff);
+	}
+	printf ("\n");
+      }
+    }
+    gettimeofday (&finish, NULL);
+    deltaus = (finish.tv_sec - start.tv_sec) * 1000000 +
+              finish.tv_usec - start.tv_usec;
+  } while (deltaus &lt; 1000000);
+}
+
+main (int argc, char * * argv)
+{
+  int argind, closeres;
+  int sock;
+  char myether [6];
+  int myport;
+  struct protoent * protocol;
+  struct sockaddr_in bind_address;
+
+  if (argc &lt; 3)   /* missing some required arguments */
+    usage (argv [0]);
+  else {
+    myport = atoi (argv [1]);
+    if (parseether (argv [2], myether) == NULL) {
+      fprintf (stderr,
+	       "second argument ('%s') is not a valid ethernet address\n",
+	       argv [2]);
+      exit (1);
+    }
+    printf ("port is %d, ether %02x:%02x:%02x:%02x:%02x:%02x\n", myport,
+	    myether [0] & 0xff, myether [1] & 0xff, myether [2] & 0xff, 
+	    myether [3] & 0xff, myether [4] & 0xff, myether [5] & 0xff);
+
+    protocol = getprotobyname ("udp");
+    if (protocol == NULL) {
+      fprintf (stderr, "unable to get protocol UDP\n");
+      exit (1);
+    }
+    sock = socket (AF_INET, SOCK_DGRAM, protocol->p_proto);
+    if (sock &lt; 0) {
+      perror ("socket");
+      exit (1);
+    }
+    memset ((char *)&bind_address, 0, sizeof (bind_address));
+    bind_address.sin_family = AF_INET;
+    bind_address.sin_port = htons(myport);
+    bind_address.sin_addr.s_addr = INADDR_ANY;
+    if (bind (sock, (struct sockaddr *)&bind_address, sizeof (bind_address))
+	&lt; 0) {
+      perror ("bind");
+      exit (1);
+    }
+
+    for (argind = 3; argind &lt; argc; argind++)
+    {
+      sendpacket (argv [argind], sock, myether);
+    }
+    while (1) {
+      sendpacket (NULL, sock, myether);
+    }
+  }
+}
+
+
+</pre>
+
+</body></html>

@@ -1,0 +1,123 @@
+<html>
+<head>
+<title>David J. Burger ICS 311 Assignment 1</title>
+</head>
+</html>
+<body>
+
+<b>
+David J. Burger<br>
+ICS 311<br>
+Assignment 1<p>
+</b>
+
+<b>
+1.  (C-1.1 p. 25) Explain why the dynamic dispatch algorithm that looks for the
+specific method to invoke for a message o.a() will never get into an infinite
+loop.<p>
+</b>
+
+The dynamic dispatch algorithm is the algorithm that determines what method is
+invoked when a method call is made in a Java program.  The algorithm first
+looks at the class upon which it was invoked to determine if that class
+contains a method with the specified method signature.  If it does, that
+method is invoked.  If that class does not contain a method with the specified
+method signature then the algorithm will look at the superclass to see if it
+does, and if it does it is invoked.  This process of looking for the method,
+and then looking in the superclass for the method if it is not found, continues
+until either the method is found and invoked, or, we arrive at the topmost
+class with no matching method in which case a run-time error in thrown.
+Because of the structure of Java class hierarchies it is impossible for the
+dynamic dispatch algorithm to get into an infinite loop.  Any method call will
+either eventually locate the desired method in the class hierarchy or the
+algorithm will arrive at the topmost class, the Object class.  If the method
+is not found in the topmost class no further searching for the method is done
+and a run-time error is thrown.<p>
+
+
+<b>
+2.  (P-1.2 p. 26) Write a Java applet to alternately draw a "happy" face and a
+"sad" face every other time it is iconified and restored or revisited in a web
+browser.<p>
+</b>
+
+You can find the results linked from my WebCT homepage or you can go directly
+to the results at my <a href="http://www2.hawaii.edu/~dburger">UH homepage</a>.
+The source code for the applet has been uploaded along with this file and is
+called Face.txt.<p>
+
+<b>
+3.  Show, using the definition of the Big-Oh, that the function
+f(n) = 7(nlogn) + 4n is O(nlogn). You must identify the c and n<sub>0</sub> such that the
+definition is satisfied.<p>
+</b>
+
+f(n) = 7(nlogn) + 4n <= 7(nlogn) + 4(nlogn) = 11(nlogn) for n>= 2.<br>
+So f(n) is O(nlogn) by the definition of Big-Oh notation
+with c=11 and n<sub>0</sub>=2.<p>
+
+Also note that this problem can be done in a trivial manner by using 
+Proposition 2.16 #4 from Goodrich and Tamassia that says f(n) + g(n) is
+O(max{f(n),g(n)}) and therefore finding the Big-Oh of f(n) = 7(nlogn) + 4n is
+the same as finding the Big-Oh of f(n) = 7(nlogn) which is obviously <= 7(nlogn)
+for n>=1 and thus is O(nlogn) with c=7 and n<sub>0</sub>=1.<p>
+
+<b>
+4.  Characterize using the Big-Oh notation the worst-case running time of the
+following algorithm:
+</b> 
+
+<pre>
+    Let A be a given array of n 
+       for i <- 0 to n-1 
+         for j <- 0 to i 
+           for k <- 0 to i 
+            Let A[i] <- A[i]+A[j]+A[k]. 
+           end for 
+         end for 
+       end for
+</pre>
+       
+The initialization and returning of array A at the beginning can be done with
+a constant number of primitive operations per element and thus takes O(n) time.
+The outer for loop increments i from 0 to n-1 and thus executes n times making
+this loop O(n).  The first nested loop on j increments from 0 to i, thus, it
+executes 1 + 2 + 3 + ... + n = (n(n+1))/2 times and is O(n<sup>2</sup>).  The interior
+nested loop on k also iterates from 0 to i.  Therefore, it executes
+1*1 + 2*2 + 3*3 + ... + n*n = 1<sup>2</sup> + 2<sup>2</sup> + 3<sup>2</sup> + ... + n<sup>2</sup> = (n(n+1)(2n+1))/6
+times and is O(n<sup>3</sup>).  Therefore, by an application of Proposition 2.16, the worst case
+running time for this algorithm is characterized by the dominate term and is O(n<sup>3</sup>).<p>
+
+<b>
+5.  (R-2.8 p. 59) Show that if f(n) is O(g(n)) and d(n) is O(h(n)), then
+f(n) + d(n) is O(g(n) + h(n)).<p>
+</b>
+
+If f(n) is O(g(n)) then f(n) <= c<sub>1</sub>g(n) for n>=n<sub>1</sub>.<br>
+If d(n) is O(h(n)) then d(n) <= c<sub>2</sub>h(n) for n>=n<sub>2</sub>.<p>
+
+So,<p>
+
+f(n) + d(n) <= c<sub>3</sub>g(n) + c<sub>3</sub>h(n) for n>=n<sub>3</sub>.  (Where c<sub>3</sub>=max(c<sub>1</sub>,c<sub>2</sub>) and n<sub>3</sub>=max(n<sub>1</sub>,n<sub>2</sub>))<br>
+f(n) + d(n) <= c<sub>3</sub>(g(n) + h(n)) for n>=n<sub>3</sub>.<p>
+
+Therefore f(n) + d(n) is O(g(n) + h(n)) by the definition of Big-Oh with
+c=c<sub>3</sub> and n<sub>0</sub>=n<sub>3</sub>.<p>
+
+
+<b>
+6.  (C-2.11 p. 63) Extra credit, what is wrong with the "justification?"<p>
+</b>
+The definitioin of Big-Oh requires says that:<p>
+Let f(n) and g(n) be functions mapping nonnegative integers to real numbers.
+We say that f(n) is O(g(n)) if there is a real constant c > 0 and an integer
+constant n<sub>0</sub> >=1 such that f(n) <= cg(n) for n >= n<sub>0</sub>.<p>
+The problem with the "justification" given is that the Fibonacci function,
+as given, is actually a recursively defined function or recurrence relation.
+The Fibonacci function maps nonnegative integers to real numbers but first must go
+through many recursive calls to itself to eventually map to a real number.
+In order to use the Big-Oh definition the Fibonacci recursive definition needs
+to be converted into an explicit formula.
+</b>
+</body>
+</html>

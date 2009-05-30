@@ -1,0 +1,276 @@
+Chapter 4 Exercises
+
+2.>
+
+a.)
+
+//Purpose:  To add a node to the front of the list.
+//Preconditions:  The method is passed a valid object o.
+//Postconditions:  A new node is added to the front of the list
+//    holding the data that was in the passed in object o.
+public void addAtFront(Object o) {
+    add(1,o);
+}
+
+//Purpose:  To remove the first node in the list.
+//Preconditions:  The list contains at least 1 node.
+//Postconditions:  The first node is removed and either the second
+//    node is now the first node, or, if the list had only 1 element
+//    the list contains no nodes.  If the list was empty when this
+//    method is called, a ListIndexOutOfBoundsException is thrown.
+public void removeFirstNode() throws ListIndexOutOfBoundsException {
+    if (numItems > 0)
+        remove(1);
+    else
+        throw new ListIndexOutOfBoundsException(
+            "There is no first node to remove");
+}
+
+b.)
+
+//Purpose:  To add an item at the end of the list.
+//Preconditions:  None.
+//Postconditions:  A new node is added to the end of the list
+//    holding the data that was in the passed in object o.
+public void addAtEnd(Object o) {
+    add(numItems + 1,o);
+}
+
+
+//Purpose:  To remove the last node in the list.
+//Preconditions:  The list contains at least 1 node.
+//Postconditions:  The last node in the list is removed and either
+//    the second to the last node now becomes the last node or the
+//    list is empty if there was only one node when the method was
+//    called.  If the list was empty when the method was called
+//    a ListIndexOutOfBoundsException is thrown.
+public void removeLastNode() throws ListIndexOutOfBoundsException {
+    if (numItems > 0)
+        remove(numItems);
+    else
+        throw new ListIndexOutOfBoundsException(
+            "There is no last node to remove.");
+    }
+}
+
+c.)
+
+//Purpose:  To add a node at the end of the list.
+//Preconditions:  None.
+//Postconditions:  A new node is added to the end of the list
+//    holding the data that was in the passed in object o.
+public void addAtEndWithTail(Object o) {
+    Node newNode = new Node(o,null);
+    if (numItems==0) {
+        head = newNode;
+        tail = newNode;
+    } else {
+        tail.setNext(newNode);
+        tail = newNode;
+    }
+    numItems++
+}
+
+
+//Purpose:  To remove the node at the end of the list.
+//Preconditions:  The list contains at least one node.
+//Postconditions:  The last node in the list is removed and
+//    either the second to the last node becomes the last
+//    or the list is empty if there was only one node in
+//    the list when the method was called.  If the list was
+//    empty when the method was called a
+//    ListIndexOutOfBoundsException is thrown.
+public void removeLastNodeWithTail() throws ListIndexOutOfBoundsException {
+    switch (numItems) {
+        case 0:
+            throw new ListIndexOutOfBoundsException(
+                "There is no last node to remove.");
+            break;
+        case 1:
+            head = null;
+            tail = null;
+            numItems--;
+            break;
+        default:
+            Node aNode = find(numItems - 1);
+            aNode.setNext(null);
+            tail = aNode;
+            numItems--;
+            break;
+    }
+}
+
+3.>
+
+a.)
+
+//Purpose:  To count the items in the list using iteration.
+//Preconditions:  None.
+//Postconditions:  The count of the items in the list is returned.
+public int getSizeIteratively() {
+    int itemCount = 0;
+    Node curr = head;
+    while (curr!=null) {
+        itemCount++;
+        curr = curr.getNext();
+    }
+    return itemCount;
+}
+
+
+b.)
+
+//Purpose:  To count the items in the list using recursion.
+//Preconditions:  None.
+//Postconditions:  The count of the items in the list is returned.
+private int getSizeRecursively(Node aNode) {
+    if (node==null)
+        return 0;
+    else
+        return 1 + getSizeRecursively(aNode.getNext());
+}
+
+As you can see this method must be “seeded” with the head node and you obviously don’t want the head node to be 
+accessible by an external method.  Therefore, in order for an external method to get the size from this method call it 
+must be wrapped in another trivial method call:
+
+//Purpose:  To get a count of the items in the list.
+//Preconditions:  None.
+//Postconditions:  The count of the items is the list is returned.
+public int getSize() {
+    return getSizeRecursively(head);
+}
+
+
+4.>
+
+//Purpose:  To remove the largest integer from a linked list of
+//    integers.
+//Preconditions:  The list contains at least one node.
+//Postconditions:  The node containing the largest integer is removed.
+//    If the list contained only one node, the list is now empty.  If
+//    the list was empty when the method was called an exception is
+//    thrown
+public void deleteLargestInteger() throws ListIndexOutOfBoundsException {
+    switch (numItems) {
+        case 0:
+            throw new ListIndexOutOfBoundsException(
+                “There is no largest integer to remove.”);
+            break;
+        case 1:
+            remove(1);
+            break;
+        default:  //2 or more nodes
+                //a reference variable to the node previous to the max node
+            IntegerNode prevToMax = null;
+            IntegerNode curr = head;
+            int max = curr.getItem();
+            IntegerNode prev = curr;
+            curr = curr.getNext;
+            while (curr!=null) {
+                if (max<curr.getItem()) {
+                    max=curr.getItem();
+                    prevToMax=prev;
+                }
+                prev=curr;
+                curr=curr.getNext();
+            }
+            if (prevToMax==null)    //the first IntegerNode was the largest
+                head=head.getNext();
+            else
+                    //remember, this reference holds a reference to the node
+                    //previous to the max node, therefore there will be at
+                    //least one node after the prevToMaxNode and the double
+                    //reference to getNext() will work even though it looks
+                    //dangerous
+                prevToMax.setNext(prevToMax.getNext().getNext());
+            numItems--;
+    }
+}
+
+Yes, you can do it with one pass, however, in order to do it in one pass this routine had to remove the node itself in 
+the default case instead of using the remove(int index) method.  This is probably not desirable because now the 
+removal of nodes is implemented in two different locations and now errors may be harder to track down and 
+changes to the class may be harder to make.  Also note that for an external method to remove the largest integer it 
+would have to use one pass to find the index of the largest element and then send that index to the remove(int 
+index) method, which would use its own at least partial traversal, to remove it.
+
+9.>
+
+if (list!=null) {
+    Node first = list.getNext();
+    Node curr = first;
+
+    do {
+        System.out.println(curr.getItem);
+        curr = curr.getNext();
+    } while(curr != first);
+}
+
+11.>
+
+//Purpose:  To reverse the order of a circular linked list with the
+//    reference "list" pointing at the last node.
+//Preconditions:  None.  
+//Postconditions:  The order of the circular linked list is reversed and the
+//    list reference is updated to point at the last node.
+public void reverseOrder() {
+        //if 0 or 1 items in list nothing to reverse
+    if (numItems>1) {
+            //set the list reference to the new last node
+        list = list.getNext();
+            //if less than three items, no references
+            //need to be changed
+        if (numItems>2) {
+            Node curr = list.getNext();
+            Node prev = list;
+            Node nextCurr = curr.getNext();
+            curr.setNext(prev);
+            do {
+                prev = curr;
+                curr = nextCurr;
+                nextCurr = curr.getNext();
+                curr.setNext(prev);
+            } while (curr!=list);
+        }
+    }
+}
+
+
+16.>
+
+a.)  The following code was used:
+
+Vector v = new Vector();
+v.add("one");
+v.add("two");
+v.add("three");
+v.add("four");
+v.add("five");
+System.out.println("Size:  " + v.size());
+System.out.println("Capacity:  " + v.capacity());
+
+It showed that after adding five strings to the vector the size was 5 and the capacity was 10.
+
+b.)
+
+for (int i = 0;i < v.size();i++) {
+    System.out.println(v.elementAt(i));
+}
+
+c.)
+
+I found that 11 strings must be added to the vector to cause the capacity to change.  In part a only five strings were 
+added to the vector so the capacity did not increase.  After adding the 11th item the capacity was increased to 20.
+
+d.)
+
+No, the capacity does not change.  The implementers of the vector class probably decided that if the vector grows to 
+a certain size and then shrinks back down, it is quite likely that the array could grow to that size again, therefore, 
+shrinking the array when the array gets down to a certain level below the capacity would be wasted computing time 
+as it is likely it will need to be doubled back up again.
+David J. Burger
+                                                                                     Burger, David
+                                                                                     ICS 211
+                                                                                     Quiz 3
+                                                                                     Due: 09/28/2000

@@ -1,0 +1,9 @@
+egds: egds.o long.o sha1.o
+	gcc egds.o long.o sha1.o -o egds
+egds.o: egds.c long.h
+	gcc egds.c -c
+long.o: long.c long.h
+	gcc long.c -c
+sha1.o: sha1.c
+	gcc sha1.c -c
+

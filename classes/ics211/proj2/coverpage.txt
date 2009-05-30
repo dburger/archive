@@ -1,0 +1,152 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+David Burger
+ICS 211
+Project 2
+Due: Oct. 5, 2000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+File in which execution starts:  	CharListTester.java
+Source files delivered with project:	CharListTester.java
+
+
+Test case #1:  Results (code  to produce results on pages that follow)
+
+***********************************************************************
+CharListTester:
+This program uses the CharList class to perform string like operations.
+It is designed to make sure the CharList performs as specified.
+***********************************************************************
+Testing the constructors
+First, we will create an empty CharList1
+->The current length of the CharList1 is 0
+->The characters currently in CharList1 are 
+Now we create a CharList1 by passing in the string "This is a"
+->The current length of the CharList1 is 9
+->The characters currently in CharList1 are This is a
+Now we will create a CharList2 by passing in the existing CharList1
+->The current length of CharList2 is 9
+->The characters currently in CharList2 are This is a
+***********************************************************************
+Testing append operations
+Now we will append " test strin" to the end of CharList1
+->The current length of CharList1 is 20
+->The characters currently in the CharList1 are This is a test strin
+Now we will append 'g' to the end of CharList1
+->The current length of CharList1 is 21
+->The characters currently in CharList1 are This is a test string
+Now we will append CharList1 to CharList2
+->The current length of CharList2 is 30
+->The characters currently in CharList2 are This is aThis is a test string
+***********************************************************************
+Testing the locating of characters
+->The first position of the char 's' in CharList1 is 4
+->The first position of the char 's' starting from position 5 in CharList1 is 7
+->The first position of the char 's' starting from position 17 in CharList1 is 0
+->The first position of the char 's' starting from position 100 in CharList1 is 0
+***********************************************************************
+Testing substring operations
+Now we will construct CharList2 by taking a substring of CharList1 from position 6-7
+->The current length of CharList2 is 2
+->The current characters in CharList2 are is
+Now we will construct CharList2 by taking a substring of CharList1 from position 16 - 100
+->The current length of CharList2 is 6
+->The current characters in CharList2 are string
+***********************************************************************
+Testing substring location operations
+->The position of the substring "string" in CharList1 is 16
+->The position of the substring "string" in CharList1 starting from position 17 is 0
+->The position of the substring "stringy" in CharList1 is 0
+***********************************************************************
+Testing the clear method
+Now we will clear the CharList
+->The current length of the CharList1 is 0
+->The current characters in the CharList1 are
+Test case #2:  Results (code  to produce results on pages that follow)
+***********************************************************************
+CharListTester:
+This program uses the CharList class to perform string like operations.
+It is designed to make sure the CharList performs as specified.
+***********************************************************************
+Testing the constructors
+First, we will create an empty CharList1
+->The current length of the CharList1 is 0
+->The characters currently in CharList1 are 
+Now we create a CharList1 by passing in the string "hono"
+->The current length of the CharList1 is 4
+->The characters currently in CharList1 are hono
+Now we will create a CharList2 by passing in the existing CharList1
+->The current length of CharList2 is 4
+->The characters currently in CharList2 are hono
+***********************************************************************
+Testing append operations
+Now we will append "lul" to the end of CharList1
+->The current length of CharList1 is 7
+->The characters currently in the CharList1 are honolul
+Now we will append 'u' to the end of CharList1
+->The current length of CharList1 is 8
+->The characters currently in CharList1 are honolulu
+Now we will append CharList1 to CharList2
+->The current length of CharList2 is 12
+->The characters currently in CharList2 are honohonolulu
+***********************************************************************
+Testing the locating of characters
+->The first position of the char 'u' in CharList1 is 6
+->The first position of the char 'u' starting from position 6 in CharList1 is 6
+->The first position of the char 'u' starting from position 7 in CharList1 is 8
+->The first position of the char 'u' starting from position 9 in CharList1 is 0
+***********************************************************************
+Testing substring operations
+Now we will construct CharList2 by taking a substring of CharList1 from position 5-8
+->The current length of CharList2 is 4
+->The current characters in CharList2 are lulu
+Now we will construct CharList2 by taking a substring of CharList1 from position 2 - 100
+->The current length of CharList2 is 7
+->The current characters in CharList2 are onolulu
+***********************************************************************
+Testing substring location operations
+->The position of the substring "lulu" in CharList1 is 5
+->The position of the substring "lulu" in CharList1 starting from position 5 is 5
+->The position of the substring "honolulu" in CharList1 is 1
+***********************************************************************
+Testing the clear method
+Now we will clear the CharList
+->The current length of the CharList1 is 0
+->The current characters in the CharList1 are
+David J. Burger

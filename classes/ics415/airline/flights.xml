@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?> 
+<flights>
+  <airport name = "Honolulu">
+    <destination name = "Hilo" />
+    <destination name = "Kona" />
+    <destination name = "Molokaii" />
+    <destination name = "San Fransisco" />
+    <destination name = "Los Angeles" />
+    <destination name = "Seattle" />
+  </airport>
+  <airport name = "San Fransisco">
+    <destination name = "Los Angeles" />
+    <destination name = "Seattle" />
+    <destination name = "Denver" />
+    <destination name = "Utah" />
+    <destination name = "Miami" />
+    <destination name = "Chicago" />
+  </airport>
+  <airport name = "Pittsburgh">
+    <destination name = "Chicago" />
+    <destination name = "Cleveland" />
+    <destination name = "Washington" />
+    <destination name = "New York" />
+    <destination name = "Miami" />
+    <destination name = "Seattle" />
+  </airport>
+  <airport name = "Los Angeles">
+    <destination name = "Houston" />
+    <destination name = "Denver" />
+    <destination name = "Indianapolis" />
+    <destination name = "Cleveland" />
+    <destination name = "Miami" />
+    <destination name = "New York" />
+  </airport>
+  <airport name = "New York">
+    <destination name = "Houston" />
+    <destination name = "Denver" />
+    <destination name = "Indianapolis" />
+    <destination name = "Cleveland" />
+    <destination name = "Miami" />
+    <destination name = "Paris" />
+    <destination name = "London" />
+    <destination name = "Rome" />
+    <destination name = "Montreal" />
+    <destination name = "Madrid" />
+  </airport>
+</flights>

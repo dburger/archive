@@ -1,0 +1,44 @@
+Chapter 3-4 Quiz
+
+1.  A deque is:  a queue like data structure that supports insertion and deletion at both the front 
+and rear of the queue.
+
+2.  A tack is an appropriate data structure when information must be saved and later retrieved 
+using which of the following orderings:  reverse.
+
+3.  Which stack operations have the same order of magnitude in the array and linked list 
+implementation?  all (pop(), top(), push(), size(), isEmpty())
+
+4.  The queue operation dequeue() does the following:  removes and returns the item at the front.
+
+5.  If a string of characters in enqueued onto a queue and then dequeued, which of the follow is 
+true?  the characters will be removed in the same order they were put on.
+
+6.  What is the Big-Oh complexity of the standard recursive factorial function:  O(n)
+
+7.  Which of the following are true?
+The vector class will store any instantiated object given to it, even objects of different classes.
+Performing a cast forces an object to be viewed as a member of a specific class rather than its 
+more general superclass.
+
+8.  Papers turned in on a teachers desk and graded from the top down are like a:   Stack.
+Signing up for courses via UHMICS@hawaii.edu is like a:  Queue
+
+9.  Given the following stack operations:  push(n), push(I), push(M), pop(), push(N), push(A), 
+pop(), pop(), push(A), push(O), pop(), push®, push(A), pop().
+What is popped from the stack in order?  MANOA
+
+10.  What is left in the stack top down?  RAIN
+
+11.  Given the following queue operations:  enqueue(W), enqueue(H), dequeue(), enqueue(A), 
+dequeue(), enqueue(T), enqueue(F), dequeue(), enqueue(U), enqueue(N), enqueue(!), dequeu().
+What is dequeued in order?  WHAT
+
+12.  What is left in the queue, front to back?  FUN!
+
+13.  Given the following operational frequencies, what Sequence implementation would be best?
+10% insertElemAtRank, 10% removeElemAtRank, 80% elemAtRank:  array based
+
+15.  Given the following operational frequencies, what Sequence implementation would be best?
+30% insertFirst, 30% insertLast, 30% insertAfter, 10% elemAtRank:  list based
+

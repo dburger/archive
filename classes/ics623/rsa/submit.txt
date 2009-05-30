@@ -1,0 +1,613 @@
+Dr. Peterson, here is my RSA assignment.
+First you will find the output of running my program
+and then you will find the source code.
+
+Output of running my program:
+=======================================================================
+uhunix2:/home/23/dburger/classes/ics623/rsa% ./rsatest
+09202020 54686520 552e2053 2e207061 74656e74 206f6e20 52534120 65787069
+72656420 6f6e2053 65707465 6d626572 2032302c 20323030 302e2020 00000000
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+
+           The U. S. pa
+tent on RSA expi
+red on September
+ 20, 2000.  
+=======================================================================
+
+Here is my makefile:
+=======================================================================
+rsatest: main.o long.o
+	gcc main.o long.o -o rsatest
+main.o: main.c long.h
+	gcc main.c -c
+long.o: long.c long.h
+	gcc long.c -c
+
+=======================================================================
+
+Here is my long.h file, a header file for my long math functions:
+=======================================================================
+typedef unsigned long UL;
+
+int add(UL *a, UL *b, int c);
+int sub(UL *a, UL *b, int c);
+int shl(UL *a, int b);
+
+int mcmp(UL *a, UL *b);
+void madd(UL *a, UL *b, UL *P);
+void msub(UL *a, UL *b, UL *P);
+void mshl(UL *a, UL *P);
+void mexp(UL *a, UL *b, UL *result, UL *P);
+void mmult(UL *a, UL *b, UL *result, UL *P);
+void zeroUL(UL *a, int size);
+
+int lehman_prime(UL *p, UL *s);
+int divides(UL *a, UL b);
+void copyUL(UL *a, UL *b, int size);
+=======================================================================
+
+Here is my long.c file, the file containing my long math functions:
+=======================================================================
+/*=============================================================================
+Assignment: long arithmetic
+Author:     David J. Burger
+Language:   ANSI C running on UHUNIX2 (Solaris)
+
+Class:      ICS 623
+Instructor: Dr. Peterson
+Due Date:   11/05/01
+===============================================================================
+File:         long.c
+
+Description:  this file contains various long arithmetic functions.  The first
+              functions in the file are those supplied by Dr. Peterson.
+=============================================================================*/
+
+#include "long.h"
+
+/* primes used in lehman_prime */
+UL samp_primes[][32] = { { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 313 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 383 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 491 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 503 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 617 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 809 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 829 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 911 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 947 },
+                         { 0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 0,
+                           0, 0, 0, 0, 0, 0, 0, 997 } };
+
+
+/* This adds the 512-bit number that b points   */
+/* to to the 512-bit number that a points to.   */
+/* c is assumed to be 0 or 1, the carry in,     */
+/* and is added to the sum. The carry out of    */
+/* the highest-order word (1 or 0) is returned. */
+int add(UL *a, UL *b, int c)
+{
+    UL t;
+    t = a[15] + b[15];
+    a[15] = t+c;
+    c = t<b[15] || t==0xffffffff && c==1;
+    t = a[14] + b[14];
+    a[14] = t+c;
+    c = t<b[14] || t==0xffffffff && c==1;
+    t = a[13] + b[13];
+    a[13] = t+c;
+    c = t<b[13] || t==0xffffffff && c==1;
+    t = a[12] + b[12];
+    a[12] = t+c;
+    c = t<b[12] || t==0xffffffff && c==1;
+    t = a[11] + b[11];
+    a[11] = t+c;
+    c = t<b[11] || t==0xffffffff && c==1;
+    t = a[10] + b[10];
+    a[10] = t+c;
+    c = t<b[10] || t==0xffffffff && c==1;
+    t = a[9] + b[9];
+    a[9] = t+c;
+    c = t<b[9] || t==0xffffffff && c==1;
+    t = a[8] + b[8];
+    a[8] = t+c;
+    c = t<b[8] || t==0xffffffff && c==1;
+    t = a[7] + b[7];
+    a[7] = t+c;
+    c = t<b[7] || t==0xffffffff && c==1;
+    t = a[6] + b[6];
+    a[6] = t+c;
+    c = t<b[6] || t==0xffffffff && c==1;
+    t = a[5] + b[5];
+    a[5] = t+c;
+    c = t<b[5] || t==0xffffffff && c==1;
+    t = a[4] + b[4];
+    a[4] = t+c;
+    c = t<b[4] || t==0xffffffff && c==1;
+    t = a[3] + b[3];
+    a[3] = t+c;
+    c = t<b[3] || t==0xffffffff && c==1;
+    t = a[2] + b[2];
+    a[2] = t+c;
+    c = t<b[2] || t==0xffffffff && c==1;
+    t = a[1] + b[1];
+    a[1] = t+c;
+    c = t<b[1] || t==0xffffffff && c==1;
+    t = a[0] + b[0];
+    a[0] = t+c;
+    c = t<b[0] || t==0xffffffff && c==1;
+    return c;
+}
+
+/* This sutracts the 512-bit word that b points   */
+/* to from the 512-bit number that a points to.   */
+/* c (1 or 0) is subtracted from the result, and  */
+/* if there is a borrow out of the high end, it   */
+/* (1 or 0) is returned.                          */
+int sub(UL *a, UL *c, int b1)
+{
+    int b2;
+    b2 = a[15]<c[15] || a[15]==c[15] && b1==1;
+    a[15] -= c[15]+b1;
+    b1 = a[14]<c[14] || a[14]==c[14] && b2==1;
+    a[14] -= c[14]+b2;
+    b2 = a[13]<c[13] || a[13]==c[13] && b1==1;
+    a[13] -= c[13]+b1;
+    b1 = a[12]<c[12] || a[12]==c[12] && b2==1;
+    a[12] -= c[12]+b2;
+    b2 = a[11]<c[11] || a[11]==c[11] && b1==1;
+    a[11] -= c[11]+b1;
+    b1 = a[10]<c[10] || a[10]==c[10] && b2==1;
+    a[10] -= c[10]+b2;
+    b2 = a[9]<c[9] || a[9]==c[9] && b1==1;
+    a[9] -= c[9]+b1;
+    b1 = a[8]<c[8] || a[8]==c[8] && b2==1;
+    a[8] -= c[8]+b2;
+    b2 = a[7]<c[7] || a[7]==c[7] && b1==1;
+    a[7] -= c[7]+b1;
+    b1 = a[6]<c[6] || a[6]==c[6] && b2==1;
+    a[6] -= c[6]+b2;
+    b2 = a[5]<c[5] || a[5]==c[5] && b1==1;
+    a[5] -= c[5]+b1;
+    b1 = a[4]<c[4] || a[4]==c[4] && b2==1;
+    a[4] -= c[4]+b2;
+    b2 = a[3]<c[3] || a[3]==c[3] && b1==1;
+    a[3] -= c[3]+b1;
+    b1 = a[2]<c[2] || a[2]==c[2] && b2==1;
+    a[2] -= c[2]+b2;
+    b2 = a[1]<c[1] || a[1]==c[1] && b1==1;
+    a[1] -= c[1]+b1;
+    b1 = a[0]<c[0] || a[0]==c[0] && b2==1;
+    a[0] -= c[0]+b2;
+    return b1;
+}
+
+/* This shifts a left one bit. c (1 or 0)    */
+/* is shifted into the lowest order position */
+/* and the bit (1 or 0) shifted out of the   */
+/* highest order position is returned.       */
+int shl(UL *a, int c)
+{
+    int c1;
+    c1 = a[0]>>31;
+    a[0] = (a[0]<<1) | a[1]>>31;
+    a[1] = (a[1]<<1) | a[2]>>31;
+    a[2] = (a[2]<<1) | a[3]>>31;
+    a[3] = (a[3]<<1) | a[4]>>31;
+    a[4] = (a[4]<<1) | a[5]>>31;
+    a[5] = (a[5]<<1) | a[6]>>31;
+    a[6] = (a[6]<<1) | a[7]>>31;
+    a[7] = (a[7]<<1) | a[8]>>31;
+    a[8] = (a[8]<<1) | a[9]>>31;
+    a[9] = (a[9]<<1) | a[10]>>31;
+    a[10] = (a[10]<<1) | a[11]>>31;
+    a[11] = (a[11]<<1) | a[12]>>31;
+    a[12] = (a[12]<<1) | a[13]>>31;
+    a[13] = (a[13]<<1) | a[14]>>31;
+    a[14] = (a[14]<<1) | a[15]>>31;
+    a[15] = (a[15]<<1) | c;
+    return c1;
+}
+
+/* Here are several 1023-bit mod P functions: */
+
+/* Return negative,if a<b, zero if */
+/* a=b and positive if a>b.        */
+int mcmp(UL *a, UL *b)
+{
+	int i;
+	for(i = 0; i<32; i++) {
+		if(a[i]>b[i]) return 1;
+		if(a[i]<b[i]) return -1;
+	}
+	return 0;
+}
+
+/* add b to a */
+void madd(UL *a, UL *b, UL *P)
+{
+	add(a, b, add(a+16, b+16, 0));
+	if(mcmp(a, P)>=0) sub(a, P, sub(a+16, P+16, 0));
+}
+
+/* subtract b from a */
+void msub(UL *a, UL *b, UL *P)
+{
+	if(sub(a, b, sub(a+16, b+16, 0))) 
+		add(a, P, add(a+16, P+16, 0));
+}
+
+/* shift a left one bit  */
+void mshl(UL *a, UL *P)
+{
+	shl(a, shl(a+16, 0));
+	if(mcmp(a, P)>=0) sub(a, P, sub(a+16, P+16, 0));
+}
+
+/*=============================================================================
+Function mmult
+
+Purpose:  mutiply a by b mod P and put the result in result
+          
+Parameters:
+          *a - first operator
+          *b - second operator
+          *result - where the result is placed
+          *P - modulus
+          
+Returns:  nothing, result of multiplication is placed in result
+=============================================================================*/
+void mmult(UL *a, UL *b, UL *result, UL *P) {
+  int i,j;
+  UL mask;
+  UL t[32];
+  zeroUL(t,32);
+  /* looping through the 32 words */
+  for (i=0;i<32;i++) {
+    mask = 0x80000000;
+    /* looping through the 32 bits */
+    for (j=0;j<32;j++) {
+      mshl(t,P);
+      if (b[i] & mask) madd(t,a,P);
+      mask>>=1;
+    }
+  }
+
+  /* answer is in t[], put in result */
+  for (i=0;i<32;i++)
+    result[i] = t[i];
+
+}
+
+/*=============================================================================
+Function mexp
+
+Purpose:  take a to the power b mod P and put result in result
+          
+Parameters:
+          *a - base of exponentiation
+          *b - exponent
+          *result - where the result is placed
+          *P - modulus
+          
+Returns:  nothing, result of exponentiation is placed in result
+=============================================================================*/
+void mexp(UL *a, UL *b, UL *result, UL *P) {
+  int i,j;
+  UL mask;
+  UL t[32];
+  zeroUL(t,32);
+  t[31] = 1;
+  /* looping through the 32 words */
+  for (i=0;i<32;i++) {
+    mask = 0x80000000;
+    /* looping through the 32 bits */
+    for (j=0;j<32;j++) {
+      mmult(t,t,t,P);
+      if (b[i] & mask) mmult(t,a,t,P);
+      mask>>=1;
+    }
+  }
+
+  /* answer is in t[], put in result */
+  for (i=0;i<32;i++)
+    result[i] = t[i];
+
+}
+
+/*=============================================================================
+Function zeroUL
+
+Purpose:  used to "zero out" the values in an unsigned long array
+          
+Parameters:
+          *a - array to zero out
+          size - number of values to zero out
+          
+Returns:  nothing, size values in a are set to 0
+=============================================================================*/
+void zeroUL(UL *a, int size) {
+  while (--size>=0) a[size] = 0;
+}
+
+/* where p = 2s + 1, return 1 prime, 0 otherwise */
+int lehman_prime(UL *p, UL *s) {
+  UL small_primes[] = { 3,5,7,11,13,17,23,31 };
+  UL result[32],one[32],negone[32];
+  int i,numone=0;
+
+  for (i=0;i<8;i++)
+    if (divides(p,small_primes[i])) return 0;
+
+  zeroUL(one,32);
+  one[31] = 1;
+  copyUL(p,negone,32);
+  sub(negone,one,sub(negone+16,one+16,0));
+
+  for (i=0;i<10;i++) {
+    mexp(samp_primes[i],s,result,p);
+    if (mcmp(result,one)==0) numone++;
+    if (!(mcmp(result,one)==0 || mcmp(result,negone)==0)) return 0;
+  }
+  return numone!=10;
+}
+
+/*=============================================================================
+Function divides
+
+Purpose:  used to determine if a 32 bit unsigned long will divide a 1024 bit
+          unsigned long evenly
+          
+Parameters:
+          *a - dividend array holding 32 UL values making a 1024 bit number
+          b - divisor
+          
+Returns:  1 if divisible, 0 otherwise
+=============================================================================*/
+int divides(UL *a, UL b) {
+  int i;
+  UL t[33];
+  t[0] = 0;
+  copyUL(a,t+1,32);
+  for (i=0;i<1024;i++) {
+    if (t[0]>=b) t[0]-=b;
+    if (t[32] & 0x80000000)
+      shl(t,shl(t+16,1));
+    else
+      shl(t,shl(t+16,0));
+    t[32]<<=1;
+  }
+  if (t[0]>=b) t[0]-=b;
+  return t[0]==0;
+}
+
+/*=============================================================================
+Function copyUL
+
+Purpose:  copies size unsigned long values from a to b
+          
+Parameters:
+          *a - array containing unsigned longs to copy
+          *b - array to copy to
+          size - number of unsigned longs to copy from a to b
+          
+Returns:  nothing, size values are copied from a to b
+=============================================================================*/
+void copyUL(UL *a, UL *b, int size) {
+  while (--size>=0) b[size] = a[size];
+}
+=======================================================================
+
+And finally here is my main.c, the file that contains the rsa
+computation:
+=======================================================================
+/*=============================================================================
+Assignment: rsa
+Author:     David J. Burger
+Language:   ANSI C running on UHUNIX2 (Solaris)
+Compile:    by running "make" with included makefile
+
+Class:      ICS 623
+Instructor: Dr. Peterson
+Due Date:   11/05/01
+===============================================================================
+File:         main.c
+
+Description:  this file contains the main entry point for this RSA program.  It
+              computes the RSA decryption of the given ciphertext use the
+              supplied key
+=============================================================================*/
+#include <stdio.h>
+
+#include "long.h"
+
+UL cipher[] = { 0x0f543ddc, 0xc5ab44e0, 0x37ed8da8, 0xe0d87e80, 0x8a0f6f14,
+                0x71cd8be1, 0x01582d91, 0x75371229, 0xf7d8223e, 0xb4d7ded6,
+                0xc5cd35e9, 0x0a8998f3, 0xbaa5debb, 0xf963ded7, 0xdb538ba0,
+                0x65527be9, 0x20ee521c, 0x424e7cbb, 0x0b5c0a05, 0x61d10944,
+                0xecd3722f, 0xbce909b9, 0xea4a7076, 0x26b826f5, 0xa42b5916,
+                0xd28e2268, 0x349205a7, 0x4fd98503, 0x35dc3424, 0x6d1c0667,
+                0xab264bf2, 0xf77e5b4b };
+
+UL n[] =      { 0x1c4b4dc3, 0xe9bb2e22, 0x02af1bab, 0xe0e07b04, 0xa9dab449,
+                0x47bc8601, 0x31d74f2c, 0xe0d0e68c, 0xd7d301db, 0x44412414,
+                0xfe681822, 0x89b3f506, 0x556a7435, 0x6bb9449a, 0x0367358b,
+                0xdb805cec, 0x3c815e5a, 0x160e58c0, 0x81f4ecca, 0x29417d67,
+                0x5ca447e3, 0x4b07b475, 0x45cc0dbe, 0xeb27cf00, 0x60f0146e,
+                0x38bd3e05, 0x6da1928d, 0x5b946384, 0x2312e2d7, 0xdaf4de29,
+                0x809a31d3, 0x2273ce99 };
+
+
+UL e[] =      { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xd917256f,
+                0x7e9ac81a, 0xe3c763e4, 0x376f8290, 0x79e4d85e, 0x9f3941d6,
+                0x68119a44, 0x01a71bbd };
+
+UL p[] =      { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x5e99ba54, 0x53d370e8, 0x0c09bee4, 0xed5f4e3c,
+                0xdb61bb89, 0x18855c18, 0xe20e4b99, 0x0404f764, 0xa93d7da9,
+                0x44c80acd, 0x240adb5c, 0x7c2fc474, 0x64fe6f18, 0xfde38821,
+                0x95e92691, 0x82c21caf };
+
+UL a[] =      { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x2f4cdd2a, 0x29e9b874, 0x0604df72, 0x76afa71e,
+                0x6db0ddc4, 0x8c42ae0c, 0x710725cc, 0x82027bb2, 0x549ebed4,
+                0xa2640566, 0x92056dae, 0x3e17e23a, 0x327f378c, 0x7ef1c410,
+                0xcaf49348, 0xc1610e57 };
+
+UL q[] =      { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x4c9139d8, 0xcaa6cbd8, 0xc26e1ae1, 0x168244b8,
+                0xb7d55411, 0x365f8021, 0x9a3d6b88, 0xe7ca6b19, 0x57372e71,
+                0x323d4fa1, 0xf0d122b1, 0x7ebe12fc, 0x1a30dff0, 0x1432e84c,
+                0xa794b5e8, 0x2505eb37 };
+
+UL b[] =      { 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+                0x00000000, 0x26489cec, 0x655365ec, 0x61370d70, 0x8b41225c,
+                0x5beaaa08, 0x9b2fc010, 0xcd1eb5c4, 0x73e5358c, 0xab9b9738,
+                0x991ea7d0, 0xf8689158, 0xbf5f097e, 0x0d186ff8, 0x0a197426,
+                0x53ca5af4, 0x1282f59b };
+
+/*=============================================================================
+Function fprintUL
+
+Purpose:  prints the hex value of an array of size unsigned longs
+          
+Parameters:
+          *p - array containing the unsigned longs
+          size - number of unsigned longs to print from the array
+          
+Returns:  nothing, outputs hex values of the unsigned longs on the screen
+=============================================================================*/
+void fprintUL(FILE *fp, UL *p, int size) {
+  int i;
+  for (i=0;i<size;i++) {
+    fprintf(fp,"%08x",p[i]);
+    if ((i+1)%8==0)
+      fprintf(fp,"\n");
+    else
+      fprintf(fp," ");
+  }
+  fprintf(fp,"\n");
+}
+
+/*=============================================================================
+Function fprintASCII
+
+Purpose:  prints the char value of the bytes in an array of size unsigned
+          longs
+          
+Parameters:
+          *p - array containing the unsigned longs
+          size - number of unsigned longs to print from the array
+          
+Returns:  nothing, outputs char values of the bytes in the unsigned longs
+=============================================================================*/
+void fprintASCII(FILE *fp, UL *p, int size) {
+  unsigned char text[4];
+  int i,j;
+  for (i=0;i<size;i++) {
+    memcpy(text,&p[i],4);
+    for (j=0;j<4;j++) {
+      fprintf(fp,"%c",text[j]);
+    }
+    if ((i+1)%4==0) fprintf(fp,"\n");
+  }
+  fprintf(fp,"\n");
+}
+
+/*=============================================================================
+Function main
+
+Purpose:  main entry point in program, performs rsa
+          
+Parameters:
+          int argc - count of arguments passed to program
+          char *argv - array of pointers to command line strings
+                    
+Returns:  nothing, rsa computation performed and result output to screen
+=============================================================================*/
+int main(int argc, char *argv[]) {
+  UL s[32], d[32], one[32], t[32], plain[32];
+
+  /* make a one */
+  zeroUL(one,32);  
+  one[31] = 1;
+
+  /* first we calculate s = phi(n)             */
+  /*                      = phi(pq)            */
+  /*                      = phi(p)phi(q)       */
+  /*                      = (p-1)(p-1)         */
+  /*                      = (2a+1-1)(2b+1-1)   */
+  /*                      = (2a)(2b)           */
+  /*                      = 4ab                */
+  /*                      so ab and two shifts */
+  mmult(a,b,s,n);
+  mshl(s,n);
+  mshl(s,n);
+
+  /* now calculate phi(s) = phi(4ab)           */
+  /*                      = phi(4)phi(a)phi(b) */
+  /*                      = 2(a-1)(b-1)        */
+  /*               so (a-1)(b-1) and one shift */
+  sub(a,one,sub(a+16,one+16,0));
+  sub(b,one,sub(b+16,one+16,0));
+  mmult(a,b,t,s);
+  mshl(t,s);
+
+  /* now calculate d = e^phi(s)-1 */
+  sub(t,one,sub(t+16,one+16,0));
+  mexp(e,t,d,s);
+
+  mexp(cipher,d,plain,n);
+
+  fprintUL(stdout,plain,32);
+
+  fprintASCII(stdout,plain,32);
+
+}
+
+/* NOTE                                                    */
+/* to encrypt you would merely do cipher = plain ^ e  mod n*/
+/* or mexp(plain,e,cipher,n);                              */
+=======================================================================

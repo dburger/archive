@@ -1,0 +1,24 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.6.1
+by Lorenzo Bettini, bettini@gnu.org
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite">
+<title>makefile2</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+driver2<font color=#990000>:</font> driver2<font color=#990000>.</font>o Configuration2<font color=#990000>.</font>o
+	g<font color=#990000>+</font><font color=#990000>+</font> driver2<font color=#990000>.</font>o Configuration2<font color=#990000>.</font>o <font color=#990000>-</font>o driver2
+driver2<font color=#990000>.</font>o<font color=#990000>:</font> driver2<font color=#990000>.</font>cc
+	g<font color=#990000>+</font><font color=#990000>+</font> <font color=#990000>-</font>c driver2<font color=#990000>.</font>cc
+Configuration2<font color=#990000>.</font>o<font color=#990000>:</font> Configuration2<font color=#990000>.</font>cc
+	g<font color=#990000>+</font><font color=#990000>+</font> <font color=#990000>-</font>c Configuration2<font color=#990000>.</font>cc
+</tt>
+</pre>
+</body>
+</html>

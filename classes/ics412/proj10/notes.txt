@@ -1,0 +1,36 @@
+A shell script is included that will allow you to:
+
+./fifoctl up 10
+
+or
+
+./fifoctl down 10
+
+Note that testing this program can be done without doing file operations in
+a program.  This can be done by writing out to the fifo using:
+
+cat > /dev/fifo0
+
+or
+
+cat something.txt > /dev/fifo0
+
+and reading in via:
+
+more /dev/fifo1
+
+Some of the tests that should be run against this program are that a reader
+will return with EOF if no writer has a fifo open and no data is currently
+in the fifo.  Also, you should be able to open multiple writers on a fifo,
+and the reader should continue to run until the last one is shut down.
+
+Because of the way that file_operations has been assigned to filp in the
+open, based upon minor number, even minor numbers only get a write function
+and odd minor numbers only get a read function.  Therefore appropriate error
+messages are thrown when attempting to read the writer or write the reader!
+
+Just posted this up and realized the filp->f_mode can be used to determine
+FMODE_READ and FMODE_WRITE during the open call.  Maybe an error should be
+thrown on open if they attempt FMODE_READ on an even fifo or FMODE_WRITE on an
+odd one.  Right now they will get the error when they attempt to do the
+disallowed read or write.

@@ -1,0 +1,435 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.4
+by Lorenzo Bettini, bettini@gnu.org
+http://w3.newnet.it/bettini
+http://www.gnu.org/software/src-highlite">
+<title>checkout.jsp</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.sql.DriverManager"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.sql.Connection"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.sql.ResultSet"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.sql.Statement"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.sql.SQLException"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.util.ArrayList"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.text.NumberFormat"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"java.util.Locale"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page <b><font color=#000080>import</font></b><font color=#990000>=</font><font color=#FF0000>"bookstore.admin.OrderManager"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page errorPage<font color=#990000>=</font><font color=#FF0000>"bookstoreError.jsp"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+
+<font color=#990000>&lt;</font><font color=#990000>%</font>@ page session<font color=#990000>=</font><font color=#FF0000>"true"</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+
+<font color=#990000>&lt;</font><font color=#990000>%</font><font color=#990000>!</font> Connection conn<font color=#990000>;</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font><font color=#990000>!</font> ArrayList shoppingCart<font color=#990000>;</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font><font color=#990000>!</font> <b><font color=#0000FF>final</font></b> <font color=#009900>double</font> SHIP_COST <font color=#990000>=</font> <font color=#993399>9.99</font><font color=#990000>;</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>%</font><font color=#990000>!</font> String status <font color=#990000>=</font> <font color=#FF0000>""</font><font color=#990000>;</font> <font color=#990000>%</font><font color=#990000>&gt;</font>
+
+<font color=#990000>&lt;</font><font color=#990000>%</font>
+
+  status <font color=#990000>=</font> <font color=#FF0000>""</font><font color=#990000>;</font>
+
+  <i><font color=#9A1900>// users not logged in are not allowed to get to this checkout page!</font></i>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>session<font color=#990000>.</font><b><font color=#000000>getAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>)</font><font color=#990000>=</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> response<font color=#990000>.</font><b><font color=#000000>sendRedirect</font></b><font color=#990000>(</font><font color=#FF0000>"viewcart.jsp"</font><font color=#990000>)</font><font color=#990000>;</font>
+
+  conn <font color=#990000>=</font> <font color=#990000>(</font>Connection<font color=#990000>)</font>application<font color=#990000>.</font><b><font color=#000000>getAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"connection"</font><font color=#990000>)</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>conn<font color=#990000>=</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#0000FF>try</font></b> <font color=#FF0000>{</font>
+      DriverManager<font color=#990000>.</font><b><font color=#000000>registerDriver</font></b><font color=#990000>(</font><b><font color=#0000FF>new</font></b> org<font color=#990000>.</font>gjt<font color=#990000>.</font>mm<font color=#990000>.</font>mysql<font color=#990000>.</font><b><font color=#000000>Driver</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+      conn <font color=#990000>=</font> DriverManager<font color=#990000>.</font><b><font color=#000000>getConnection</font></b><font color=#990000>(</font><font color=#FF0000>"jdbc:mysql:///bookstore"</font><font color=#990000>)</font><font color=#990000>;</font>
+      application<font color=#990000>.</font><b><font color=#000000>setAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"connection"</font><font color=#990000>,</font>conn<font color=#990000>)</font><font color=#990000>;</font>
+    <font color=#FF0000>}</font> <b><font color=#0000FF>catch</font></b> <font color=#990000>(</font>SQLException e<font color=#990000>)</font> <font color=#FF0000>{</font>
+      <b><font color=#0000FF>throw</font></b> <b><font color=#0000FF>new</font></b> <b><font color=#000000>ServletException</font></b><font color=#990000>(</font><font color=#FF0000>"Unable to create a connection to the database."</font><font color=#990000>,</font>e<font color=#990000>)</font><font color=#990000>;</font>
+    <font color=#FF0000>}</font>
+  <font color=#FF0000>}</font>
+
+  shoppingCart <font color=#990000>=</font> <font color=#990000>(</font>ArrayList<font color=#990000>)</font>session<font color=#990000>.</font><b><font color=#000000>getAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"shoppingCart"</font><font color=#990000>)</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>shoppingCart<font color=#990000>=</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    shoppingCart <font color=#990000>=</font> <b><font color=#0000FF>new</font></b> <b><font color=#000000>ArrayList</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    session<font color=#990000>.</font><b><font color=#000000>setAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"shoppingCart"</font><font color=#990000>,</font>shoppingCart<font color=#990000>)</font><font color=#990000>;</font>
+  <font color=#FF0000>}</font>
+
+  <i><font color=#9A1900>// they shouldn't be allowed on this page with an empty cart</font></i>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>size</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>=</font><font color=#990000>=</font><font color=#993399>0</font><font color=#990000>)</font> response<font color=#990000>.</font><b><font color=#000000>sendRedirect</font></b><font color=#990000>(</font><font color=#FF0000>"viewcart.jsp"</font><font color=#990000>)</font><font color=#990000>;</font>
+  
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"removeISBN"</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    String itemString<font color=#990000>,</font> isbn<font color=#990000>,</font> removeISBN <font color=#990000>=</font> request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"removeISBN"</font><font color=#990000>)</font><font color=#990000>;</font>
+    <font color=#009900>int</font> commaPos<font color=#990000>;</font>
+    <b><font color=#0000FF>for</font></b> <font color=#990000>(</font><font color=#009900>int</font> i<font color=#990000>=</font><font color=#993399>0</font><font color=#990000>;</font>i<font color=#990000>&lt;</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>size</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>i<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+      itemString <font color=#990000>=</font> <font color=#990000>(</font>String<font color=#990000>)</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>get</font></b><font color=#990000>(</font>i<font color=#990000>)</font><font color=#990000>;</font>
+      commaPos <font color=#990000>=</font> itemString<font color=#990000>.</font><b><font color=#000000>indexOf</font></b><font color=#990000>(</font><font color=#FF0000>','</font><font color=#990000>)</font><font color=#990000>;</font>
+      isbn <font color=#990000>=</font> itemString<font color=#990000>.</font><b><font color=#000000>substring</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>,</font>commaPos<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>isbn<font color=#990000>.</font><b><font color=#000000>equals</font></b><font color=#990000>(</font>removeISBN<font color=#990000>)</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+        shoppingCart<font color=#990000>.</font><b><font color=#000000>remove</font></b><font color=#990000>(</font>i<font color=#990000>)</font><font color=#990000>;</font>
+        <b><font color=#0000FF>break</font></b><font color=#990000>;</font>
+      <font color=#FF0000>}</font>
+    <font color=#FF0000>}</font>
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b> <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"clearCart"</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    shoppingCart <font color=#990000>=</font> <b><font color=#0000FF>new</font></b> <b><font color=#000000>ArrayList</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    session<font color=#990000>.</font><b><font color=#000000>setAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"shoppingCart"</font><font color=#990000>,</font>shoppingCart<font color=#990000>)</font><font color=#990000>;</font>
+    <i><font color=#9A1900>// this page has a purchase button on it...don't let them on this page without books</font></i>
+    response<font color=#990000>.</font><b><font color=#000000>sendRedirect</font></b><font color=#990000>(</font><font color=#FF0000>"viewcart.jsp"</font><font color=#990000>)</font><font color=#990000>;</font>
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b> <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"login"</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    Statement st <font color=#990000>=</font> conn<font color=#990000>.</font><b><font color=#000000>createStatement</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    ResultSet rs <font color=#990000>=</font> st<font color=#990000>.</font><b><font color=#000000>executeQuery</font></b><font color=#990000>(</font><font color=#FF0000>"select user_id from user where user_id='"</font> <font color=#990000>+</font>
+                                   request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>)</font> <font color=#990000>+</font> <font color=#FF0000>"' and password='"</font> <font color=#990000>+</font>
+                                   request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"password"</font><font color=#990000>)</font> <font color=#990000>+</font> <font color=#FF0000>"'"</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>rs<font color=#990000>.</font><b><font color=#000000>next</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font>
+      session<font color=#990000>.</font><b><font color=#000000>setAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>,</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>      
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b> <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"logout"</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    session<font color=#990000>.</font><b><font color=#000000>removeAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>)</font><font color=#990000>;</font>
+    session<font color=#990000>.</font><b><font color=#000000>setAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>,</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font><font color=#990000>;</font>  <i><font color=#9A1900>// weird behavior, needed to do both    </font></i>
+    <i><font color=#9A1900>// don't let them on this page not logged in</font></i>
+    response<font color=#990000>.</font><b><font color=#000000>sendRedirect</font></b><font color=#990000>(</font><font color=#FF0000>"viewcart.jsp"</font><font color=#990000>)</font><font color=#990000>;</font>
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b> <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"update"</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    String itemString<font color=#990000>,</font>isbn<font color=#990000>;</font>
+    <font color=#009900>int</font> commaPos<font color=#990000>,</font> newQuantity<font color=#990000>;</font>
+    <i><font color=#9A1900>// going in reverse to avoid the skip over problem when removing an item</font></i>
+    <b><font color=#0000FF>for</font></b> <font color=#990000>(</font><font color=#009900>int</font> i<font color=#990000>=</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>size</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>-</font><font color=#993399>1</font><font color=#990000>;</font>i<font color=#990000>&gt;</font><font color=#990000>=</font><font color=#993399>0</font><font color=#990000>;</font>i<font color=#990000>-</font><font color=#990000>-</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+      itemString <font color=#990000>=</font> <font color=#990000>(</font>String<font color=#990000>)</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>get</font></b><font color=#990000>(</font>i<font color=#990000>)</font><font color=#990000>;</font>
+      commaPos <font color=#990000>=</font> itemString<font color=#990000>.</font><b><font color=#000000>indexOf</font></b><font color=#990000>(</font><font color=#FF0000>','</font><font color=#990000>)</font><font color=#990000>;</font>
+      isbn <font color=#990000>=</font> itemString<font color=#990000>.</font><b><font color=#000000>substring</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>,</font>commaPos<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>try</font></b> <font color=#FF0000>{</font>
+        newQuantity <font color=#990000>=</font> Integer<font color=#990000>.</font><b><font color=#000000>parseInt</font></b><font color=#990000>(</font><font color=#990000>(</font>String<font color=#990000>)</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font>isbn<font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#FF0000>}</font> <b><font color=#0000FF>catch</font></b> <font color=#990000>(</font>NumberFormatException e<font color=#990000>)</font> <font color=#FF0000>{</font>
+        <i><font color=#9A1900>// they entered non-numeric value not caught by validater, just leave same value</font></i>
+        newQuantity <font color=#990000>=</font> Integer<font color=#990000>.</font><b><font color=#000000>parseInt</font></b><font color=#990000>(</font>itemString<font color=#990000>.</font><b><font color=#000000>substring</font></b><font color=#990000>(</font>commaPos<font color=#990000>+</font><font color=#993399>1</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#FF0000>}</font>
+      <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>newQuantity<font color=#990000>&gt;</font><font color=#993399>0</font><font color=#990000>)</font>
+        shoppingCart<font color=#990000>.</font><b><font color=#000000>set</font></b><font color=#990000>(</font>i<font color=#990000>,</font>isbn <font color=#990000>+</font> <font color=#FF0000>","</font> <font color=#990000>+</font> newQuantity<font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>else</font></b>
+        shoppingCart<font color=#990000>.</font><b><font color=#000000>remove</font></b><font color=#990000>(</font>i<font color=#990000>)</font><font color=#990000>;</font>
+    <font color=#FF0000>}</font>
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b> <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>request<font color=#990000>.</font><b><font color=#000000>getParameter</font></b><font color=#990000>(</font><font color=#FF0000>"purchase"</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    <i><font color=#9A1900>// Order going into system...once again a real implemenation would need to do some</font></i>
+    <i><font color=#9A1900>// serious credit card validation and processing.  For this demo we leave the</font></i>
+    <i><font color=#9A1900>// credit card processing alone.</font></i>
+    String itemString<font color=#990000>,</font> isbn<font color=#990000>;</font>
+    <font color=#009900>int</font> commaPos<font color=#990000>,</font> quantity<font color=#990000>=</font><font color=#993399>0</font><font color=#990000>,</font> totalItems<font color=#990000>=</font><font color=#993399>0</font><font color=#990000>;</font>
+    <font color=#009900>double</font> totalPrice<font color=#990000>=</font><font color=#993399>0</font><font color=#990000>;</font>
+    OrderManager orderMan <font color=#990000>=</font> <b><font color=#0000FF>new</font></b> <b><font color=#000000>OrderManager</font></b><font color=#990000>(</font>conn<font color=#990000>)</font><font color=#990000>;</font>
+    Statement st <font color=#990000>=</font> conn<font color=#990000>.</font><b><font color=#000000>createStatement</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    ResultSet rs<font color=#990000>;</font>
+    <i><font color=#9A1900>// will have to update shipping and total cost after we know them</font></i>
+    <font color=#009900>int</font> orderId <font color=#990000>=</font> orderMan<font color=#990000>.</font><b><font color=#000000>insertOrder</font></b><font color=#990000>(</font><font color=#990000>(</font>String<font color=#990000>)</font>session<font color=#990000>.</font><b><font color=#000000>getAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>)</font><font color=#990000>,</font><font color=#993399>0</font><font color=#990000>,</font><font color=#993399>0</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>for</font></b> <font color=#990000>(</font><font color=#009900>int</font> i<font color=#990000>=</font><font color=#993399>0</font><font color=#990000>;</font>i<font color=#990000>&lt;</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>size</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>i<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+      itemString <font color=#990000>=</font> <font color=#990000>(</font>String<font color=#990000>)</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>get</font></b><font color=#990000>(</font>i<font color=#990000>)</font><font color=#990000>;</font>
+      commaPos <font color=#990000>=</font> itemString<font color=#990000>.</font><b><font color=#000000>indexOf</font></b><font color=#990000>(</font><font color=#FF0000>','</font><font color=#990000>)</font><font color=#990000>;</font>
+      isbn <font color=#990000>=</font> itemString<font color=#990000>.</font><b><font color=#000000>substring</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>,</font>commaPos<font color=#990000>)</font><font color=#990000>;</font>
+      quantity <font color=#990000>=</font> Integer<font color=#990000>.</font><b><font color=#000000>parseInt</font></b><font color=#990000>(</font>itemString<font color=#990000>.</font><b><font color=#000000>substring</font></b><font color=#990000>(</font>commaPos<font color=#990000>+</font><font color=#993399>1</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+      rs <font color=#990000>=</font> st<font color=#990000>.</font><b><font color=#000000>executeQuery</font></b><font color=#990000>(</font><font color=#FF0000>"select price from book where isbn='"</font> <font color=#990000>+</font> isbn <font color=#990000>+</font> <font color=#FF0000>"';"</font><font color=#990000>)</font><font color=#990000>;</font>
+      <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>rs<font color=#990000>.</font><b><font color=#000000>next</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+        orderMan<font color=#990000>.</font><b><font color=#000000>insertOrderDetail</font></b><font color=#990000>(</font>orderId<font color=#990000>,</font> isbn<font color=#990000>,</font> quantity<font color=#990000>,</font> rs<font color=#990000>.</font><b><font color=#000000>getDouble</font></b><font color=#990000>(</font><font color=#FF0000>"price"</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+        totalItems <font color=#990000>+</font><font color=#990000>=</font> quantity<font color=#990000>;</font>
+        totalPrice <font color=#990000>+</font><font color=#990000>=</font> quantity <font color=#990000>*</font> rs<font color=#990000>.</font><b><font color=#000000>getDouble</font></b><font color=#990000>(</font><font color=#FF0000>"price"</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b> <font color=#FF0000>{</font>
+        <i><font color=#9A1900>// this could occur if the book was deleted out from under them, we might want</font></i>
+        <i><font color=#9A1900>// to invalidate the order if this were to happen, giving them a message and</font></i>
+        <i><font color=#9A1900>// sending the back to the shopping cart</font></i>
+      <font color=#FF0000>}</font>
+    <font color=#FF0000>}</font>
+    <i><font color=#9A1900>// now update the shipping and total cost in the order</font></i>
+    st<font color=#990000>.</font><b><font color=#000000>executeUpdate</font></b><font color=#990000>(</font><font color=#FF0000>"UPDATE orders "</font> <font color=#990000>+</font> 
+                     <font color=#FF0000>"SET total_cost="</font> <font color=#990000>+</font> <font color=#990000>(</font>totalPrice <font color=#990000>+</font> SHIP_COST<font color=#990000>)</font> <font color=#990000>+</font> <font color=#FF0000>", "</font> <font color=#990000>+</font>
+                     <font color=#FF0000>"shipping_cost="</font> <font color=#990000>+</font> SHIP_COST <font color=#990000>+</font> <font color=#FF0000>" "</font> <font color=#990000>+</font>
+                     <font color=#FF0000>"WHERE order_id="</font> <font color=#990000>+</font> orderId <font color=#990000>+</font> <font color=#FF0000>";"</font><font color=#990000>)</font><font color=#990000>;</font>
+    <i><font color=#9A1900>// clear the shopping cart</font></i>
+    shoppingCart <font color=#990000>=</font> <b><font color=#0000FF>new</font></b> <b><font color=#000000>ArrayList</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    session<font color=#990000>.</font><b><font color=#000000>setAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"shoppingCart"</font><font color=#990000>,</font>shoppingCart<font color=#990000>)</font><font color=#990000>;</font>
+    <i><font color=#9A1900>// and now...thank you!</font></i>
+    response<font color=#990000>.</font><b><font color=#000000>sendRedirect</font></b><font color=#990000>(</font><font color=#FF0000>"thankyou.jsp"</font><font color=#990000>)</font><font color=#990000>;</font>
+  <font color=#FF0000>}</font>
+  
+<font color=#990000>%</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>html<font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>head<font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>title<font color=#990000>&gt;</font>rdbwbooks<font color=#990000>.</font>com<font color=#990000>&lt;</font><font color=#990000>/</font>title<font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>style type <font color=#990000>=</font> <font color=#FF0000>"text/css"</font><font color=#990000>&gt;</font>
+  <font color=#990000>&lt;</font><font color=#990000>!</font><font color=#990000>-</font><font color=#990000>-</font>
+  @<b><font color=#000080>import</font></b> <b><font color=#000000>url</font></b><font color=#990000>(</font>stylesheet<font color=#990000>/</font>bookstore<font color=#990000>.</font>css<font color=#990000>)</font><font color=#990000>;</font>
+  <font color=#990000>-</font><font color=#990000>-</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>/</font>style<font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>script language<font color=#990000>=</font><font color=#FF0000>"javascript"</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>!</font><font color=#990000>-</font><font color=#990000>-</font>
+
+<i><font color=#9A1900>// This function returns a Date object given a dateString in the</font></i>
+<i><font color=#9A1900>// mm/dd/yyyy format.  If the dateString is invalid null is returned.</font></i>
+function <b><font color=#000000>parseDate</font></b><font color=#990000>(</font>dateString<font color=#990000>)</font> <font color=#FF0000>{</font>
+  var month<font color=#990000>,</font> day<font color=#990000>,</font> year<font color=#990000>,</font> parsedDate<font color=#990000>;</font>
+  parsedDate <font color=#990000>=</font> dateString<font color=#990000>.</font><b><font color=#000000>split</font></b><font color=#990000>(</font><font color=#FF0000>"/"</font><font color=#990000>)</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>parsedDate<font color=#990000>.</font>length<font color=#990000>=</font><font color=#990000>=</font><font color=#993399>2</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    month <font color=#990000>=</font> parsedDate<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font><font color=#990000>;</font>
+    day <font color=#990000>=</font> <font color=#993399>1</font><font color=#990000>;</font> <i><font color=#9A1900>// assuming first of the month expiration</font></i>
+    year <font color=#990000>=</font> parsedDate<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>;</font>
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b> <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>parsedDate<font color=#990000>.</font>length<font color=#990000>=</font><font color=#990000>=</font><font color=#993399>3</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    month <font color=#990000>=</font> parsedDate<font color=#990000>[</font><font color=#993399>0</font><font color=#990000>]</font><font color=#990000>;</font>
+    day <font color=#990000>=</font> parsedDate<font color=#990000>[</font><font color=#993399>1</font><font color=#990000>]</font><font color=#990000>;</font>
+    year <font color=#990000>=</font> parsedDate<font color=#990000>[</font><font color=#993399>2</font><font color=#990000>]</font><font color=#990000>;</font>
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b>
+    <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>null</font></b><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font><b><font color=#000000>isNaN</font></b><font color=#990000>(</font>month<font color=#990000>)</font> <font color=#990000>|</font><font color=#990000>|</font> <b><font color=#000000>isNaN</font></b><font color=#990000>(</font>day<font color=#990000>)</font> <font color=#990000>|</font><font color=#990000>|</font> <b><font color=#000000>isNaN</font></b><font color=#990000>(</font>year<font color=#990000>)</font><font color=#990000>)</font> <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>null</font></b><font color=#990000>;</font>
+  <i><font color=#9A1900>// 70 is the earliest year the Date() object will handle</font></i>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>month<font color=#990000>&lt;</font><font color=#993399>1</font> <font color=#990000>|</font><font color=#990000>|</font> month<font color=#990000>&gt;</font><font color=#993399>12</font> <font color=#990000>|</font><font color=#990000>|</font> day<font color=#990000>&lt;</font><font color=#993399>1</font> <font color=#990000>|</font><font color=#990000>|</font> day<font color=#990000>&gt;</font><font color=#993399>31</font> <font color=#990000>|</font><font color=#990000>|</font> year<font color=#990000>&lt;</font><font color=#993399>70</font><font color=#990000>)</font> <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>null</font></b><font color=#990000>;</font>
+  month<font color=#990000>-</font><font color=#990000>-</font><font color=#990000>;</font> <i><font color=#9A1900>//month is zero based for the Date object</font></i>
+  <i><font color=#9A1900>// create the Date object</font></i>
+  var theDate <font color=#990000>=</font> <b><font color=#0000FF>new</font></b> <b><font color=#000000>Date</font></b><font color=#990000>(</font>year<font color=#990000>,</font>month<font color=#990000>,</font>day<font color=#990000>)</font><font color=#990000>;</font>
+  <i><font color=#9A1900>// if the constructor changed the day...the dateString wasn't valid</font></i>
+  <i><font color=#9A1900>// from a number of days in month perspective (30 vs. 31, leap year etc.)</font></i>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theDate<font color=#990000>.</font><b><font color=#000000>getDate</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font>day<font color=#990000>)</font>
+    <b><font color=#0000FF>return</font></b> <b><font color=#0000FF>null</font></b><font color=#990000>;</font>
+  <b><font color=#0000FF>else</font></b>
+    <b><font color=#0000FF>return</font></b> theDate<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+function <b><font color=#000000>validateLogin</font></b><font color=#990000>(</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+  <i><font color=#9A1900>//need to check the data entered by the user</font></i>
+  var errorString <font color=#990000>=</font> <font color=#FF0000>""</font><font color=#990000>;</font>
+  var theForm <font color=#990000>=</font> document<font color=#990000>.</font>forms<font color=#990000>[</font><font color=#FF0000>'login'</font><font color=#990000>]</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>user_id<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font>
+    errorString <font color=#990000>+</font><font color=#990000>=</font> <font color=#FF0000>"Please enter a user id."</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>password<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font>
+    errorString <font color=#990000>+</font><font color=#990000>=</font> <font color=#FF0000>"\nPlease enter a password."</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>errorString<font color=#990000>.</font>length<font color=#990000>)</font> <font color=#FF0000>{</font>
+    <i><font color=#9A1900>// go reverse so first has focus</font></i>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>password<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font> theForm<font color=#990000>.</font>password<font color=#990000>.</font><b><font color=#000000>focus</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>user_id<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font> theForm<font color=#990000>.</font>user_id<font color=#990000>.</font><b><font color=#000000>focus</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#000000>alert</font></b><font color=#990000>(</font>errorString<font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> false<font color=#990000>;</font>
+  <font color=#FF0000>}</font> <b><font color=#0000FF>else</font></b>
+    <b><font color=#0000FF>return</font></b> true<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+function <b><font color=#000000>validateCreditCard</font></b><font color=#990000>(</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+  <i><font color=#9A1900>// a real implementation would have to carefully validate the credit card info.</font></i>
+  <i><font color=#9A1900>// using validation algorithms and then electronic credit card lookup stuff,</font></i>
+  <i><font color=#9A1900>// for this example bookstore we will just check that they have filled in the</font></i>
+  <i><font color=#9A1900>// fields</font></i>
+  var theForm <font color=#990000>=</font> document<font color=#990000>.</font>forms<font color=#990000>[</font><font color=#FF0000>'checkout'</font><font color=#990000>]</font><font color=#990000>;</font>
+  var errorString <font color=#990000>=</font> <font color=#FF0000>""</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>cardNumber<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font>
+    errorString <font color=#990000>+</font><font color=#990000>=</font> <font color=#FF0000>"Please enter the card number."</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>expireDate<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font>
+    errorString <font color=#990000>+</font><font color=#990000>=</font> <font color=#FF0000>"\nPlease enter an expiration date."</font><font color=#990000>;</font>
+  <i><font color=#9A1900>// first check to see if they filled in the required fields</font></i>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>errorString<font color=#990000>.</font>length<font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#000000>alert</font></b><font color=#990000>(</font>errorString<font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>expireDate<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font> theForm<font color=#990000>.</font>expireDate<font color=#990000>.</font><b><font color=#000000>focus</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>cardNumber<font color=#990000>.</font>value<font color=#990000>=</font><font color=#990000>=</font><font color=#FF0000>""</font><font color=#990000>)</font> theForm<font color=#990000>.</font>cardNumber<font color=#990000>.</font><b><font color=#000000>focus</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> false<font color=#990000>;</font>
+  <font color=#FF0000>}</font>
+
+  <i><font color=#9A1900>// simple minded validation of the credit card number</font></i>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>theForm<font color=#990000>.</font>cardNumber<font color=#990000>.</font>value<font color=#990000>.</font>length<font color=#990000>!</font><font color=#990000>=</font><font color=#993399>16</font> <font color=#990000>|</font><font color=#990000>|</font> <b><font color=#000000>isNaN</font></b><font color=#990000>(</font>theForm<font color=#990000>.</font>cardNumber<font color=#990000>.</font>value<font color=#990000>)</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#000000>alert</font></b><font color=#990000>(</font><font color=#FF0000>"Please enter the card number as a continuous\n"</font> <font color=#990000>+</font>
+          <font color=#FF0000>"number with no spaces or dashes."</font><font color=#990000>)</font><font color=#990000>;</font>
+    theForm<font color=#990000>.</font>cardNumber<font color=#990000>.</font><b><font color=#000000>focus</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> false<font color=#990000>;</font>
+  <font color=#FF0000>}</font>
+
+  <i><font color=#9A1900>// checking for valid expiration date</font></i>
+  var expireDate <font color=#990000>=</font> <b><font color=#000000>parseDate</font></b><font color=#990000>(</font>theForm<font color=#990000>.</font>expireDate<font color=#990000>.</font>value<font color=#990000>)</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>expireDate<font color=#990000>=</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#000000>alert</font></b><font color=#990000>(</font><font color=#FF0000>"Please enter a valid expiration date."</font><font color=#990000>)</font><font color=#990000>;</font>
+    theForm<font color=#990000>.</font>expireDate<font color=#990000>.</font><b><font color=#000000>focus</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> false<font color=#990000>;</font>
+  <font color=#FF0000>}</font>
+  <i><font color=#9A1900>// now check if date is in the future</font></i>
+  var now <font color=#990000>=</font> <b><font color=#0000FF>new</font></b> <b><font color=#000000>Date</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+  <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>expireDate<font color=#990000>.</font><b><font color=#000000>getTime</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>&lt;</font>now<font color=#990000>.</font><b><font color=#000000>getTime</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#000000>alert</font></b><font color=#990000>(</font><font color=#FF0000>"The expiration date must be a future date."</font><font color=#990000>)</font><font color=#990000>;</font>
+    theForm<font color=#990000>.</font>expireDate<font color=#990000>.</font><b><font color=#000000>focus</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> false<font color=#990000>;</font>
+  <font color=#FF0000>}</font>
+  <b><font color=#0000FF>return</font></b> true<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>//--&gt;</font></i>
+<font color=#990000>&lt;</font><font color=#990000>/</font>script<font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>/</font>head<font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>body<font color=#990000>&gt;</font>
+
+<font color=#990000>&lt;</font>form name<font color=#990000>=</font><font color=#FF0000>"login"</font> method<font color=#990000>=</font><font color=#FF0000>"POST"</font> action<font color=#990000>=</font><font color=#FF0000>"checkout.jsp"</font> onsubmit<font color=#990000>=</font><font color=#FF0000>"return validateLogin();"</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>!</font><font color=#990000>-</font><font color=#990000>-</font> <b><font color=#0000FF>this</font></b> table <b><font color=#0000FF>extends</font></b> across the top of the page with logo left<font color=#990000>,</font> login right <font color=#990000>-</font><font color=#990000>-</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>table width<font color=#990000>=</font><font color=#FF0000>"100%"</font><font color=#990000>&gt;</font>
+  <font color=#990000>&lt;</font>tr<font color=#990000>&gt;</font>
+    <font color=#990000>&lt;</font>td align<font color=#990000>=</font><font color=#FF0000>"left"</font><font color=#990000>&gt;</font><font color=#990000>&lt;</font>img src<font color=#990000>=</font><font color=#FF0000>"images/logo_small.gif"</font> width<font color=#990000>=</font><font color=#FF0000>"148"</font> height<font color=#990000>=</font><font color=#FF0000>"27"</font>
+                      alt<font color=#990000>=</font><font color=#FF0000>"rdbwbooks.com"</font><font color=#990000>&gt;</font><font color=#990000>&lt;</font><font color=#990000>/</font>td<font color=#990000>&gt;</font>
+    <font color=#990000>&lt;</font>td align<font color=#990000>=</font><font color=#FF0000>"right"</font><font color=#990000>&gt;</font>
+      <font color=#990000>&lt;</font><font color=#990000>%</font>
+        <i><font color=#9A1900>// this is right side top</font></i>
+        String itemString<font color=#990000>;</font>
+        <font color=#009900>int</font> commaPos<font color=#990000>,</font> totalQuantity <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font>
+        <b><font color=#0000FF>for</font></b> <font color=#990000>(</font><font color=#009900>int</font> i<font color=#990000>=</font><font color=#993399>0</font><font color=#990000>;</font>i<font color=#990000>&lt;</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>size</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>i<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+          itemString <font color=#990000>=</font> <font color=#990000>(</font>String<font color=#990000>)</font>shoppingCart<font color=#990000>.</font><b><font color=#000000>get</font></b><font color=#990000>(</font>i<font color=#990000>)</font><font color=#990000>;</font>
+          commaPos <font color=#990000>=</font> itemString<font color=#990000>.</font><b><font color=#000000>indexOf</font></b><font color=#990000>(</font><font color=#FF0000>','</font><font color=#990000>)</font><font color=#990000>;</font>
+          totalQuantity <font color=#990000>+</font><font color=#990000>=</font> Integer<font color=#990000>.</font><b><font color=#000000>parseInt</font></b><font color=#990000>(</font>itemString<font color=#990000>.</font><b><font color=#000000>substring</font></b><font color=#990000>(</font>commaPos<font color=#990000>+</font><font color=#993399>1</font><font color=#990000>)</font><font color=#990000>)</font><font color=#990000>;</font>
+        <font color=#FF0000>}</font>
+        out<font color=#990000>.</font><b><font color=#000000>println</font></b><font color=#990000>(</font><font color=#FF0000>"["</font> <font color=#990000>+</font> totalQuantity <font color=#990000>+</font> <font color=#FF0000>" items in &lt;a href='viewcart.jsp'&gt;"</font> <font color=#990000>+</font>
+                    <font color=#FF0000>"shopping cart&lt;/a&gt;]  [&lt;a href='checkout.jsp?clearCart='&gt;"</font> <font color=#990000>+</font>
+                    <font color=#FF0000>"clear cart&lt;/a&gt;]"</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#990000>%</font><font color=#990000>&gt;</font>
+    <font color=#990000>&lt;</font><font color=#990000>/</font>td<font color=#990000>&gt;</font>
+  <font color=#990000>&lt;</font><font color=#990000>/</font>tr<font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font><font color=#990000>/</font>table<font color=#990000>&gt;</font>
+
+<font color=#990000>&lt;</font><font color=#990000>!</font><font color=#990000>-</font><font color=#990000>-</font> <b><font color=#0000FF>this</font></b> is the <font color=#FF0000>"red bar"</font> table at the top <font color=#990000>-</font><font color=#990000>-</font><font color=#990000>&gt;</font>
+<font color=#990000>&lt;</font>table width<font color=#990000>=</font><font color=#FF0000>"100%"</font> cellpadding<font color=#990000>=</font><font color=#FF0000>"5"</font> cellspacing<font color=#990000>=</font><font color=#FF0000>"0"</font><font color=#990000>&gt;</font>
+  <font color=#990000>&lt;</font>tr <b><font color=#0000FF>class</font></b><font color=#990000>=</font><font color=#FF0000>"mainBar"</font><font color=#990000>&gt;</font>
+    <font color=#990000>&lt;</font>td<font color=#990000>&gt;</font>
+      <font color=#990000>&lt;</font>a href<font color=#990000>=</font><font color=#FF0000>"index.jsp"</font><font color=#990000>&gt;</font><font color=#990000>&lt;</font>img src<font color=#990000>=</font><font color=#FF0000>"images/home.gif"</font> width<font color=#990000>=</font><font color=#FF0000>'83'</font> height<font color=#990000>=</font><font color=#FF0000>'28'</font> border<font color=#990000>=</font><font color=#FF0000>"0"</font>
+                           alt<font color=#990000>=</font><font color=#FF0000>"home"</font><font color=#990000>/</font><font color=#990000>&gt;</font><font color=#990000>&lt;</font><font color=#990000>/</font>a<font color=#990000>&gt;</font>
+      <font color=#990000>&lt;</font>a href<font color=#990000>=</font><font color=#FF0000>"viewcart.jsp"</font><font color=#990000>&gt;</font><font color=#990000>&lt;</font>img src<font color=#990000>=</font><font color=#FF0000>"images/viewcart.gif"</font> width<font color=#990000>=</font><font color=#FF0000>'153'</font> height<font color=#990000>=</font><font color=#FF0000>'28'</font>
+                              border<font color=#990000>=</font><font color=#FF0000>"0"</font> alt<font color=#990000>=</font><font color=#FF0000>"view cart"</font><font color=#990000>/</font><font color=#990000>&gt;</font><font color=#990000>&lt;</font><font color=#990000>/</font>a<font color=#990000>&gt;</font>
+      <font color=#990000>&lt;</font><font color=#990000>%</font>
+        <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>session<font color=#990000>.</font><b><font color=#000000>getAttribute</font></b><font color=#990000>(</font><font color=#FF0000>"user_id"</font><font color=#990000>)</font><font color=#990000>!</font><font color=#990000>=</font><b><font color=#0000FF>null</font></b><font color=#990000>)</font>
+          out<font color=#990000>.</font><b><font color=#000000>println</font></b><font color=#990000>(</font><font color=#FF0000>"&lt;a href='userinfo.jsp'&gt;&lt;img src='images/userinfo.gif' "</font> <font color=#990000>+</font>
+                      <font color=#FF0000>"width='105' height='28' border='0' alt='user information'/&gt;&lt;/a&gt;"</font><font color=#990000>)</font><font color=#990000>;</font>
+        <b><font color=#0000FF>else</font></b>
+         out<font color=#990000>.</font><b><font color=#000000>println</font></b><font color=#990000>(</font><font color=#FF0000>"&lt;a href='userinfo.jsp'&gt;&lt;img src='images/signup.gif' width='105' "</font> <font color=#990000>+</font>
+                     <font color=#FF0000>"height='28' border='0' alt='sign up'/&gt;&lt;/a&gt;"</font><font color=#990000>)</font><font color=#990000>;</font>
+      <font color=#990000>%</font><font color=#990000>&gt;</font>
+      
+    <font color=#990000>&lt;</font><font color=#990000>/</font>td<font color=#990000>&gt;</font>
+    <font color=#990000>&lt;</font>td align<font color=#990000>=</font><font color=#FF0000>"right"</font> nowrap<font color=#990000>&gt;</font>
+      <font color=#990000>&lt;</font><font color=#990000>!</font><font color=#990000>-</font><font color=#990000>-</font> code here to determine <b><font color=#0000FF>if</font></b> they are already logged in
+        <font color=#990000>-</font><font color=#990000>-</font> <b><font color=#0000FF>if</font></b> yes<font color=#990000>,</font> then don<font color=#FF0000>'t display the login stuff, display
+        -- you are logged in as blah...                         --&gt;
+      &lt;%
+        if (session.getAttribute("user_id")==null) {
+          out.println("User ID:");
+          out.println("&lt;input type='</font>text<font color=#FF0000>' name='</font>user_id<font color=#FF0000>' size='</font><font color=#993399>10</font><font color=#FF0000>'&gt;");
+          out.println("Password:");
+          out.println("&lt;input type='</font>password<font color=#FF0000>' name='</font>password<font color=#FF0000>' size='</font><font color=#993399>10</font><font color=#FF0000>'&gt;");
+          out.println("&lt;input type='</font>submit<font color=#FF0000>' name='</font>login<font color=#FF0000>' value='</font>login<font color=#FF0000>'/&gt;");
+        } else {
+          out.println("Logged in as: &lt;a href='</font>userinfo<font color=#990000>.</font>jsp<font color=#FF0000>'&gt;" +
+                      session.getAttribute("user_id") + "&lt;/a&gt;");
+          out.println("&lt;input type='</font>submit<font color=#FF0000>' name='</font>logout<font color=#FF0000>' value='</font>logout<font color=#FF0000>'/&gt;");
+        }
+      %&gt;
+    &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+&lt;/form&gt;
+
+&lt;!-- main table that has a right column for search/category and the main left column --&gt;
+&lt;table width="100%"&gt;
+  &lt;tr&gt;
+
+    &lt;!-- this is the main left column --&gt;
+    &lt;td valign="top"&gt;
+      
+      &lt;form method="post" name="checkout" action="checkout.jsp"
+       onsubmit="return validateCreditCard();"&gt;
+      &lt;table class='</font>outerTable<font color=#FF0000>'&gt;        
+        &lt;tr&gt;
+          &lt;td class='</font>outlineCell<font color=#FF0000>'&gt;
+            &lt;table class='</font>innerTable<font color=#FF0000>'&gt;
+              &lt;tr&gt;&lt;td colspan='</font><font color=#993399>6</font><font color=#FF0000>'&gt;&lt;strong&gt;Shopping Cart Contents:&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;
+              &lt;tr&gt;&lt;td colspan='</font><font color=#993399>6</font><font color=#FF0000>' class="outlineCell"&gt;&lt;/td&gt;&lt;/tr&gt;
+              &lt;tr&gt;&lt;th&gt;Quantity&lt;/th&gt;&lt;th&gt;isbn&lt;/th&gt;&lt;th&gt;Title&lt;/th&gt;&lt;th&gt;Publisher&lt;/th&gt;
+                &lt;th&gt;Unit&lt;br/&gt;Price&lt;/th&gt;&lt;th&gt;Extended&lt;br/&gt;Price&lt;/th&gt;&lt;/tr&gt;
+                &lt;%        
+                  String isbn;
+                  int quantity;
+                  double totalPrice = 0;
+                  if (shoppingCart.size()==0) {        
+                    out.println("&lt;tr&gt;&lt;td colspan='</font><font color=#993399>6</font><font color=#FF0000>'&gt;There are no books in your " +
+                                "shopping cart.&lt;/td&gt;&lt;/tr&gt;");
+                  } else {
+                    int line = 0;
+                    for (int i=0;i&lt;shoppingCart.size();i++) {
+                      itemString = (String)shoppingCart.get(i);
+                      commaPos = itemString.indexOf('</font><font color=#990000>,</font><font color=#FF0000>');
+                      isbn = itemString.substring(0,commaPos);
+                      quantity = Integer.parseInt(itemString.substring(commaPos+1));
+                      Statement st = conn.createStatement();
+                      ResultSet rs = st.executeQuery("select title, publisher, price " +
+                                                     "from book where isbn='</font><font color=#FF0000>" + isbn +
+                                                     "</font><font color=#FF0000>';");
+                      if (rs.next()) {
+                        out.println("&lt;tr ");
+                        if (line % 2 == 0)
+                          out.println("class='</font>evenDetailRow<font color=#FF0000>'&gt;");
+                        else
+                          out.println("class='</font>oddDetailRow<font color=#FF0000>'&gt;");
+                        out.println("&lt;td align='</font>right<font color=#FF0000>'&gt;" + quantity + "&lt;/td&gt;");
+                        out.println("&lt;td&gt;&lt;span class='</font>isbn<font color=#FF0000>'&gt;" + isbn + "&lt;/span&gt;&lt;/td&gt;");
+                        out.println("&lt;td&gt;&lt;span&gt;" + rs.getString("title") +
+                                    "&lt;/span&gt;&lt;/td&gt;");
+                        out.println("&lt;td&gt;&lt;span class='</font>publisher<font color=#FF0000>'&gt;" +
+                                    rs.getString("publisher") + "&lt;/span&gt;&lt;/td&gt;");
+                        out.println("&lt;td align='</font>right<font color=#FF0000>'&gt;&lt;span class='</font>price<font color=#FF0000>'&gt;" +
+                                    rs.getString("price") + "&lt;/span&gt;&lt;/td&gt;");
+                        out.println("&lt;td align='</font>right<font color=#FF0000>'&gt;&lt;span class='</font>price<font color=#FF0000>'&gt;" +
+                                    NumberFormat.getCurrencyInstance(Locale.US).format(
+                                      quantity * rs.getDouble("price")) +
+                                    "&lt;/span&gt;&lt;/td&gt;");
+                        totalPrice += quantity * rs.getDouble("price");
+                        line++;
+                      } else {
+                        // isbn in cart not located in database
+                        shoppingCart.remove(i);
+                      }
+                    }
+                    out.println("&lt;tr&gt;&lt;td colspan='</font><font color=#993399>5</font><font color=#FF0000>' align='</font>right<font color=#FF0000>'&gt;subtotal: &lt;/td&gt;" +
+                                "&lt;td align='</font>right<font color=#FF0000>'&gt;&lt;span class='</font>price<font color=#FF0000>'&gt;" +
+                                NumberFormat.getCurrencyInstance(Locale.US).format(
+                                  totalPrice) +
+                                "&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;");
+                    out.println("&lt;tr&gt;&lt;td colspan='</font><font color=#993399>5</font><font color=#FF0000>' align='</font>right<font color=#FF0000>'&gt;shipping: &lt;/td&gt;" +
+                                "&lt;td align='</font>right<font color=#FF0000>'&gt;&lt;span class='</font>price<font color=#FF0000>'&gt;" +
+                                NumberFormat.getCurrencyInstance(Locale.US).format(
+                                  SHIP_COST) +
+                                "&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;");
+                    out.println("&lt;tr&gt;&lt;td colspan='</font><font color=#993399>5</font><font color=#FF0000>' align='</font>right<font color=#FF0000>'&gt;Grand Total:&lt;/td&gt;" +
+                                "&lt;td align='</font>right<font color=#FF0000>'&gt;&lt;span class='</font>price<font color=#FF0000>'&gt;" +
+                                NumberFormat.getCurrencyInstance(Locale.US).format(
+                                  totalPrice+SHIP_COST) +
+                                "&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;");
+                    out.println("&lt;tr&gt;&lt;td&gt;Credit Card:&lt;/td&gt;&lt;td colspan='</font><font color=#993399>5</font><font color=#FF0000>' align='</font>right<font color=#FF0000>'" +
+                                " nowrap&gt;Type:" +
+                                "&lt;select name='</font>cardType<font color=#FF0000>'&gt;" +
+                                "&lt;option value='</font>visa<font color=#FF0000>'&gt;Visa&lt;/option&gt;" +
+                                "&lt;option value='</font>mastercard<font color=#FF0000>'&gt;Master Card&lt;/option&gt;" +
+                                "&lt;option value='</font>discover<font color=#FF0000>'&gt;Discover&lt;/option&gt;" +
+                                "&lt;option value='</font>amex<font color=#FF0000>'&gt;American Express&lt;/option&gt;" +
+                                "&lt;/select&gt;" +
+                                "Number:&lt;input type='</font>text<font color=#FF0000>' name='</font>cardNumber<font color=#FF0000>' size='</font><font color=#993399>12</font><font color=#FF0000>'/&gt;"+
+                                "Expires:&lt;input type='</font>text<font color=#FF0000>' name='</font>expireDate<font color=#FF0000>' size='</font><font color=#993399>5</font><font color=#FF0000>'/&gt;"+
+                                "&lt;/td&gt;&lt;/tr&gt;");                                  
+                    out.println("&lt;tr&gt;&lt;td colspan='</font><font color=#993399>5</font><font color=#FF0000>' align='</font>right<font color=#FF0000>' nowrap&gt; To modify " +
+                                "your order choose &lt;a href='</font>viewcart<font color=#990000>.</font>jsp<font color=#FF0000>'&gt;view cart" +
+                                "&lt;/a&gt;.  To place your order click here: &lt;/td&gt;" +
+                                "&lt;td&gt;&lt;input type='</font>submit<font color=#FF0000>' name='</font>purchase<font color=#FF0000>' " +
+                                "value='</font>Purchase<font color=#FF0000>'&gt;&lt;/td&gt;&lt;/tr&gt;");
+                  }
+                %&gt;
+              &lt;/table&gt;
+            &lt;/td&gt;
+          &lt;/tr&gt;
+        &lt;/table&gt;
+        &lt;/form&gt;
+
+    &lt;/td&gt;
+
+    &lt;!-- the cell at the right --&gt;
+    &lt;td width="200" valign="top"&gt;
+      &lt;!-- this is the right column --&gt;
+    &lt;/td&gt;
+
+  &lt;/tr&gt;
+&lt;/table&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</tt>
+</pre>
+</body>
+</html>

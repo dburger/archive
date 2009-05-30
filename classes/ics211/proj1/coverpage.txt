@@ -1,0 +1,131 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+David Burger
+ICS 211
+Project 1
+Due: Sep. 21, 2000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+File in which execution starts:  	BridgeHandEvaluator.java
+Source files delivered with project:	BridgeHandEvaluator.java
+
+
+Test case #1:
+
+In test case number one the sample data from the problem in the book was used.  The 
+following was the output of the program:
+
+Bridge Hand Evaluator
+Press enter on a blank line to quit.
+Enter your bridge hand:
+2C QD TC AD 6C 3D TD 3H 5H 7H AS JH KH
+
+The hand entered was:
+2C QD TC AD 6C 3D TD 3H 5H 7H AS JH KH
+This is your hand sorted by suits:
+Clubs           10      6       2
+Diamonds        A       Q       10      3
+Hearts          K       J       7       5       3
+Spades          A
+Points for hand = 16
+
+Enter another bridge hand:
+
+Thank you for using the bridge hand evaluator.
+
+As you can see, the cards are correctly listed by suits in descending order.  The points are 
+also correct as follows:
+
+Attribute of Hand
+Value
+3 Clubs    0
+4 Diamonds 0
+5 Hearts   0
+1 Spade    2
+2 Aces     8
+1 King     3
+1 Queen    2
+1 Jack     1
+Total:    16
+
+So the desk check checks out.
+
+
+Test case #2:
+
+In test case number two, I entered the data as follows and got the following result:
+
+Bridge Hand Evaluator
+Press enter on a blank line to quit.
+Enter your bridge hand:
+AS 5H 9C 2D QH AH JC KH 3C TS QS JH
+
+The hand entered was:
+AS 5H 9C 2D QH AH JC KH 3C TS QS JH
+This is your hand sorted by suits:
+Clubs           J       9       3
+Diamonds        2
+Hearts          A       K       Q       J       5
+Spades          A       Q       10
+Points for hand = 19
+
+Enter another bridge hand:
+
+Thank you for using the bridge hand evaluator.
+
+Once again you can see that the cards have been correctly sorted by suit and are listed in 
+descending order.  The points are also correct as follows:
+
+
+Attribute of Hand
+Value
+3 Clubs    0
+1 Diamonds 2
+5 Hearts   0
+3 Spades   0
+2 Aces     8
+1 King     3
+2 Queens   4
+2 Jack     2
+Total:    19
+
+So the desk check checks out.
+
+
+David J. Burger

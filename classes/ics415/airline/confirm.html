@@ -1,0 +1,171 @@
+<html>
+<head>
+<title></title>
+
+<style type="text/css">
+<!--
+  body {font-family:Verdana}
+-->
+</style>
+
+<script language="javascript">
+<!--
+
+// Airline Reservation Project
+// for ICS 415, Dr. Martin
+// 6/17/2002
+// by David J. Burger
+
+// featuring: xml parsing for departure and desination airports
+//            validation of dates
+//            validation of departure/return dates
+//            validation of name entries
+//            query string processing
+//            dynamic form creation
+//            re-presentation of form data upon modification selection
+
+// This function will send them back to the reservation form passing the query
+// string back so that data can be loaded into the form.
+function modifyReservation() {
+  window.location = "airline.html" + window.location.search;
+}
+
+// Used to put up the confirmation message as if they have submitted the form
+// for final processing.
+function confirmMessage() {
+  alert("Your reservation has been submitted for processing.");
+}
+
+// This function returns a Date object given a dateString in the
+// mm/dd/yyyy format.  If the dateString is invalid null is returned.
+function parseDate(dateString) {
+  var month, day, year, parsedDate;
+  parsedDate = dateString.split("/");
+  if (parsedDate.length!=3) return null;
+  month = parsedDate[0];
+  day = parsedDate[1];
+  year = parsedDate[2];
+  if (isNaN(month) || isNaN(day) || isNaN(year)) return null;
+  // 70 is the earliest year the Date() object will handle
+  if (month<1 || month>12 || day<1 || day>31 || year<70) return null;
+  month--; //month is zero based for the Date object
+  // create the Date object
+  var theDate = new Date(year,month,day);
+  // if the constructor changed the day...the dateString wasn't valid
+  // from a number of days in month perspective (30 vs. 31, leap year etc.)
+  if (theDate.getDate()!=day)
+    return null;
+  else
+    return theDate;
+}
+
+var key, value, equalPos; // used for parsing
+var passengerCount = 0;
+var passengers = new Array(); // will hold passengers
+var reservationData = new Array(); // will hold all other reservation data
+var tableRows = 6; // used to keep track of how many rows in final table
+
+// first massage the query string replaces +'s with spaces
+var queryString = window.location.search.substring(1).replace(/\+/gi," ");
+// now split the name value pairs
+var params = queryString.split("&");
+
+// now loop through the values storing the results in reservationData
+// and passengers respectively
+for (var i=0;i<params.length;i++) {
+  equalPos = params[i].indexOf("=");
+  key = unescape(params[i].substring(0,equalPos));
+  value = unescape(params[i].substring(equalPos+1));
+  // catch the special cases
+  if (key=="passengers") {
+    passengers[passengerCount++] = value;
+  } else {
+    reservationData[key] = value;
+    if (reservationData['ways2']) tableRows++;
+  }
+}
+
+// even though the data was validated by the form page, we check again
+// to make sure the data is valid...it could have been sent by another
+// means other than our form
+var errorString = "";
+
+// do they have passengers ?
+if (passengers.length==0)
+  errorString+="Please add some passengers to the reservation.\n";
+
+// did they send a departure date ?
+if (!reservationData['departureDate'])
+  errorString+="Please set a departure date for the reservation.\n";
+
+// if two way, did they send a return date ?
+if (reservationData['ways2'] && !reservationData['returnDate'])
+  errorString+="Please set a return date for the reservation.\n";
+
+// now check the date more thoroughly
+var outDate, backDate;
+
+// does the depature date convert to a valid date ?
+if ((outDate=parseDate(reservationData['departureDate']))==null)
+  errorString+="Please enter a valid departure date.\n";
+
+// if two way, does the return date convert to a valid date ?
+if (reservationData['ways2'] && (backDate=parseDate(reservationData['returnDate']))==null)
+  errorString+="Please enter a valid return date.\n";
+
+// If the dates didn't convert to proper Date objects no reason to look at them further
+// for valid ranges.
+if (errorString=="") {
+  var now = new Date();
+
+  // now we see if the date fall within appropriate time periods
+  if (outDate.getTime()<=now.getTime())
+    errorString+="The departure date must be a future date.\n";
+
+  // within 100 days ?
+  if (outDate.getTime()-now.getTime()>(100*24*60*60*1000))
+    errorString+="The departure date must be within 100 days of today.\n";
+
+
+  // return date after departure date?
+  if (reservationData['ways2'] && backDate.getTime()<=outDate.getTime())
+    errorString+="The return date must come after the departure date.\n";
+}
+
+// and now use the values to write out the res. data for confirmation
+document.write("<body bgcolor='#cccc00'>");
+document.write("<table border='0' cellpadding='5' bgcolor='#9999cc' align='center'>");
+document.write("<tr><td bgcolor='#cccc99'>Reservation Detail</td><td>");
+if (errorString.length==0)
+  document.write("<input type='button' value='Confirm' onclick='confirmMessage();'/>");
+document.write("<input type='button' value='Modify' onclick='modifyReservation();'/>");
+document.write("</td></tr>");
+if (reservationData['ways1'])
+  document.write("<td>One Way Trip</td><td>&nbsp</td></tr>");
+else
+  document.write("<td>Two Way Trip</td><td>&nbsp</td></tr>");
+document.write("<tr><td>From:</td><td>" + reservationData['departureCity'] +
+               "</td></tr>");
+document.write("<tr><td>On:</td><td>" + reservationData['departureDate'] + "</td></tr>");
+document.write("<tr><td>To:</td><td>" + reservationData['destinationCity'] +
+               "</td></tr>");
+if (reservationData['ways2'])
+  document.write("<tr><td>Returning:</td><td>" + reservationData['returnDate'] +
+                 "</td></tr>");
+document.write("<tr bgcolor='#cccc99'><td colspan='2'>Passengers</td></tr>");
+for (var i=0;i<passengerCount;i++) {
+  document.write("<tr><td colspan='2'>" + passengers[i] + "</td></tr>");
+}
+document.write("</table>");
+document.write("</body>");
+
+if (errorString.length)
+  alert("The following problems were found with the reservation:\n" + errorString +
+        "Please choose modify to fix the problems.");
+
+//-->
+</script>
+</head>
+<body>
+</body>
+</html>

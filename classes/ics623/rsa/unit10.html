@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>Unit 10--RSA</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+<h2>Unit 10--RSA and Protocols</h2>
+<p>Read from the beginning of Chapter 19. I am not interested in the details of 
+  the Knapsack algorithms, because they have been broken, but the history is interesting. 
+  RSA is very important. Study up to the section on the security of RSA. Let's 
+  go into security next week. I have enciphered a message using RSA--I would like 
+  you to decipher it. There are some supplementary notes with the data.</p>
+<p></p>
+<p></p>
+<p>Also read Chapter 2. I think this material on protocols in 
+    Schneier's book is excellent--he does a good job of separating 
+    what is the algorithm and what is the protocol, and I think 
+    it is very useful to understand the distinction. Also, Schneier 
+    makes it clear that you must have a secure algorithm and also 
+    a secure protocol, and more, to have real security.</p>
+<p></p>
+<h3>Program Assignment</h3>
+<p>Here is some ciphertext enciphered using RSA. It deciphers into a sentence 
+  of English in ASCII code. (I am giving each number as a plain hex number, high 
+  order first, and also as you would enter it in C in a big-endian computer and 
+  in a little-endian computer, for your convenience.)</p>
+<pre>ciphertext =<br>0f543ddc c5ab44e0 37ed8da8 e0d87e80 8a0f6f14 71cd8be1 01582d91 75371229<br>f7d8223e b4d7ded6 c5cd35e9 0a8998f3 baa5debb f963ded7 db538ba0 65527be9<br>20ee521c 424e7cbb 0b5c0a05 61d10944 ecd3722f bce909b9 ea4a7076 26b826f5<br>a42b5916 d28e2268 349205a7 4fd98503 35dc3424 6d1c0667 ab264bf2 f77e5b4b<br>Big Endian:<br>0x0f543ddc, 0xc5ab44e0, 0x37ed8da8, 0xe0d87e80,<br>0x8a0f6f14, 0x71cd8be1, 0x01582d91, 0x75371229,<br>0xf7d8223e, 0xb4d7ded6, 0xc5cd35e9, 0x0a8998f3,<br>0xbaa5debb, 0xf963ded7, 0xdb538ba0, 0x65527be9,<br>0x20ee521c, 0x424e7cbb, 0x0b5c0a05, 0x61d10944,<br>0xecd3722f, 0xbce909b9, 0xea4a7076, 0x26b826f5,<br>0xa42b5916, 0xd28e2268, 0x349205a7, 0x4fd98503,<br>0x35dc3424, 0x6d1c0667, 0xab264bf2, 0xf77e5b4b,<br>Little Endian:<br>0xf77e5b4b, 0xab264bf2, 0x6d1c0667, 0x35dc3424,<br>0x4fd98503, 0x349205a7, 0xd28e2268, 0xa42b5916,<br>0x26b826f5, 0xea4a7076, 0xbce909b9, 0xecd3722f,<br>0x61d10944, 0x0b5c0a05, 0x424e7cbb, 0x20ee521c,<br>0x65527be9, 0xdb538ba0, 0xf963ded7, 0xbaa5debb,<br>0x0a8998f3, 0xc5cd35e9, 0xb4d7ded6, 0xf7d8223e,<br>0x75371229, 0x01582d91, 0x71cd8be1, 0x8a0f6f14,<br>0xe0d87e80, 0x37ed8da8, 0xc5ab44e0, 0x0f543ddc,</pre>
+<p>Here are the public parameters: (n is a 510-bit number.)</p>
+<pre>
+n =<br>1c4b4dc3 e9bb2e22 02af1bab e0e07b04 a9dab449 47bc8601 31d74f2c e0d0e68c<br>d7d301db 44412414 fe681822 89b3f506 556a7435 6bb9449a 0367358b db805cec<br>3c815e5a 160e58c0 81f4ecca 29417d67 5ca447e3 4b07b475 45cc0dbe eb27cf00<br>60f0146e 38bd3e05 6da1928d 5b946384 2312e2d7 daf4de29 809a31d3 2273ce99<br>Big Endian:<br>0x1c4b4dc3, 0xe9bb2e22, 0x02af1bab, 0xe0e07b04,<br>0xa9dab449, 0x47bc8601, 0x31d74f2c, 0xe0d0e68c,<br>0xd7d301db, 0x44412414, 0xfe681822, 0x89b3f506,<br>0x556a7435, 0x6bb9449a, 0x0367358b, 0xdb805cec,<br>0x3c815e5a, 0x160e58c0, 0x81f4ecca, 0x29417d67,<br>0x5ca447e3, 0x4b07b475, 0x45cc0dbe, 0xeb27cf00,<br>0x60f0146e, 0x38bd3e05, 0x6da1928d, 0x5b946384,<br>0x2312e2d7, 0xdaf4de29, 0x809a31d3, 0x2273ce99,<br>Little Endian:<br>0x2273ce99, 0x809a31d3, 0xdaf4de29, 0x2312e2d7,<br>0x5b946384, 0x6da1928d, 0x38bd3e05, 0x60f0146e,<br>0xeb27cf00, 0x45cc0dbe, 0x4b07b475, 0x5ca447e3,<br>0x29417d67, 0x81f4ecca, 0x160e58c0, 0x3c815e5a,<br>0xdb805cec, 0x0367358b, 0x6bb9449a, 0x556a7435,<br>0x89b3f506, 0xfe681822, 0x44412414, 0xd7d301db,<br>0xe0d0e68c, 0x31d74f2c, 0x47bc8601, 0xa9dab449,<br>0xe0e07b04, 0x02af1bab, 0xe9bb2e22, 0x1c4b4dc3,<tt><font face="Courier">
+
+e = </font></tt>
+00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>d917256f 7e9ac81a e3c763e4 376f8290 79e4d85e 9f3941d6 68119a44 01a71bbd<br>Big Endian:<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0xd917256f, 0x7e9ac81a, 0xe3c763e4, 0x376f8290,<br>0x79e4d85e, 0x9f3941d6, 0x68119a44, 0x01a71bbd,<br>Little Endian:<br>0x01a71bbd, 0x68119a44, 0x9f3941d6, 0x79e4d85e,<br>0x376f8290, 0xe3c763e4, 0x7e9ac81a, 0xd917256f,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<tt><font face="Courier">
+</font></tt></pre>
+<p><tt><font face="Courier"><br>
+    </font></tt>In order for you to decrypt this, you need to 
+    know the private key. I am going to tell you about p and q 
+    (n=pq) and let you calculate the private key. p = 2a+1 and 
+    q = 2b+1 and p and q and a and b are all prime numbers. a 
+    and b have 510 digits, and therefore p and q have 511 digits, 
+    and it turns out that n has 1021 digits. (When you multiply 
+    numbers of i digits and j digits, you get i+j digits, but 
+    the leading digit may be zero.) Here are a and b, and now 
+    you have the necessary information:</p>
+<pre>p = 2a+1 =<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>5e99ba54 53d370e8 0c09bee4 ed5f4e3c db61bb89 18855c18 e20e4b99 0404f764<br>a93d7da9 44c80acd 240adb5c 7c2fc474 64fe6f18 fde38821 95e92691 82c21caf<br>Big Endian:<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x5e99ba54, 0x53d370e8, 0x0c09bee4, 0xed5f4e3c,<br>0xdb61bb89, 0x18855c18, 0xe20e4b99, 0x0404f764,<br>0xa93d7da9, 0x44c80acd, 0x240adb5c, 0x7c2fc474,<br>0x64fe6f18, 0xfde38821, 0x95e92691, 0x82c21caf,<br>Little Endian:<br>0x82c21caf, 0x95e92691, 0xfde38821, 0x64fe6f18,<br>0x7c2fc474, 0x240adb5c, 0x44c80acd, 0xa93d7da9,<br>0x0404f764, 0xe20e4b99, 0x18855c18, 0xdb61bb89,<br>0xed5f4e3c, 0x0c09bee4, 0x53d370e8, 0x5e99ba54,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>a =<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>2f4cdd2a 29e9b874 0604df72 76afa71e 6db0ddc4 8c42ae0c 710725cc 82027bb2<br>549ebed4 a2640566 92056dae 3e17e23a 327f378c 7ef1c410 caf49348 c1610e57<br>Big Endian:<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x2f4cdd2a, 0x29e9b874, 0x0604df72, 0x76afa71e,<br>0x6db0ddc4, 0x8c42ae0c, 0x710725cc, 0x82027bb2,<br>0x549ebed4, 0xa2640566, 0x92056dae, 0x3e17e23a,<br>0x327f378c, 0x7ef1c410, 0xcaf49348, 0xc1610e57,<br>Little Endian:<br>0xc1610e57, 0xcaf49348, 0x7ef1c410, 0x327f378c,<br>0x3e17e23a, 0x92056dae, 0xa2640566, 0x549ebed4,<br>0x82027bb2, 0x710725cc, 0x8c42ae0c, 0x6db0ddc4,<br>0x76afa71e, 0x0604df72, 0x29e9b874, 0x2f4cdd2a,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>q = 2b+1 =<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>4c9139d8 caa6cbd8 c26e1ae1 168244b8 b7d55411 365f8021 9a3d6b88 e7ca6b19<br>57372e71 323d4fa1 f0d122b1 7ebe12fc 1a30dff0 1432e84c a794b5e8 2505eb37<br>Big Endian:<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x4c9139d8, 0xcaa6cbd8, 0xc26e1ae1, 0x168244b8,<br>0xb7d55411, 0x365f8021, 0x9a3d6b88, 0xe7ca6b19,<br>0x57372e71, 0x323d4fa1, 0xf0d122b1, 0x7ebe12fc,<br>0x1a30dff0, 0x1432e84c, 0xa794b5e8, 0x2505eb37,<br>Little Endian:<br>0x2505eb37, 0xa794b5e8, 0x1432e84c, 0x1a30dff0,<br>0x7ebe12fc, 0xf0d122b1, 0x323d4fa1, 0x57372e71,<br>0xe7ca6b19, 0x9a3d6b88, 0x365f8021, 0xb7d55411,<br>0x168244b8, 0xc26e1ae1, 0xcaa6cbd8, 0x4c9139d8,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>b =<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000<br>26489cec 655365ec 61370d70 8b41225c 5beaaa08 9b2fc010 cd1eb5c4 73e5358c<br>ab9b9738 991ea7d0 f8689158 bf5f097e 0d186ff8 0a197426 53ca5af4 1282f59b<br>Big Endian:<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x26489cec, 0x655365ec, 0x61370d70, 0x8b41225c,<br>0x5beaaa08, 0x9b2fc010, 0xcd1eb5c4, 0x73e5358c,<br>0xab9b9738, 0x991ea7d0, 0xf8689158, 0xbf5f097e,<br>0x0d186ff8, 0x0a197426, 0x53ca5af4, 0x1282f59b,<br>Little Endian:<br>0x1282f59b, 0x53ca5af4, 0x0a197426, 0x0d186ff8,<br>0xbf5f097e, 0xf8689158, 0x991ea7d0, 0xab9b9738,<br>0x73e5358c, 0xcd1eb5c4, 0x9b2fc010, 0x5beaaa08,<br>0x8b41225c, 0x61370d70, 0x655365ec, 0x26489cec,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,<br>0x00000000, 0x00000000, 0x00000000, 0x00000000,
+</pre>
+<h3>Review of RSA Theory</h3>
+<p>You start with n=pq, where p and q are prime numbers. Let s=phi(n). 
+    Then for any number x relatively prime to n, x^s=1, so raising 
+    x to any power that is a multiple of s will also give 1. Therefore, 
+    if r=t mod s then x^r = x^t mod n. Now choose any number e 
+    relatively prime to s. Then it is possible to find a number 
+    d such that de=1 mod s. (Note that sometimes we do arithmetic 
+    modulo n and sometimes modulo s--it is important to keep in 
+    mind carefully which is the case.) Then x^(de) = x^1 = x mod 
+    n. For RSA, e may be used for encryption and d for decryption. 
+    If m is the plaintext, then c = m^e is the ciphertext, and 
+    then to decrypt, you calculate c^d = (m^e)^d = m^(de) = m^1 
+    = m. You make n and e public, and then anyone can encrypt 
+    messages for you. You keep d secret, and you keep p and q 
+    secret, because someone who knows p and q and e can calculate 
+    d, as we shall see. Then anyone can encrypt a message and 
+    send it to you, but no one except you can decrypt that message, 
+    because no one else knows d. We have to look carefully at 
+    how secure this is, and we will next week. The obvious way 
+    to cryptanalyze this is to factor n. Mathematicians have been 
+    trying to find good ways to factor for many years. At the 
+    present, it is still very difficult to factor very large numbers, 
+    and therein lies the security of RSA. </p>
+<p>How do you calculate d if you know n and s? d is the inverse of e mod s. There 
+  are two ways. One way to do that is to use the euclidean algorithm. You have 
+  to choose e relatively prime to s, i. e. GCD(e,s)=1. Then using the Eudlidean 
+  division algorithm, you can find c and d such that 1 = c*s + d*e. Then 1 = d*e 
+  mod s, and d is the required number. The other way is to find t = phi(s). Then 
+  since e^t=1 mod s, then d = e^(t-1) is the inverse of e. To do that you have 
+  to be able to factor s, which in general is very difficult to do. (I just said 
+  in the previous paragraph that it is difficult to factor large numbers, particularly 
+  if they don't have small factors.) However, I gave you p and q that are special--p=2a+1 
+  and q = 2b+1, and not only are p and q primes, but also a and b are primes. 
+  You will find that in this case it is easy to find s = phi(pq) and also to find 
+  t = phi(s). The programs that you made for the previous unit are adequate to 
+  do all the calculations you need to do if you use this second method. </p>
+<p>The above assumed that the message m is relatively prime to n. What if the 
+  message is divisible by p or q? The probability of that is in the neighborhood 
+  of 10^-25, so you wouldn't be out of line to assume it won't happen. However, 
+  let us suppose that it does, and look at the result from the point of view of 
+  the Chinese remainder theorem. To be specific, let us assume that m is divisible 
+  by p. (If it is divisible by p and by q, it is zero mod n.) In this case, m 
+  = 0 mod p and m = u mod q, let's say. Then we raise this to the power e, c=m^e, 
+  and what we will get is the solution to c = 0 mod p and c = u^e mod q. Then 
+  we raise c to the power d and we will get m' that is the solution to m' = 0 
+  mod p and m' = u^(d*e) mod q. Since d*e = 1 mod phi(n), then d*e = 1 mod phi(q), 
+  because phi(n) is a multiple of phi(q). (phi(n) = (p-1)*(q-1), phi(q) = q-1.) 
+  Therefore, u^(d*e) = u mod q. Therefore m' is a solution of the equations m' 
+  = 0 mod p and m' = u mod q, the same equations as are satisfied by m, so m' 
+  = m, and RSA works even if m is divisible by p, and of course the same argument 
+  applies if m is divisible by q. </p>
+<p>I want to do some analysis of the security of RSA, a little 
+    more carefully than Schneier does, but that can wait until 
+    next week.
+</body>
+</html>

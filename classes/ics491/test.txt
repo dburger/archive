@@ -1,0 +1,377 @@
+What are the benefits of concurrency?
+
+  1. If a system consists of a number of separate well defined independent
+  tasks then these are often most easily represented by separate code segments
+  or software tasks giving a more natural expression of the problem and mapping
+  to software.
+  
+  2. Some problems such as weather forecasting take too much time to compute
+  on a single processor.
+  
+  3. For flexible response to external events, tasks need to be broken into
+  separate tasks instead of one long sequential program.
+
+What are the applications of concurrency?
+
+  Web services, number crunching, I/O processing, simulating (weather),
+  real time systems.
+
+Describe multi-processing versus multi-tasking:
+
+  Multi-processing refers to the simultaneous execution of multiple code
+  segments by means of a set of cooperating processors.
+
+  Multi-tasking, or psuedo concurrency, refers to the appearance of multiple
+  code segments running on a single processor at the same time through time
+  sharing.
+
+Describe the scheduling strategies:
+
+What are the three types of scheduling strategies?
+
+  Cyclic executive - this is a custom scheduling strategy that separates
+  programs into background, rate-specific, and interrupt level tasks.
+  
+  Co-operative scheduling - this is a type of schedule where it is up to each
+  task to hand the processor off to the next task.  It suffers from three
+  problems:
+  
+    1.  Difficult to modify, if you want to add or remove a task it involves
+    coding.
+    
+    2.  Robustness problem, if one of the programs crashes the processor will
+    not be handed off to the next task.
+    
+    3.  Inflexible, it is not responsive to changes in system load.
+    
+  Preemptive scheduling - this type of scheduling is controlled by the
+  operating system as the processor is handed out in time slices, usually
+  10 ms.  At the end of a time slice an interrupt occurs and the operating
+  system decides which process should run next according to priorities.  This
+  scheme has the benefit that:
+  
+    1.  All the scheduling decisions are removed from the task code and each
+    task can be programmed as a series of long running processes.
+    
+  But also suffers from the problem that:
+  
+    1.  It introduces non-determinism into the software and gives rise to
+    synchronizisation problems which need to be solved.
+    
+Describe run time support systems versus native threads and mention the green
+thread model.
+
+  A program may handle threads and the thread scheduling within the program
+  itself.  Such is the method of Java with the Green Thread model.  This has
+  the benefit that it leads to platform independence, but has the problem that
+  one thread blocking on I/O may cause the entire program to be blocked. The
+  other approach is to expose the threads to the OS and let the OS do the
+  scheduling.  This has the benefit that a single thread can block on I/O and
+  the rest of the program keeps running, but has the problem that now the
+  specifics of platform differences for threads come into play.
+  
+Describe the interaction between preemptive scheduling and the lost-update
+problem:
+
+  With preemptive scheduling the effects of nondeterministic behavior rear
+  their ugly head.  One such problem is the lost update problem.  This happens
+  when two or more competing code segments are attempting to update a shared
+  variable.  In it, the first process loads the value of the variable, and then
+  gets preempted.  The second process loads the same variable and then updates
+  the value.  Then the first process resumes and modifies the shared variable
+  storing it back...
+  
+What is a critical region?
+
+  A section of code that modifies the state of a shared resource.  While a task
+  it executing one of its critical regions, no other task is allowed to execute
+  one of its critical regions of code in the same family.
+  
+Describe the limitations of software solutions to critical regions:
+
+  Strictly software solutions involve the use of busy waits.
+  
+What is a semaphore?
+
+  Two type of semaphores exist, binary semaphores and counted semaphores.
+  Binary semaphores can take two values such as 0 or 1.  Before the critical
+  region is executed the lock operation is called on the variable.  This checks
+  to see if the variable is 1, if it is, the variable is decremented to 0 and
+  the thread is allowed to proceed.  If the variable is 0, then the thread is
+  blocked because another process has already acquired the lock.  Then when the
+  critical region is over, the unlock operation is called which first checks to
+  see if another thread is waiting for the semaphore, if there is that thread
+  is released.  If there are no threads waiting then the variable is
+  incremented back to 1.
+  
+  Counted semaphores work similar to binary semaphores but allow the value to
+  be higher than 1, allowing a maximum of n tasks to share the critical
+  region.
+  
+What is a monitor?
+
+  A monitor is a language construct that encapsulates shared data and provides
+  a means to access the shared resources.  Only one monitor procedure call may
+  be active at a time.
+  
+What is a condition queue?
+
+  A condition queue is a queue that contains those threads of execution that
+  have acquired a lock but then released the lock to wait for a certain
+  condition to be satisfied.  When this condition is satisfied another thread
+  will signal the wait queue releasing the head process in the queue which then
+  reacquires the lock.
+  
+What is the problem with Java condition queues?
+
+  Java condition queues are implemented with the wait, notify, and notifyAll
+  calls.  A thread that needs to wait for a condition to be satisified needs
+  to already have the lock and then calls wait to release the lock and wait
+  to be notified.  Another thread posessing the lock can then call notify or
+  notifyAll.  When notify is called an arbitrary task will be awakened while
+  with notifyAll all tasks waiting will be awakened.
+  
+  Problems with Java wait queues include:
+  
+  1.  When notify is called an arbitrary task is awakened, and not necessarily
+  the one at the head of the queue.
+  
+  2.  Race conditions exist because awakened tasks compete with all other tasks
+  vying for the lock and are not gauranteed the lock.
+  
+  3.  Because of the previous two problems, it is often necessary to call
+  notifyAll, which results in all threads being awoken with all but one of them
+  going back to sleep, wasting clock cycles.
+  
+  
+How are threads made in Java?
+
+  Threads in Java are made by either subclassing the Thread class and then
+  placing the thread code in the run method, or, if the class is already
+  subclassing another class, then to implement runnable.  The thread code is
+  still placed in the run method, but now a private surrogate thread is created
+  and passed the object.  The start method then starts the thread.
+  
+What about synchronized block and methods?
+
+  A synchronized block in java is a block of code encapsulated with the:
+  
+  synchronized(object) { ... }
+  
+  The lock within object is used as a binary semaphore for the region within
+  the brackets.
+  
+  With synchronized methods the lock within the object containing the methods
+  is used as a semaphore and the associated P() and V() operations are
+  automatically inserted.
+  
+Explain the wait and notify mechanisms:
+
+  The wait method is a method that can be called anytime that a lock has been
+  acquired.  This releases the lock and places the task in a supsended state
+  on a wait queue.  This is usually done because the task needs to wait on a
+  condition to be satisfied before it can continue.  When the condition is
+  satisfied, another task that has acquired the lock will call notify or
+  notifyAll.  When notify is called an arbitrary task on the wait queue will
+  be awakened and will be allowed to resume.  When notifyAll is called, all
+  tasks waiting on the wait queue are awakened.
+  
+What are Ada task types and objects?
+
+  In Ada threading is provided through tasks.  A task type is like a class in
+  Java that can be instantiated so that many tasks can be created.  A task
+  object is a single object thread that is created and ran during program
+  execution.
+  
+What is a protected type?
+
+  A protected type is the monitor concept implemented in Ada.  It provides
+  three language constructs:
+  
+  1.  procedure - provide mutually exclusive read/write access to shared data.
+  2.  functions - provide unrestricted read only access to shared data.
+  3.  entries - like procedures, but also provide quard conditions which only
+  allow the entry to execute if the gaurd condition evaluates to true and wait
+  queues, for holding the calls when the gaurd condition evaluates to false.
+  
+What is the Ada rendezvous and select statement?
+
+  An Ada rendezvous is the language construct that provides a synchronous two
+  way message passing facility.  The client makes a call on an entry.  If the
+  server is busy the client is queued on a FIFO queue for that entry.  The
+  server accepts the rendezvous with an accept statment on the entry.  This
+  causes the server to wait for a call to arrive.  When the call arrive
+  message passing is facilitated through the parameters of the entry call.
+  Rendezvous code is executed if any, data can be passed back through
+  parameters, and then the client and server tasks proceed independently.
+  
+  The select statement is a language construct used by a server task that
+  allows it to block on several entries at the same time.  These entries can
+  also have gaurd conditions that are evaluated when the select statement is
+  encountered.  Those that evaluate to true are considered "open alternatives"
+  and calls on those entries will be accepted.  If there are no calls on an
+  open alternative the server will wait for a call on one of them, unless there
+  is an else call in which case it will execute immediately.  Other options are
+  OR
+    terminate; -- which if no clients exist the the server will terminate
+    
+  OR
+    delay 10.0; -- which will let the server wait for a call for an amount of
+    time
+    
+What is a timed out entry call?
+
+  This is a client side call that can allow the client to attempt to call a
+  server method but time out if no server answers within a certain amount of
+  time, such as:
+  
+  SELECT
+    server.call;
+  OR
+    delay 10.0;
+  END SELECT;
+  
+  also possible are alternative calls, done via:
+  
+  SELECT
+    server.call;
+  ELSE
+    server.backupCall;
+  END SELECT;
+  
+What is asynchronous transfer of control?
+
+  This is done using a special form of the select statement:
+  
+  SELECT
+    DELAY interval;
+    -- other processing
+  THEN ABORT
+    --lengthy computation which we may wish to abort
+  END SELECT;
+  
+  The then abort part is executed until the delay interval expires, then
+  the other processing starts.  This is a great technique for calculations
+  that become more precise with time.  It can be run for a time bound.
+  
+What is deadlock?
+
+  Deadlock is a situation that occurs when two or more tasks are suspended
+  waiting on resources that the other holds.  Both processes are suspended
+  indefinitely.
+  
+What is starvation?
+
+  Starvation occurs when a process is held in the runnable state but is always
+  denied access to the CPU.  This can occur when there is always another
+  higher priority process ready to run.
+  
+What is livelock?
+
+  This happens when several competing processes repeatedly execute their
+  prologue code for acquisition of a shared resource but are never successful.
+  The processor is kept occupied and no useful work is accomplished.
+  
+What is priority inversion and priority inheritence?
+
+  Priority inversion is what happens when a higher priority task is waiting for
+  a resource held by a lower priority task, but the resource will not be
+  released as the lower priority task does not get scheduled for execution.
+  Priority inheritence is the solution to this problem as the lower priority
+  task is temporarily raised to the priority of the higher priority tasks so
+  that the resource can be released and then the higher priority task allowed
+  to execute.
+  
+What is a petri net?
+
+  A petri net is a technique for evaluating the potential for deadlock in a
+  concurrent system.  It consists of places, which are places in the system
+  where queues of resources or components occur in the system.  Transistions,
+  which are places in the system where resources and components are consumed
+  and created.  Tokens, which represent the resources and components in the
+  system.  Arcs, which are connections between places and transitions.
+  
+  They work by first determining which transitions are firable and then
+  randomly choosing one of the transisitions to fire.  Adjustments are then
+  made to the token counts and this process is repeated.  It will then be seen
+  if a series of transitions can lead to no transitions being firable.
+  
+  Colored nets add colors to the tokens so that more intricate firing rules can
+  be made such as a certain number of a certain color of token being available
+  in order to fire a transition.  With timed nets there is a delay between the
+  firing of a transition and when the tokens are allow to appear from the
+  output of the transition.
+  
+What are reachability trees and matrices?
+
+  A reachability tree takes the information from a petri net with the root
+  of the tree given by the initial vector count while branches represent
+  particular transition firings leading to new states.  These can be used to
+  help determine if deadlock is possible.
+  
+  A reachability matrix represents a petri net with rows representing
+  transitions and columns represent places.  Firing vectors can be multiplied
+  against the matrix and mathematical analysis can be made.
+  
+What is Occam and the Transputer?
+
+  The transputer was a single chip computer with four high speed serial data
+  channels, fast cpu, and small memory.  Because the of the high speed data
+  channels these could be connected to form a network of inter-communicating
+  processors.
+  
+  Occam was the original language specified for the architecture and provided
+  for concurrency.
+  
+What is a tuple space?
+
+  Tuple space is an unstructured space into which tuples can be written out,
+  read, or removed by independent tasks operating in a distributed, networked
+  environment.
+  
+  Tuples are vectors of values that are identified by a tag field.  The
+  writing, reading, and removal of these vectors are atomic operations.
+  
+  Dr. Martin calls them read, take, and write.
+  
+What are the flynn's taxonomy?
+
+  SISD
+  SIMD
+  MIMD
+  MISD
+  
+What are the patterns of solutions for parallel processing?
+
+Result - a process is assigned to each element of the result set.
+
+Agenda - the problem is divided into a large number of small tasks and a number
+of worker processes are created.  Jobs are then assigned to the worker threads
+with worker threads queuing up for more work when they are finished, until the
+task is complete.
+
+Specialist - the task to be performed is divided up into a number of specialized
+tasks which are assigned to different processes which do the work in parallel.
+
+What are the ways specialists can be characterized?
+
+  filter - takes a stream of data and modifies it in some way
+  server - provides services to clients responding to their requests
+  client - an actor, make requests of others in order to carry out an alloted task
+  peer   - acts as both a client and a server
+  
+What is the design process for parallel programs?
+
+Partitioning - the problem is split up into as many small tasks as possible.
+
+Communication - the communication requirements between the processes are identified
+and the mechanisms to provide it are identified.
+
+Agglomeration - based upon the partitioning and communication requirements,
+tasks are combined into larger units to improve performance and reduce
+communications.
+
+Mapping - process are mapped to processors to minimize communication costs and
+maximize performance.
+
+

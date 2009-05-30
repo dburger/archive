@@ -1,0 +1,658 @@
+Hello Dr. Peterson, here is my assignment on finding primes.  You will
+find the primes I found and a little discussion about it at the top.
+Below you will find my code:
+
+***********************************************************************
+I worked on finding primes of the form 2a + 1 where a is
+also prime.  I let my program run for 12 days, and here
+are the primes I found (big endian):
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 215dd3df
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 218cea9f
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 218fd47f
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 21916427
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 21ca673f
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 21cb4767
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 21ddb2ef
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 21e038f7
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 2215910f
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 22249dff
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 222d49ff
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 2230b95f
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 224e829f
+
+71581d71 8ff4bd5c 0cbcb028 37d118a0 80a7cd00 8883fcfc 91564a69 b82f3c61
+2525a465 ca4c3794 51d5c09c a8586bbc 450959fc 68f2d2cc 1ded84e8 d4b0aab1
+9a9675e4 0c169e55 a0f4a2fc 1cf92440 28baf49c 0a1142a8 f32f28c1 9d1cd1f9
+cf1dc4a8 ab5adf21 daef05c0 826373d8 4f4aacc9 af95a720 8a10033c 2250449f
+
+I found several things to be very interesting about this assignment.
+First, I thought my program would run faster than it did.  Sure, my
+stuff was machine independent so I didn't have any speed up from using
+assembly routines but I did make sure to eliminate the numbers that
+were divisible by primes up to 31.  My average worked out to a little
+more than a prime a day.  Second, I noticed that the primes I did find
+seemed to be somewhat grouped together.  Although not a scientific
+assesment, I never checked it, came back, and saw it increase by 1,
+even though I would check it several hours apart.  It would always
+happen that it wouldn't find one for a day or so, and then I would
+check again, and it would have found 4 overnight.
+***********************************************************************
+
+Here is my makefile:
+***********************************************************************
+
+primes: long.o main.o
+	gcc long.o main.o -o primes
+main.o: main.c long.h
+	gcc main.c -c
+long.o: long.c
+	gcc long.c -c
+
+***********************************************************************
+
+Here is my main.c:
+***********************************************************************
+/*=============================================================================
+Assignment: long arithmetic
+Author:     David J. Burger
+Language:   ANSI C running on UHUNIX2 (Solaris)
+Compile:    by running "make" with included makefile
+
+Class:      ICS 623
+Instructor: Dr. Peterson
+Due Date:   11/05/01
+===============================================================================
+File:         main.c
+
+Description:  this program demonstrates various long arithmetic functions
+              performing the computations described in the assignment notes
+=============================================================================*/
+#include <stdio.h>
+
+#include "long.h"
+
+/*=============================================================================
+Function fprintUL
+
+Purpose:  prints the hex value of an array of size unsigned longs
+          
+Parameters:
+          *p - array containing the unsigned longs
+          size - number of unsigned longs to print from the array
+          
+Returns:  nothing, outputs hex values of the unsigned longs on the screen
+=============================================================================*/
+void fprintUL(FILE *fp, UL *p, int size) {
+    int i;
+    for (i=0;i<size;i++) {
+        fprintf(fp,"%08x",p[i]);
+        if (i!=0 && (i+1)%8==0)
+            fprintf(fp,"\n");
+        else
+            fprintf(fp," ");
+    }
+    fprintf(fp,"\n");
+}
+
+/*=============================================================================
+Function copyUL
+
+Purpose:  copies size unsigned long values from a to b
+          
+Parameters:
+          *a - array containing unsigned longs to copy
+          *b - array to copy to
+          size - number of unsigned longs to copy from a to b
+          
+Returns:  nothing, size values are copied from a to b
+=============================================================================*/
+void copyUL(UL *a, UL *b, int size) {
+  while (--size>=0) b[size] = a[size];
+}
+
+/*=============================================================================
+Function main
+
+Purpose:  main entry point to program.  Demonstrates various long arithmetic
+          operations as described in the assignment notes.
+          
+Parameters:
+          argc - number of command line parameters passed to program
+          *argv[] - array of pointers to command line strings
+          
+Returns:  nothing, arithmetic operations on long numbers are performed
+=============================================================================*/
+int main(int argc, char *argv[]) {
+  
+  int attempts,firstlevel,secondlevel; /* used as counters */
+
+  int i; /* used in loops */
+
+  UL q[32], s[32], p[32], two[32]; /* used to hold the numbers */
+
+  FILE *fp; /* this is the file we write the second level primes to */
+
+  attempts = firstlevel = secondlevel = 0;
+
+  /* randomize our starting point */
+  seed = 0x479320ea;
+  for (i=0;i<32;i++) {
+    q[i] = irandom();
+  }
+
+  q[32]|=1; /* make sure first bit is a one */
+  q[0]&=0x0fffffff; /* clear top four bits */
+  q[0]|=0x10000000; /* make 1021 bit 1 */
+
+  /* make a 2 for incrementing to the net odd */
+  zeroUL(two,32);
+  two[31] = 2;
+
+  while(1) {
+    /* make s = 2q + 1 */
+    copyUL(q,s,32);
+    shl(s,shl(s+16,1));
+    attempts++;
+    if (lehman_prime(s,q)) {
+      firstlevel++;
+      /* make p = 2s + 1 */
+      copyUL(s,p,32);
+      shl(p,shl(p+16,1));
+      if (lehman_prime(p,s)) {
+        secondlevel++;
+        if (argc>1)
+          if ((fp=fopen(argv[1],"a"))!=NULL) {
+            fprintUL(fp,p,32);
+            fclose(fp);
+          }
+      }
+    }
+    /* add two to get to the next prime */
+    add(q,two,add(q+16,two+16,0));
+    printf("attempts: %d  first level: %d  second level: %d\n",attempts,firstlevel,secondlevel);
+  }
+
+}
+***********************************************************************
+
+Here is my long.h:
+***********************************************************************
+typedef unsigned long UL;
+
+int add(UL *a, UL *b, int c);
+int sub(UL *a, UL *b, int c);
+int shl(UL *a, int b);
+
+int mcmp(UL *a, UL *b);
+void madd(UL *a, UL *b, UL *P);
+void msub(UL *a, UL *b, UL *P);
+void mshl(UL *a, UL *P);
+void mexp(UL *a, UL *b, UL *result, UL *P);
+void mmult(UL *a, UL *b, UL *result, UL *P);
+void zeroUL(UL *a, int size);
+
+int lehman_prime(UL *p, UL *s);
+int divides(UL *a, UL b);
+
+extern long seed;
+unsigned long irandom(void);
+***********************************************************************
+
+Here is my long.c:
+***********************************************************************
+/*=============================================================================
+Assignment: long arithmetic
+Author:     David J. Burger
+Language:   ANSI C running on UHUNIX2 (Solaris)
+Compile:    by running "make" with included makefile
+
+Class:      ICS 623
+Instructor: Dr. Peterson
+Due Date:   11/05/01
+===============================================================================
+File:         long.c
+
+Description:  this file contains various long arithmetic functions.  The first
+              functions in the file are those supplied by Dr. Peterson.
+=============================================================================*/
+
+#include "long.h"
+
+  UL samp_primes[][32] = { { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 313 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 383 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 491 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 503 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 617 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 809 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 829 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 911 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 947 },
+                           { 0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 0,
+                             0, 0, 0, 0, 0, 0, 0, 997 } };
+
+
+/* This adds the 512-bit number that b points   */
+/* to to the 512-bit number that a points to.   */
+/* c is assumed to be 0 or 1, the carry in,     */
+/* and is added to the sum. The carry out of    */
+/* the highest-order word (1 or 0) is returned. */
+
+int add(UL *a, UL *b, int c)
+{
+    UL t;
+    t = a[15] + b[15];
+    a[15] = t+c;
+    c = t<b[15] || t==0xffffffff && c==1;
+    t = a[14] + b[14];
+    a[14] = t+c;
+    c = t<b[14] || t==0xffffffff && c==1;
+    t = a[13] + b[13];
+    a[13] = t+c;
+    c = t<b[13] || t==0xffffffff && c==1;
+    t = a[12] + b[12];
+    a[12] = t+c;
+    c = t<b[12] || t==0xffffffff && c==1;
+    t = a[11] + b[11];
+    a[11] = t+c;
+    c = t<b[11] || t==0xffffffff && c==1;
+    t = a[10] + b[10];
+    a[10] = t+c;
+    c = t<b[10] || t==0xffffffff && c==1;
+    t = a[9] + b[9];
+    a[9] = t+c;
+    c = t<b[9] || t==0xffffffff && c==1;
+    t = a[8] + b[8];
+    a[8] = t+c;
+    c = t<b[8] || t==0xffffffff && c==1;
+    t = a[7] + b[7];
+    a[7] = t+c;
+    c = t<b[7] || t==0xffffffff && c==1;
+    t = a[6] + b[6];
+    a[6] = t+c;
+    c = t<b[6] || t==0xffffffff && c==1;
+    t = a[5] + b[5];
+    a[5] = t+c;
+    c = t<b[5] || t==0xffffffff && c==1;
+    t = a[4] + b[4];
+    a[4] = t+c;
+    c = t<b[4] || t==0xffffffff && c==1;
+    t = a[3] + b[3];
+    a[3] = t+c;
+    c = t<b[3] || t==0xffffffff && c==1;
+    t = a[2] + b[2];
+    a[2] = t+c;
+    c = t<b[2] || t==0xffffffff && c==1;
+    t = a[1] + b[1];
+    a[1] = t+c;
+    c = t<b[1] || t==0xffffffff && c==1;
+    t = a[0] + b[0];
+    a[0] = t+c;
+    c = t<b[0] || t==0xffffffff && c==1;
+    return c;
+}
+
+/* This sutracts the 512-bit word that b points   */
+/* to from the 512-bit number that a points to.   */
+/* c (1 or 0) is subtracted from the result, and  */
+/* if there is a borrow out of the high end, it   */
+/* (1 or 0) is returned.                          */
+int sub(UL *a, UL *c, int b1)
+{
+    int b2;
+    b2 = a[15]<c[15] || a[15]==c[15] && b1==1;
+    a[15] -= c[15]+b1;
+    b1 = a[14]<c[14] || a[14]==c[14] && b2==1;
+    a[14] -= c[14]+b2;
+    b2 = a[13]<c[13] || a[13]==c[13] && b1==1;
+    a[13] -= c[13]+b1;
+    b1 = a[12]<c[12] || a[12]==c[12] && b2==1;
+    a[12] -= c[12]+b2;
+    b2 = a[11]<c[11] || a[11]==c[11] && b1==1;
+    a[11] -= c[11]+b1;
+    b1 = a[10]<c[10] || a[10]==c[10] && b2==1;
+    a[10] -= c[10]+b2;
+    b2 = a[9]<c[9] || a[9]==c[9] && b1==1;
+    a[9] -= c[9]+b1;
+    b1 = a[8]<c[8] || a[8]==c[8] && b2==1;
+    a[8] -= c[8]+b2;
+    b2 = a[7]<c[7] || a[7]==c[7] && b1==1;
+    a[7] -= c[7]+b1;
+    b1 = a[6]<c[6] || a[6]==c[6] && b2==1;
+    a[6] -= c[6]+b2;
+    b2 = a[5]<c[5] || a[5]==c[5] && b1==1;
+    a[5] -= c[5]+b1;
+    b1 = a[4]<c[4] || a[4]==c[4] && b2==1;
+    a[4] -= c[4]+b2;
+    b2 = a[3]<c[3] || a[3]==c[3] && b1==1;
+    a[3] -= c[3]+b1;
+    b1 = a[2]<c[2] || a[2]==c[2] && b2==1;
+    a[2] -= c[2]+b2;
+    b2 = a[1]<c[1] || a[1]==c[1] && b1==1;
+    a[1] -= c[1]+b1;
+    b1 = a[0]<c[0] || a[0]==c[0] && b2==1;
+    a[0] -= c[0]+b2;
+    return b1;
+}
+
+/* This shifts a left one bit. c (1 or 0)    */
+/* is shifted into the lowest order position */
+/* and the bit (1 or 0) shifted out of the   */
+/* highest order position is returned.       */
+int shl(UL *a, int c)
+{
+    int c1;
+    c1 = a[0]>>31;
+    a[0] = (a[0]<<1) | a[1]>>31;
+    a[1] = (a[1]<<1) | a[2]>>31;
+    a[2] = (a[2]<<1) | a[3]>>31;
+    a[3] = (a[3]<<1) | a[4]>>31;
+    a[4] = (a[4]<<1) | a[5]>>31;
+    a[5] = (a[5]<<1) | a[6]>>31;
+    a[6] = (a[6]<<1) | a[7]>>31;
+    a[7] = (a[7]<<1) | a[8]>>31;
+    a[8] = (a[8]<<1) | a[9]>>31;
+    a[9] = (a[9]<<1) | a[10]>>31;
+    a[10] = (a[10]<<1) | a[11]>>31;
+    a[11] = (a[11]<<1) | a[12]>>31;
+    a[12] = (a[12]<<1) | a[13]>>31;
+    a[13] = (a[13]<<1) | a[14]>>31;
+    a[14] = (a[14]<<1) | a[15]>>31;
+    a[15] = (a[15]<<1) | c;
+    return c1;
+}
+
+/* Here are several 1023-bit mod P functions: */
+
+/* Return negative,if a<b, zero if */
+/* a=b and positive if a>b.        */
+int mcmp(UL *a, UL *b)
+{
+	int i;
+	for(i = 0; i<32; i++) {
+		if(a[i]>b[i]) return 1;
+		if(a[i]<b[i]) return -1;
+	}
+	return 0;
+}
+
+/* add b to a */
+void madd(UL *a, UL *b, UL *P)
+{
+	add(a, b, add(a+16, b+16, 0));
+	if(mcmp(a, P)>=0) sub(a, P, sub(a+16, P+16, 0));
+}
+
+/* subtract b from a */
+void msub(UL *a, UL *b, UL *P)
+{
+	if(sub(a, b, sub(a+16, b+16, 0))) 
+		add(a, P, add(a+16, P+16, 0));
+}
+
+/* shift a left one bit  */
+void mshl(UL *a, UL *P)
+{
+	shl(a, shl(a+16, 0));
+	if(mcmp(a, P)>=0) sub(a, P, sub(a+16, P+16, 0));
+}
+
+/*=============================================================================
+Function mmult
+
+Purpose:  mutiply a by b mod P and put the result in result
+          
+Parameters:
+          *a - first operator
+          *b - second operator
+          *result - where the result is placed
+          *P - modulus
+          
+Returns:  nothing, result of multiplication is placed in result
+=============================================================================*/
+void mmult(UL *a, UL *b, UL *result, UL *P) {
+  int i,j;
+  UL mask;
+  UL t[32];
+  zeroUL(t,32);
+  /* looping through the 32 words */
+  for (i=0;i<32;i++) {
+    mask = 0x80000000;
+    /* looping through the 32 bits */
+    for (j=0;j<32;j++) {
+      mshl(t,P);
+      if (b[i] & mask) madd(t,a,P);
+      mask>>=1;
+    }
+  }
+
+  /* answer is in t[], put in result */
+  for (i=0;i<32;i++)
+    result[i] = t[i];
+
+}
+
+/*=============================================================================
+Function mexp
+
+Purpose:  take a to the power b mod P and put result in result
+          
+Parameters:
+          *a - base of exponentiation
+          *b - exponent
+          *result - where the result is placed
+          *P - modulus
+          
+Returns:  nothing, result of exponentiation is placed in result
+=============================================================================*/
+void mexp(UL *a, UL *b, UL *result, UL *P) {
+  int i,j;
+  UL mask;
+  UL t[32];
+  zeroUL(t,32);
+  t[31] = 1;
+  /* looping through the 32 words */
+  for (i=0;i<32;i++) {
+    mask = 0x80000000;
+    /* looping through the 32 bits */
+    for (j=0;j<32;j++) {
+      mmult(t,t,t,P);
+      if (b[i] & mask) mmult(t,a,t,P);
+      mask>>=1;
+    }
+  }
+
+  /* answer is in t[], put in result */
+  for (i=0;i<32;i++)
+    result[i] = t[i];
+
+}
+
+/*=============================================================================
+Function zeroUL
+
+Purpose:  used to "zero out" the values in an unsigned long array
+          
+Parameters:
+          *a - array to zero out
+          size - number of values to zero out
+          
+Returns:  nothing, size values in a are set to 0
+=============================================================================*/
+void zeroUL(UL *a, int size) {
+  while (--size>=0) a[size] = 0;
+}
+
+/*=============================================================================
+Function lehman_prime
+
+Purpose:  this function determines whether p is prime where p = 2s + 1 using
+          the Lehman method
+          
+Parameters:
+          *p - number to determine if prime contained in 32 element UL array
+          *s - p = 2s + 1, contained in 32 element UL array
+          
+Returns:  returns 1 if prime, 0 otherwise
+=============================================================================*/
+int lehman_prime(UL *p, UL *s) {
+  UL small_primes[] = { 3,5,7,11,13,17,19,23,29,31 };
+  UL result[32],one[32],negone[32];
+  int i,numone=0;
+
+  /* check for divisibility by the small primes */
+  for (i=0;i<10;i++)
+    if (divides(p,small_primes[i])) return 0;
+
+  /* make a one value */
+  zeroUL(one,32);
+  one[31] = 1;
+
+  /* make a negative one value */
+  copyUL(p,negone,32);
+  sub(negone,one,sub(negone+16,one+16,0));
+
+  /* test the 3 digit primes to see if results are 1 and -1 */
+  for (i=0;i<10;i++) {
+    mexp(samp_primes[i],s,result,p);
+    if (mcmp(result,one)==0) numone++;
+    if (!(mcmp(result,one)==0 || mcmp(result,negone)==0)) return 0;
+  }
+  /* if not all of them were one, return 1, it is a prime */
+  return numone!=10;
+}
+
+/*=============================================================================
+Function irandom
+
+Purpose:  used to randomize through the 32 bits of an unsigned long
+          
+Parameters:  none
+          
+Returns:  returns a randomized unsigned long
+=============================================================================*/
+#define A 16807
+#define M -1
+#define Q 127773
+#define R 2836
+long seed;
+UL irandom(void) {
+  UL lo, hi;
+  hi = R*(seed/Q);
+  lo = A*(seed%Q);
+  if (lo>hi)
+    seed = lo-hi;
+  else
+    seed = (M-hi) + lo;
+  return(seed);
+}
+
+
+/*=============================================================================
+Function divides
+
+Purpose:  used to determine if a 32 bit unsigned long will divide a 1024 bit
+          unsigned long evenly
+          
+Parameters:
+          *a - dividend array holding 32 UL values making a 1024 bit number
+          b - divisor
+          
+Returns:  1 if divisible, 0 otherwise
+=============================================================================*/
+int divides(UL *a, UL b) {
+  int i;
+  UL t[33];
+  t[0] = 0;
+  copyUL(a,t+1,32);
+  for (i=0;i<1024;i++) {
+    if (t[0]>=b) t[0]-=b;
+    if (t[32] & 0x80000000)
+      shl(t,shl(t+16,1));
+    else
+      shl(t,shl(t+16,0));
+    t[32]<<=1;
+  }
+  if (t[0]>=b) t[0]-=b;
+  return t[0]==0;
+}

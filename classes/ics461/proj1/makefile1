@@ -1,0 +1,6 @@
+driver1: driver1.o Configuration1.o
+	g++ driver1.o Configuration1.o -o driver1
+driver1.o: driver1.cc
+	g++ -c driver1.cc
+Configuration1.o: Configuration1.cc
+	g++ -c Configuration1.cc

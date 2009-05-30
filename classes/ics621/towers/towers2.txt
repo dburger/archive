@@ -1,0 +1,81 @@
+
+
+The regular Towers of Hanoi is known to take
+2^n - 1 moves for a tower of height n.  When
+moving "doubly stacked" towers with n double
+stacks, it takes 2(2^n - 1) = 2^(n+1) - 2
+moves.
+
+To solve the modified Towers of Hanoi problem
+with poles A, B, and C,
+use the following recursive algorithm (where
+doubleTower is the typical Towers of Hanoi
+algorithm adjust to operate on double stacks):
+
+
+solve(n)
+  if (n==0) return;
+  solve(n-1);
+  move the top disk from A to C;
+  doubleTower(n-1,"B","A","C");
+  move the top two disks from C to B;
+  doubleTower(n-1,"A","B","C");
+
+Time compelxity analysis:
+
+T(n)  =  0, if n = 0
+
+      =  T(n-1) + 2(2^(n) - 2) + 3, otherwise
+      =  T(n-1) + 2^(n+1) - 1
+      
+In the above recurrence relation the T(n-1) comes
+from the solution of the subproblem, the
+2(2^(n+1) - 2) comes from the two calls to
+doubleTower, and the 3 comes from the 3 individual
+disk moves.  This simplifies to the above recurrence
+relation.
+
+Using the plug and chug technique...
+
+      = T(n-2) + 2^(n) - 1 + 2^(n+1) - 1
+      = T(n-2) + 2^(n+1) + 2^(n) - 2
+
+      = T(n-3) + 2^(n-1) - 1 + 2^(n+1) + 2^(n) - 2
+      = T(n-3) + 2^(n+1) + 2^(n) + 2^(n-1) - 3
+
+it becomes apparent that this is...
+
+                         i
+      = T(n-i) + 2^(n+2)sum(2^(-k)) - i
+                        k=1
+
+and the recursion stops when n - i = 0, that is i = n,
+so,
+
+                    n
+      = 0 + 2^(n+2)sum(2^(-k)) - n
+                   k=1
+
+the summation is a geometric series missing the first
+term, going up to the n+1 term, with a=1 and r=1/2,
+using the formula for a geometric series...
+
+      = 2^(n+2)((1-(1/2)^(n+1))/(1-(1/2)) - (1/2)^0) - n
+
+      = 2^(n+2)((1-(1/2)^(n+1))/(1/2) - 1) - n
+
+      = 2^(n+2)(2 - 1/2^n - 1) - n
+
+      = 2^(n+2)(1 - 1/2^n) - n
+
+      = 2^(n+2) - 2^3 - n
+
+      = 2^(n+2) - n - 8
+      
+      = 2^2*2^n - n - 8
+      
+      < 4*2^n for n>=0
+
+Which shows that this modified Towers of Hanoi problem
+is O(2^n), surprisingly the exact same big O time
+complexity as the regular Towers of Hanoi problem.now on B stop, you are done.

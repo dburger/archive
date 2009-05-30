@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.4
+by Lorenzo Bettini, bettini@gnu.org
+http://w3.newnet.it/bettini
+http://www.gnu.org/software/src-highlite">
+<title>makeegds</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+egds<font color=#990000>:</font> egds<font color=#990000>.</font>o <font color=#009900>long</font><font color=#990000>.</font>o sha1<font color=#990000>.</font>o
+	gcc egds<font color=#990000>.</font>o <font color=#009900>long</font><font color=#990000>.</font>o sha1<font color=#990000>.</font>o <font color=#990000>-</font>o egds
+egds<font color=#990000>.</font>o<font color=#990000>:</font> egds<font color=#990000>.</font>c <font color=#009900>long</font><font color=#990000>.</font>h
+	gcc egds<font color=#990000>.</font>c <font color=#990000>-</font>c
+<font color=#009900>long</font><font color=#990000>.</font>o<font color=#990000>:</font> <font color=#009900>long</font><font color=#990000>.</font>c <font color=#009900>long</font><font color=#990000>.</font>h
+	gcc <font color=#009900>long</font><font color=#990000>.</font>c <font color=#990000>-</font>c
+sha1<font color=#990000>.</font>o<font color=#990000>:</font> sha1<font color=#990000>.</font>c
+	gcc sha1<font color=#990000>.</font>c <font color=#990000>-</font>c
+
+</tt>
+</pre>
+</body>
+</html>

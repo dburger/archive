@@ -1,0 +1,189 @@
+IDA*
+David J. Burger
+for ICS 461, Curt Powley
+
+My program is a fairly straightforward implementation of the IDA*
+algorithm.  As in the previous program, my program is written so that
+reads the puzzle from a data file.  See the comments at the top of
+puzzle.c for a full description of the file layout.  My program uses
+backward chaining to solve the puzzles, as this leads to a more
+natural way of outputting the solution without resorting to an
+auxillary stack.  The program works by generating the root node and
+then calling expand on it with the threshold set to the heuristic cost
+of the root node.  The expand function then begins its recursive work,
+first checking that the node is less than or equal to the threshold,
+and if it is the node is checked to see if it is a solution.  If it is
+a solution then the solution is returned, if it is not, its child
+nodes are then expanded.  During the expansion the lowest cost
+encountered greater than the threshold is tracked, and this value will
+be used as the threshold in the next round.  This continues in rounds
+until a solution is found.
+
+I tested my program by running the puzzles that were provided by Curt
+Powley.  I originally used gettimeofday to time the running time of my
+program.  gettimeofday is not absolutely accurate, as it will include
+the time that a program was swapped out waiting for its next time
+slice, therefore I later on started using the clock call to time the
+program.  The clock call counts the number of clocks that the cpu uses
+to do work on behalf of the process.
+
+I did a couple of interesting things in my program implementation.
+First, I made a neat table lookup for calculating the manhattan
+distance of a puzzle.  The table is pre-calculated before the first
+expansion and then can be used to generate the manhattan distance for
+any puzzle with a quick array access for each cell in the puzzle.  For
+example, for the 8 puzzle this array would hold the manhattan value
+for the 0 for all puzzle locations in cells 0 - 8, the 1 in cells 9 -
+16, the 2 in cells 17 - 24, and so on.  When I later sped up my
+program by calculating the heuristic value of a child by noting the
+change from the parent, this meant I could get the new value with only
+two simple array accesses, that is, adding the value where the tile
+was moved to, and subtracting the value of where the tile was.
+
+Another kind of interesting thing that I did with the program is to
+make it so that it could run either the manhattan distance or
+misplaced tiles heuristics by changing a command line parameter.  See
+the comments at the top of puzzle.c for full details.
+
+For a while I had a bug in my program that was hard to track down.  It
+occurred because I had failed to multiply the allocation of one of my
+puzzle arrays by sizeof(int).  Therefore the malloc'ed size was not
+large enough.  The C language was happy to let me write beyond the end
+of my arrays, only to complain later when an unrelated free() was
+encountered.  This was a difficult bug to track down and a reminder to
+be very careful when programming in C.
+
+The next two pages give a run down of the results of testing my
+program.  That is followed by the source code for the IDA*.  Enjoy.
+
+
+DFID vs. IDA* Commentary:
+
+As the data clearly shows, IDA* does a tremendous job of pruning the
+search compared to the brute force technique of DFID.  For the first
+two problems, IDA* makes no difference as these are problems of very
+low complexity.  For problems 3 through 6 we see IDA* starting to make
+a difference, with IDA* generating only 8 nodes to DFID's 99 nodes for
+problem 6.  The real difference can be seen in the 7th problem.  This
+problem is much more difficult than the previous problems and
+therefore shows off the advantages of IDA*.  In this problem IDA*
+generates only 311 nodes to DFID's whopping 152,390.  This of course
+also translates into a much faster solution time, however, because of
+the lack of fine granularity from the clock call, no timing
+information can be reported for the IDA* for these small puzzles.
+
+After running the tests with the 8 puzzle I was curious to watch IDA*
+work on the example 15 puzzle problems available on the web.  Because
+of DFID's slow running time, a comparison was not possible because
+DFID would take far too long on these problems.  I ran my program
+against several of the 15 puzzle problems, however, for brevity I
+include the results of only one of them here:
+
+Problem number 96:
+
+[dburger@fac-dhcp06 fifth]$ ./puzzle advanced -man
+Manhattan distance heuristic will be used.
+Start puzzle:
+01  07  15  14  
+02  06  04  09  
+12  11  13  03  
+00  08  05  10  
+
+Goal puzzle:
+00  01  02  03  
+04  05  06  07  
+08  09  10  11  
+12  13  14  15  
+
+35           21
+37          321
+39         4088
+41        33361
+43       228687
+45      1425847
+47      8310902
+49      2805337
+URULDRRRUULLDRDLULDRDRURUULDLLDRDRRUULLDRDRUUULLL
+Problem solved!
+Node generations:      12808564.000000
+Elapsed time:                 1.370000
+Nodes / Second:         9349316.788321
+========================================================
+
+As you can see the elapsed time was 1.37 seconds, much faster than the 1989
+time of 12 minutes and 19 seconds, however also on much faster
+hardward.  My program generated approximately 9.3 million nodes per
+second on this problem.  If you look at the number of node generations
+and compare them to the sample data you will see that I have matched
+them exactly.  I did this because the numbers that I was getting were
+always different than the sample, so I wanted to find out if Korf was
+using some kind of modified IDA*, or if I just wasn't using the same
+node generation order that he did.  As it turns out Korf's numbers are
+from pure IDA*, with the order being up, left, right, and then down.
+
+When I first finished the IDA* program it was no where near as fast as
+it is now.  As a matter of fact, I know have 5, yes 5, versions of
+this program on my hard disk.  The first version is the cleanest as
+far as programming techniques.  The last version, which is also the
+version that I have handed is, is full of tweaks designed to make the
+program run as fast as possible.  The first version ran at around 1.5
+million nodes per second, while the last version clocks in at over 9
+million nodes per second.  Here are the tweaks that got me there:
+
+1. Calculation of child heuristic via the change from the parent.
+2. is_solved function no longer needed, just check heuristic == 0.
+3. When doing undo moves, don't adjust the state information no longer
+   needed for the soon to be discarded nodes.
+4. Remove all null checks after mallocs, this is an unrecoverable
+   situation anyway.
+5. Use gcc compiler directives for enhanced compilation including -O3
+   and -march-i686.
+6. Limit the passed variables to as few as possible by using global
+variables.
+
+And I thought I was done, until the last lecture when I realized that
+I didn't need to dynamically create and destroy the nodes.  So I:
+
+7. Allocated all the room for node state information at the start of
+   the program with a char current_path[MAX_DEPTH] definition.  Then
+   an index variable current_depth could be used to keep track of the
+   head of the search path.  Backing up and moving forward is as
+   simple as changing the current_depth index rather than allocating
+   and deallocating nodes.
+8. Removed some of the math on calculating if it was possible to move
+   left, right, up, and down.
+
+After these tweaks I went over the 9 million nodes per second mark.
+
+The next thing I did with my program was to modify it so that it could
+use either the manhattan distance or counting the misplaced tiles as
+heuristic functions.  I then made comparisons on the number of nodes
+that were generated when using the different heuristic functions.  As
+an example, for the most difficult 8 puzzle problem shown above, the
+misplaced tile heuristic gives us:
+
+Start puzzle:
+02  01  06  
+04  00  08  
+07  05  03  
+
+Goal puzzle:
+01  02  03  
+08  00  04  
+07  06  05  
+
+ULDRRULLDRRDLUURDL
+Problem solved!
+Node generations:          6241.000000
+Elapsed time:                 0.000000
+Nodes / Second:                    inf
+
+This gives an interesting comparison as we have DFID generating
+153,290 nodes, IDA* misplaced generating 6241, and IDA* manhattan
+generating 311 nodes.  This shows that using IDA* with the misplaced
+heuristic is far superior to a DFID, and IDA* with manhattan is far
+superior to IDA* with misplaced as a heuristic.  All my tests showed
+that the manhattan heuristic was far superior when it comes to pruning
+the tree down to a more manageable size.  This shows that the
+manhattan distance heuristic is a tighter lower bound, and therefore
+it spends less time generating nodes that are further from the solution.

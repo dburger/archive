@@ -1,0 +1,343 @@
+<html>
+<head>
+<title></title>
+
+<style type="text/css">
+<!--
+  body {font-family:Verdana}
+-->
+</style>
+
+<script language="javascript">
+<!--
+
+// Airline Reservation Project
+// for ICS 415, Dr. Martin
+// 6/17/2002
+// by David J. Burger
+
+// featuring: xml parsing for departure and desination airports
+//            validation of dates
+//            validation of departure/return dates
+//            validation of name entries
+//            query string processing
+//            dynamic form creation
+//            re-presentation of form data upon modification selection
+
+// global variables used for the form
+var passengerCount = 0;
+var xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
+xmlDoc.async = false;
+xmlDoc.load("flights.xml");
+var airports = xmlDoc.selectNodes("/flights/airport");
+
+// This function returns a Date object given a dateString in the
+// mm/dd/yyyy format.  If the dateString is invalid null is returned.
+function parseDate(dateString) {
+  var month, day, year, parsedDate;
+  parsedDate = dateString.split("/");
+  if (parsedDate.length!=3) return null;
+  month = parsedDate[0];
+  day = parsedDate[1];
+  year = parsedDate[2];
+  if (isNaN(month) || isNaN(day) || isNaN(year)) return null;
+  // 70 is the earliest year the Date() object will handle
+  if (month<1 || month>12 || day<1 || day>31 || year<70) return null;
+  month--; //month is zero based for the Date object
+  // create the Date object
+  var theDate = new Date(year,month,day);
+  // if the constructor changed the day...the dateString wasn't valid
+  // from a number of days in month perspective (30 vs. 31, leap year etc.)
+  if (theDate.getDate()!=day)
+    return null;
+  else
+    return theDate;
+}
+
+// This function adds a passenger to the passenger list.  It checks to
+// make sure that a first and last name have been entered.
+function addPassenger() {
+  var theForm = document.forms['reservationForm'];
+  if (theForm.firstName.value=="" || theForm.lastName.value=="") {
+    alert("Please enter a valid first and last name for the passenger.\n");
+    return;
+  }
+  ++passengerCount;
+  var fullName = theForm.firstName.value + " " + theForm.lastName.value;
+  var newOption = new Option(fullName,fullName,false,false);
+  theForm.passengers[passengerCount] = newOption;
+  theForm.firstName.value = theForm.lastName.value = "";
+  theForm.firstName.focus();  
+}
+
+// This function will remove the selected passengers from the passenger
+// list.
+function removePassenger() {
+  var theForm = document.forms['reservationForm'];
+  for (var i=passengerCount;i>0;i--) {
+    if (theForm.passengers[i].selected==true) {
+      theForm.passengers.remove(i);
+      passengerCount--;
+    }
+  }
+}
+
+// This function will clear all the passengers from the passenger list.
+// Convenient for use when the Clear button is pressed.
+function clearPassengers() {
+  var theForm = document.forms['reservationForm'];
+  for (var i=passengerCount;i>0;i--) {
+    theForm.passengers.remove(i);
+    passengerCount--;
+  }
+}
+
+// This function validates all the data on the reservation.  Any
+// invalid data entries will result in the form not being submitted
+// and the user being advised on what needs to be fixed.
+function validate() {
+  var theForm = document.forms['reservationForm'];
+  var errorString = "";
+  var focusControl;
+
+  if (passengerCount==0) {
+    errorString+="Please add some passengers to the reservation.\n";
+    focusControl = theForm.firstName;
+  }
+
+  if (theForm.departureDate.value=="") {
+    errorString+="Please set a departure date for the reservation.\n";
+    if (!focusControl) focusControl = theForm.departureDate;
+  }
+
+  if (theForm.ways2.checked && theForm.returnDate.value=="") {
+    errorString+="Please set a return date for the reservation.\n";
+    if (!focusControl) focusControl = theForm.returnDate;
+  }
+
+  if (errorString.length) {
+    alert(errorString);
+    focusControl.focus();
+    return false;
+  }
+
+  // now check the date more thoroughly
+  var outDate, backDate;
+
+  // first see if departure and return dates convert to valid dates
+  if ((outDate=parseDate(theForm.departureDate.value))==null) {
+    errorString+="Please enter a valid departure date.\n";
+    focusControl = theForm.departureDate;
+  }
+
+  if (theForm.ways2.checked && (backDate=parseDate(theForm.returnDate.value))==null) {
+    errorString+="Please enter a valid return date.\n";
+    if (!focusControl) focusControl = theForm.returnDate;
+  }
+
+  if (errorString) {
+    alert(errorString);
+    focusControl.focus();
+    return false;
+  }
+
+  var now = new Date();
+
+  // now we see if the date fall within appropriate time periods
+  if (outDate.getTime()<=now.getTime()) {
+    errorString+="The departure date must be a future date.\n";
+    focusControl = theForm.departureDate;
+  }
+
+  // within 100 days ?
+  if (outDate.getTime()-now.getTime()>(100*24*60*60*1000)) {
+    errorString+="The departure date must be within 100 days of today.\n";
+    if (!focusControl) focusControl = theForm.departureDate;
+  }
+
+  // return date after departure date?
+  if (theForm.ways2.checked && backDate.getTime()<=outDate.getTime()) {
+    errorString+="The return date must come after the departure date.\n";
+    if (!focusControl) focusControl = theForm.returnDate;
+  }
+
+  if (errorString.length) {
+    alert(errorString);
+    focusControl.focus();
+    return false;
+  }
+
+  // select all the passengers in the passengers list so that the data
+  // will be sent on submission
+  for (var i=1;i<=passengerCount;i++)
+    theForm.passengers[i].selected = true;
+
+  // make sure the header --- PASSENGER LIST --- is not sent
+  theForm.passengers[0].selected = false;
+
+  return true;
+}
+
+// This function is used to toggle on and off the returnDate text field
+// to match the selection of one way or two way trip.
+function setReturnDateVisState(visState) {
+  var theForm = document.forms['reservationForm'];
+  theForm.returnDate.style.visibility = visState;
+  document.getElementById('returnDateLabel').style.visibility = visState;
+  theForm.ways1.checked = (visState=="hidden");
+  theForm.ways2.checked = (visState=="visible");
+}
+
+// This function pulls double duty by:
+//     1) Loading the airports into the drop down boxes
+//     2) Loading any information that is coming back from
+//        the confirmation form back into the appropriate
+//        form fields.  This works by having the confirmation
+//        form pass back the query string that we sent to it.
+function loadData() {
+  var key, value, equalPos, newOption, cityName;
+  var theForm = document.forms['reservationForm'];
+
+  // load the depature cities 
+  for (var i=0;i<airports.length;i++) {
+    cityName = airports[i].getAttribute("name");
+    theForm.departureCity.options[i] = new Option(cityName,cityName,false,false);
+  }
+  // load the proper desinations for the departure
+  setDestinations();
+
+  // now load any information passed back from the confirmation form
+
+  // first change +'s back to spaces
+  var queryString = window.location.search.substring(1).replace(/\+/gi," ");
+  // name split out the name value pairs
+  var params = queryString.split("&");
+  // cycle through paramters setting fields as you go...
+  for (var i=0;i<params.length;i++) {
+    equalPos = params[i].indexOf("=");
+    key = unescape(params[i].substring(0,equalPos));
+    value = unescape(params[i].substring(equalPos+1));
+    // catch the special cases
+    if (key=="passengers") {
+      newOption = new Option(value,value,false,false);
+      theForm.passengers[++passengerCount] = newOption;
+    } else if (key=="ways1") {
+      setReturnDateVisState("hidden");
+    } else if (key=="ways2") {
+      setReturnDateVisState("visible");
+    } else if (key=="departureCity") {
+      theForm[key].value = value;
+      setDestinations();
+    } else {
+      // IE has a nasty habit of passing a blank param so we avoid that
+      // by checking key before attempting to set
+      if (key) theForm[key].value = value;
+    }
+  }
+}
+
+// This function is called on a change of the departure airport to present the
+// appropriate destination airports.
+function setDestinations() {
+  var theForm = document.forms['reservationForm'];
+  // a loop to remove all items in the destinations drop down
+  while (theForm.destinationCity.options.length)theForm.destinationCity.options.remove(0);
+  var startCity = theForm.departureCity.value;
+  var destCity;
+  // locate the startCity in the XML
+  for (var i=0;i<airports.length;i++)
+    if (airports[i].getAttribute("name")==startCity) break;
+  if (i==airports.length) {
+    alert("Depature airport not found.");
+  } else {
+    // and add the child nodes...the destination airports
+    var children = airports[i].childNodes;
+    for (i=0;i<children.length;i++) {
+      destCity = children[i].getAttribute("name");
+      theForm.destinationCity.options[i] = new Option(destCity,destCity,false,false);
+    }
+  }
+
+}
+
+//-->
+</script>
+
+</head>
+<body bgcolor="#cccc00" onload="loadData();">
+<form name="reservationForm" action="confirm.html" method="get"
+  onsubmit="return validate();">
+  <table border="0" cellpadding="5" bgcolor="#9999cc" align="center">
+    <tr>
+      <th colspan="4" bgcolor="#cccc99">Reservation Form</th>
+    </tr>
+    <tr>
+      <td>First Name:</td>
+      <td><input type="text" name="firstName" size="24" tabindex="1"/></td>
+      <td rowspan="8" valign="top">
+        <select name="passengers" size="18" tabindex="10" multiple="true">
+          <option>---THE PASSENGER LIST---</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <td>Last Name:</td>
+      <td><input type="text" name="lastName" size="24" tabindex="2"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="button" value="Add Passenger >>" tabindex="3"
+           onclick="addPassenger();"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="radio" name="ways1" value="1" tabindex="4"
+           onclick="setReturnDateVisState('hidden');">One Way</input></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><input type="radio" name="ways2" value="2" tabindex="5" checked="true"
+           onclick="setReturnDateVisState('visible');"/>Two Way</input></td>
+    </tr>
+    <tr>
+      <td>Departure City:</td>
+      <td>
+        <select name="departureCity" tabindex="6" onchange="setDestinations();"/>
+      </td>
+    </tr>
+    <tr>
+      <td>Out Date(mm/dd/yyyy):</td>
+      <td><input type="text" name="departureDate" size="24" tabindex="7"/></td>
+    </tr>
+    <tr>
+      <td>Destination City:</td>
+      <td>
+        <select name="destinationCity" tabindex="8"/>
+      </td>
+    </tr>
+    <tr>
+      <td><span id="returnDateLabel">Back Date(mm/dd/yyyy):</span></td>
+      <td><input type="text" name="returnDate" size="24" tabindex="9"/></td>
+      <td align="center"><input type="button" value="Remove Passenger(s)" tabindex="11"
+                          onclick="removePassenger();"></td>
+    </tr>
+    <tr>
+      <td colspan="2"></td>
+      <td>
+        <table width="100%" cellpadding="0" cellspacing="0">
+          <tr>
+            <td align="center">
+              <input type="submit" name="submit" value="Reserve It"/>
+            </td>
+            <td align="center">
+              <input type="reset" value="Clear Form"
+               onclick="clearPassengers();setReturnDateVisState('visible');"/>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</form>
+</body>
+</html>

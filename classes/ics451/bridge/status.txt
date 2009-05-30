@@ -1,0 +1,13 @@
+--- STATUS ----
+============================================================================
+We have tested our bridge program under a variety of conditions and have
+found it to be error free.  We tested it with as many as 6 bridges and over
+20 interfaces.  We even tested it with 3 bridges running on uhunix connecting
+to 3 bridges running on another server.
+
+Our bridge uses a hash table for quick indexing into the host table.
+Collisions are handled via chaining, that is, our hash function indexes
+into an array of linked lists.
+
+
+

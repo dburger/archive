@@ -1,0 +1,336 @@
+<html><head><title>ICS 651 project 1</title></head>
+<body>
+<h1>Computer Networks Project 1</h1>
+
+<br>
+<B><FONT SIZE="-1">
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+ document.write('<BR>' + 'This page was last modified on: ' + document.lastModified + ' HST</BR>');
+ //-->
+</SCRIPT>
+</FONT></B>
+
+The goals of this project are:
+<ol>
+<li> to learn about IP
+<li> to implement a simple IP router
+<li> to practice using the sockets interface
+<li> to learn about realistic network simulation
+<li> to practice using C and threads
+</ol>
+
+<p>This is an individual project.  You may discuss concepts and ideas
+with other students, but you should be the sole author of all your
+code.  Limited debugging help is allowed, as long as it doesn't involve
+looking at each other's code.  I will ask you to look at each other's
+code after this project is complete.
+
+<p>The project is due Tuesday, February 12th 2002, any time.
+Submission is electronic.  Please send in your project on time -- late
+submissions will not be accepted, and I prefer to have
+partially-working projects rather than no project at all.
+
+<p>To submit the project, please follow these steps:
+
+<ol>
+
+<li> create two directories, <tt>x</tt> and <tt>y</tt> on <tt>uhunix2</tt>
+
+<li> copy all your sources (all your <tt>.c</tt> and <tt>.h</tt>
+files, and your <tt>makefile</tt>), and only your sources, to both
+<tt>x</tt> and <tt>y</tt>
+
+<li> <tt>cd</tt> to directory <tt>x</tt>
+
+<li> type <tt>make</tt> with no arguments and make sure everything
+compiles fine (if not, return to your source directory, fix the
+problem, delete <tt>x</tt> and <tt>y</tt>, and start over).  Your
+executable must be called <tt>router</tt>.
+
+<li> test your executable and briefly describe the level of
+functionality of your project in a file called <tt>y/status</tt> (a
+file called <tt>status</tt> in directory <tt>y</tt>).  Be sure to
+include one comment from the following set: "does not compile",
+"compiles but does not run", "runs with bugs", or "runs well".  Also
+be sure to describe the problems, if any, and the degree of testing
+you have performed ("no tests", "tested against itself", "tested with
+two other people").
+
+<li> <tt>cd</tt> to directory <tt>y/..</tt> (the parent directory of
+<tt>y</tt>)
+
+<li> run the following commands:
+<pre>
+/usr/bin/tar cvf y.tar y
+/usr/bin/uuencode y.tar y.tar > y.uu
+/usr/ucb/mail -s p1 esb@hawaii.edu < y.uu
+</pre>
+(be sure to use /usr/ucb/mail, or the -s switch won't work).
+
+<li> I will subtract points if you send me binary files
+
+</ol>
+
+<h2>Overall Design</h2>
+
+Your program must:
+
+<ul>
+
+<li> read the command-line arguments, which specify the static routing
+tables and the (simulated) interfaces and the simulators to which they are
+connected
+
+<li> start a thread for each interface.  The thread is in an infinite loop
+reading from that interface (socket), and giving received packets to the
+SLIP module.  Each packet has length 1, and carries one character,
+simulating a serial line.
+
+<li> do SLIP processing on each received and outgoing packet
+
+<li> do IP processing on each received packet
+
+<li> look up the destination in the tables to determine the next hop
+in the route, and forward the packet along that (simulated) link
+
+</ul>
+
+<h2>Simulation</h2>
+
+<p> You will simulate a collection of point-to-point links by a number
+of UDP sockets (type <tt>SOCK_DGRAM</tt>, protocol <tt>"udp"</tt>).
+Each socket will be used for a connection to a different simulator,
+and will be bound to a different local port number.  Whenever a thread
+is received on a socket, it is assumed to be coming from the remote
+simulator that is logically connected to this interface.
+
+<p> Each simulated serial cable (and corresponding simulated interface
+or serial port) can be identified by this unique local UDP port
+number.  This simulated interface is associated with an IP address and
+real port number identifying the socket at the far end of the
+simulated serial interface.
+
+<p> You may assume that your router need not support any more than 100
+different interfaces.
+
+<p> To simulate receiving from a serial interface, you call
+<tt>recvfrom</tt> on the corresponding socket (and ignore the address
+information you receive).  To simulate sending to a serial interface,
+you call <tt>sendto</tt> on the corresponding socket, specifying the
+IP number and UDP port number of the remote simulator.
+
+<p> Since UDP does not guarantee reliable transmission, packets could
+get dropped by the receiving host if too many packets are sent at
+once.  Also, since we are simulating a serial line running at 9600
+baud, it makes sense to not send very fast.  Therefore, when you are
+sending characters (one <tt>sendto</tt> operation for each character)
+you should sleep about 800 microseconds (0.0008 seconds) between
+successive calls to <tt>sendto</tt>.  The simplest way to do this is
+probably to call <tt>nanosleep(3RT)</tt> (do not use <tt>usleep</tt>,
+which might interfere with your threads).
+
+<p> Sending one character at a time also requires you to establish a
+lock on a port before a packet can be sent, to prevent different
+threads trying to send their packet at the same time.  I would suggest
+you look at the man page for <tt>pthread_mutex_init</tt> for details
+of how to do this, as well as chapter 1 of the notes.  You may also
+look at the man page for <tt>sem_init</tt>, if you prefer to use
+semaphores.  Either mutexes or semaphores would be acceptable for this
+projects.  Other strategies might also be fine, but please send me
+mail before committing to them, so I can let you know if I disagree.
+
+<p> You must call <tt>bind</tt> on the socket before using it, to
+associate it with the appropriate port.  If the <tt>bind</tt> fails,
+the program should die with an appropriate notice.
+
+<p> You may or may not call <tt>connect</tt> on the socket before using
+it.  If you do, you may use <tt>recv</tt> and <tt>send</tt> instead of
+<tt>recvfrom</tt> and <tt>sendto</tt>.
+
+<p> Build the simulator first, and test it in isolation.  Include
+debugging code that will print all packets sent and received.
+
+<h2>Threads</h2>
+
+<p> Your program must be multithreaded, using the pthreads package.
+
+<p> There main interaction between your threads is at the send queue.
+Receive threads, after using the routing table to determine the
+appropriate interface to send on, place the packet into the corresponding
+queue.  If the queue was empty, the receive thread also creates a send
+thread for that interface.  Queues have a maximum size of 3 packets.  If
+there is no room in a queue, the packet must be discarded, and a message
+printed to the screen.
+
+<p> It is OK for a receive thread to have a single buffer of maximum
+size 1006 bytes, to accept packets, give them to SLIP, do the routing,
+place the thread in the receive queue, and then find or allocate a new
+buffer.  Note that the total number of buffers in your router is
+bounded by 4 * the number of interfaces (3 for the queues, and one for
+the receive buffer).  If you allocate that many buffers at the
+beginning, you should never run out of buffers, since if there is no
+space, a packet is discarded and the buffer can be reused.
+
+<h2>SLIP processing</h2>
+
+Slip is described in detail in <a
+href="http://www.ietf.org/rfc/rfc1055.txt">RFC 1055</a>.  You are
+welcome to reuse and adapt any of the code they provide, or any of the
+code in the notes (do not expect their code or my code to work in your
+implementation without adapting it).
+
+<h2>IP processing</h2>
+
+<p> IP is described in <a
+href="http://www.ietf.org/rfc/rfc791.txt">RFC 791</a>, and will be
+discussed in class as well (but please start building the simulator,
+the threads, and the queues as soon as possible).  Further details
+(not really applicable to this project, but for your interest) are
+available in <a href="http://www.ietf.org/rfc/rfc1122.txt">RFC
+1122</a>.
+
+<p> The IP processing steps you are expected to do for this project includes:
+
+<ol>
+
+<li> decrement the TTL, and discard the packet (printing a message to the
+screen) if the resulting TTL is zero.
+
+<li> look up the destination address, and use it for routing, as
+described below.
+
+<li> place the packet into the appropriate output queue, and start
+the corresponding output thread if necessary
+
+</ol>
+
+If you have extra time and you wish to do so, you may experiment with
+fragmentation (a router never reassembles), header checksums, or IP
+options.  No extra credit will be given, so make sure the rest of your
+code is working first.
+
+<h2>Destination Lookup</h2>
+
+<p> This project uses the original class-oriented addressing described
+in section 3.2 of <a href="http://www.ietf.org/rfc/rfc791.txt">RFC
+791</a>.  In other words, when comparing a destination address to a
+route stored in our table, you only compare the number of bits
+appropriate to the class of the destination IP address.  Note that if
+the destination address is in class X (where X is A, B, or C) and the
+table route is for an address in class Y, with Y != X, then you do not
+need to compare X and Y -- Y cannot be a route to X.
+
+<p> If no route is found, print a message to the screen and discard
+the packet.
+
+<p> If a route is found, do SLIP encoding, then place the packet in the
+appropriate outgoing queue and, if necessary, start the send thread.
+
+
+<h2>Command-line Arguments</h2>
+
+<p> Command-line arguments are of two types, corresponding to routes
+and (simulated) interface definitions.  The two types may be intermixed
+arbitrarily on the command line.
+
+<ol>
+
+<li> simulated interfaces: of the form localport/remoteIP/remoteport.
+The IPs and port numbers are real IPs and port numbers, used for the
+simulator.  The local port number is also used as the identifier for
+this interface, so in actual usage all the localports on a single
+router simulator must be distinct.  Both port numbers are integers
+between 1025 and 65535, the remoteIP is an IP address in dotted
+decimal form (1.2.3.4) or a host name as resolved by
+<tt>gethostbyname</tt>.  Hint: <tt>gethostbyname</tt> converts dotted
+decimal notation as well as DNS names to internal formats.
+
+<li> routes: of the form destination@interface, where the destination
+is a (simulated) IP address in dotted decimal form (1.2.3.4), and
+interface is an integer corresponding to the localport of the outgoing
+interface for this route.
+
+</ol>
+
+<p>As an example, suppose I am running on 128.171.44.7 (uhunix2).  I
+am simulating serial connections to two other simulators, one (system
+A) running on port 1234 of uhunix2, and the other (system B) on port
+23345 of uhunix3 (128.171.44.52).  My own localport numbers are 1235
+(for the connection to system A) and 1236 (for the connection to
+system B).  I also want a route each to the simulated addresses
+1.2.3.4 and 128.171.0.1 through port 1235, and a route to
+15.1.2.3 through port 1236.  Remembering that the order of arguments
+is arbitrary, here is the command line:
+
+<pre>
+router 1235/128.171.44.7/1234 1.2.3.4@1235 128.171.0.1@1235 1236/128.171.44.52/23345 15.1.2.3@1236
+</pre>
+(you may need to scroll horizontally to see the entire command line).
+
+<h2>Documentation</h2>
+
+Since both I and your colleagues will be studying your code, please
+provide suitable documentation explaining your thinking and providing
+references or other indications of what you are doing.
+
+<h2>Testing and Interoperation</h2>
+
+<p>I plan to provide a simple program that will send correct IP
+messages.  Once it is ready you will be able to use it for testing
+your code.  I encourage you to start coding and testing as soon
+as possible, even before this program is available.
+
+<p> For full credit, you will have to interoperate with others' code.
+You are welcome to use the <a href="mailto:ics651-l@hawaii.edu">course
+mailing list</a> to find others to test with.
+
+<p> I always find it useful to have a compile-time switch that allows
+me to print all the packets I send and receive.  Something along the
+lines of:
+
+<pre>
+  count = recvfrom (..., buffer, ...);
+#ifdef DEBUG
+  if (count > 0)
+  {
+    int i;
+
+    printf ("received %d bytes: ", count);
+    for (i = 0; i < count; i++) {
+      printf("%02x.", (buffer [i]) & 0xff);
+    }
+    printf ("\n");
+  }
+#endif DEBUG
+</pre>
+
+<p>With this setup, turning on the <tt>-DDEBUG</tt> switch in the makefile
+and recompiling everything will automatically enable debugging and allow
+you to see where the packets are going.
+
+<p>It might be helpful to put the above code into a function, and call
+that function, but if DEBUG is not defined, the function does nothing.
+
+<p><li> <strong>Strings</strong>.
+
+<p>Data sent to and read from the network is not in C string format,
+and specifically does not include the terminating NULL character.  If
+you ever find yourself using the <tt>strlen</tt> function, it is highly
+likely you are making a mistake.
+
+<p>The number of bytes to write is determined by a byte count.  When
+reading from the network, specify the buffer length and use the return
+value from <tt>recv</tt> to determine how many bytes were actually read.
+
+<p><li> <strong>Debugging</strong>.
+
+<p>If you haven't done so already, you may want to learn to use the
+<tt>gdb</tt> debugger, or any other debugger available on your system.
+If you use <tt>gdb</tt>, you may want to check the <a
+href="http://sourceware.cygnus.com/gdb/onlinedocs/gdb_toc.html">
+Manual</a>.
+
+</ol>
+
+</body></html>

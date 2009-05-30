@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="GNU source-highlight 1.4
+by Lorenzo Bettini, bettini@gnu.org
+http://w3.newnet.it/bettini
+http://www.gnu.org/software/src-highlite">
+<title>GF64.cpp</title>
+</head>
+<body bgcolor="#FFFFFF" text="#000000" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+<pre>
+<tt>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;stdio.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>&lt;stdlib.h&gt;</font>
+<b><font color=#000080>#include</font></b> <font color=#FF0000>"GF64.h"</font>
+
+<i><font color=#9A1900>/*</font></i>
+<i><font color=#9A1900>    GF64.cpp by</font></i>
+<i><font color=#9A1900>    David J. Burger</font></i>
+<i><font color=#9A1900>    for ICS 212 under the guidance of</font></i>
+<i><font color=#9A1900>    Dr. Peterson.</font></i>
+<i><font color=#9A1900>    </font></i>
+<i><font color=#9A1900>    This file contains the implementation of</font></i>
+<i><font color=#9A1900>    the GF64 class and related operators.</font></i>
+<i><font color=#9A1900>*/</font></i>
+
+<i><font color=#9A1900>/* prefix increment */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>+</font><font color=#990000>+</font><font color=#990000>(</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    e<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> <font color=#990000>*</font><b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* postfix increment */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>+</font><font color=#990000>+</font><font color=#990000>(</font><font color=#009900>int</font> n<font color=#990000>)</font> <font color=#FF0000>{</font>
+    <i><font color=#9A1900>/* save away the current state */</font></i>
+    GF64 t <font color=#990000>=</font> <font color=#990000>*</font><b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+    e<font color=#990000>+</font><font color=#990000>+</font><font color=#990000>;</font>
+    <i><font color=#9A1900>/* return value before increment */</font></i>
+    <b><font color=#0000FF>return</font></b> t<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* prefix decrement */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>-</font><font color=#990000>-</font><font color=#990000>(</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    e<font color=#990000>-</font><font color=#990000>-</font><font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> <font color=#990000>*</font><b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* postfix decrement */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>-</font><font color=#990000>-</font><font color=#990000>(</font><font color=#009900>int</font> n<font color=#990000>)</font> <font color=#FF0000>{</font>
+    <i><font color=#9A1900>/* save away the current state */</font></i>
+    GF64 t <font color=#990000>=</font> <font color=#990000>*</font><b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+    e<font color=#990000>-</font><font color=#990000>-</font><font color=#990000>;</font>
+    <i><font color=#9A1900>/* return value before decrement */</font></i>
+    <b><font color=#0000FF>return</font></b> t<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* += operator */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>+</font><font color=#990000>=</font><font color=#990000>(</font>GF64 a<font color=#990000>)</font> <font color=#FF0000>{</font>
+    e <font color=#990000>^</font><font color=#990000>=</font> a<font color=#990000>.</font>e<font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> <font color=#990000>*</font><b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* + operator */</font></i>
+GF64 <b><font color=#0000FF>operator</font></b><font color=#990000>+</font><font color=#990000>(</font>GF64 a<font color=#990000>,</font> GF64 b<font color=#990000>)</font> <font color=#FF0000>{</font>
+    GF64 t <font color=#990000>=</font> a<font color=#990000>;</font>
+    <i><font color=#9A1900>/* uses += to do the work */</font></i>
+    t<font color=#990000>+</font><font color=#990000>=</font>b<font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> t<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* *= operator */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>*</font><font color=#990000>=</font><font color=#990000>(</font>GF64 a<font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>e<font color=#990000>=</font><font color=#990000>=</font><font color=#993399>0</font> <font color=#990000>|</font><font color=#990000>|</font> a<font color=#990000>.</font>e<font color=#990000>=</font><font color=#990000>=</font><font color=#993399>0</font><font color=#990000>)</font>
+        e <font color=#990000>=</font> <font color=#993399>0</font><font color=#990000>;</font>
+    <b><font color=#0000FF>else</font></b> <font color=#FF0000>{</font>
+        GF64 t <font color=#990000>=</font> E<font color=#990000>[</font><font color=#990000>(</font>L<font color=#990000>[</font>e<font color=#990000>]</font><font color=#990000>+</font>L<font color=#990000>[</font>a<font color=#990000>.</font>e<font color=#990000>]</font><font color=#990000>)</font> <font color=#990000>%</font> <font color=#993399>63</font><font color=#990000>]</font><font color=#990000>;</font>
+        e <font color=#990000>=</font> t<font color=#990000>.</font>e<font color=#990000>;</font>
+    <font color=#FF0000>}</font>
+    <b><font color=#0000FF>return</font></b> <font color=#990000>*</font><b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* * operator */</font></i>
+GF64 <b><font color=#0000FF>operator</font></b><font color=#990000>*</font><font color=#990000>(</font>GF64 a<font color=#990000>,</font> GF64 b<font color=#990000>)</font> <font color=#FF0000>{</font>    
+    GF64 t <font color=#990000>=</font> a<font color=#990000>;</font>
+    <i><font color=#9A1900>/* uses *= to do the work */</font></i>
+    t<font color=#990000>*</font><font color=#990000>=</font>b<font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> t<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* /= operator */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#0000FF>operator</font></b><font color=#990000>/</font><font color=#990000>=</font><font color=#990000>(</font>GF64 a<font color=#990000>)</font> <font color=#FF0000>{</font>
+    GF64 t <font color=#990000>=</font> <font color=#990000>*</font><b><font color=#0000FF>this</font></b><font color=#990000>;</font>
+    t<font color=#990000>*</font><font color=#990000>=</font>a<font color=#990000>.</font><b><font color=#000000>inv</font></b><font color=#990000>(</font><font color=#990000>)</font><font color=#990000>;</font>
+    e <font color=#990000>=</font> t<font color=#990000>.</font>e<font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> t<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* / operator */</font></i>
+GF64 <b><font color=#0000FF>operator</font></b><font color=#990000>/</font><font color=#990000>(</font>GF64 a<font color=#990000>,</font> GF64 b<font color=#990000>)</font> <font color=#FF0000>{</font>
+    GF64 t <font color=#990000>=</font> a<font color=#990000>;</font>
+    <i><font color=#9A1900>/* uses /= to do the work */</font></i>
+    t<font color=#990000>/</font><font color=#990000>=</font>b<font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> t<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* != operator */</font></i>
+<font color=#009900>int</font> <b><font color=#0000FF>operator</font></b><font color=#990000>!</font><font color=#990000>=</font><font color=#990000>(</font>GF64 a<font color=#990000>,</font> GF64 b<font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#0000FF>return</font></b> a<font color=#990000>.</font>e<font color=#990000>!</font><font color=#990000>=</font>b<font color=#990000>.</font>e<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* power method */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>power</font></b><font color=#990000>(</font><font color=#009900>int</font> n<font color=#990000>)</font> <font color=#FF0000>{</font>
+    GF64 t <font color=#990000>=</font> e<font color=#990000>,</font> p <font color=#990000>=</font> e<font color=#990000>;</font>
+    <b><font color=#0000FF>for</font></b> <font color=#990000>(</font><font color=#990000>;</font>n<font color=#990000>&gt;</font><font color=#993399>1</font><font color=#990000>;</font>n<font color=#990000>-</font><font color=#990000>-</font><font color=#990000>)</font>
+        t <font color=#990000>=</font> t<font color=#990000>*</font>p<font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> t<font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+<i><font color=#9A1900>/* inverse method */</font></i>
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font><b><font color=#000000>inv</font></b><font color=#990000>(</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>e<font color=#990000>=</font><font color=#990000>=</font><font color=#993399>0</font><font color=#990000>)</font> <font color=#FF0000>{</font>
+        <b><font color=#000000>printf</font></b><font color=#990000>(</font><font color=#FF0000>"Error - 0 has no inverse, the program will terminate."</font><font color=#990000>)</font><font color=#990000>;</font>
+        <b><font color=#000000>exit</font></b><font color=#990000>(</font><font color=#993399>0</font><font color=#990000>)</font><font color=#990000>;</font>
+    <font color=#FF0000>}</font>
+    <font color=#009900>int</font> n <font color=#990000>=</font> L<font color=#990000>[</font>e<font color=#990000>]</font><font color=#990000>;</font>
+    <b><font color=#0000FF>if</font></b> <font color=#990000>(</font>n<font color=#990000>&gt;</font><font color=#993399>0</font><font color=#990000>)</font> n<font color=#990000>=</font><font color=#993399>63</font><font color=#990000>-</font>n<font color=#990000>;</font>
+    <b><font color=#0000FF>return</font></b> E<font color=#990000>[</font>n<font color=#990000>]</font><font color=#990000>;</font>
+<font color=#FF0000>}</font>
+
+
+<font color=#009900>int</font> GF64<font color=#990000>:</font><font color=#990000>:</font>L<font color=#990000>[</font><font color=#993399>64</font><font color=#990000>]</font> <font color=#990000>=</font> 
+	<font color=#FF0000>{</font>  <font color=#990000>-</font><font color=#993399>1</font><font color=#990000>,</font>    <font color=#993399>0</font><font color=#990000>,</font>    <font color=#993399>1</font><font color=#990000>,</font>    <font color=#993399>8</font><font color=#990000>,</font>    <font color=#993399>2</font><font color=#990000>,</font>   <font color=#993399>16</font><font color=#990000>,</font>    <font color=#993399>9</font><font color=#990000>,</font>   <font color=#993399>45</font><font color=#990000>,</font>
+        <font color=#993399>3</font><font color=#990000>,</font>   <font color=#993399>53</font><font color=#990000>,</font>   <font color=#993399>17</font><font color=#990000>,</font>   <font color=#993399>41</font><font color=#990000>,</font>   <font color=#993399>10</font><font color=#990000>,</font>   <font color=#993399>13</font><font color=#990000>,</font>   <font color=#993399>46</font><font color=#990000>,</font>   <font color=#993399>24</font><font color=#990000>,</font>
+        <font color=#993399>4</font><font color=#990000>,</font>   <font color=#993399>32</font><font color=#990000>,</font>   <font color=#993399>54</font><font color=#990000>,</font>   <font color=#993399>36</font><font color=#990000>,</font>   <font color=#993399>18</font><font color=#990000>,</font>   <font color=#993399>27</font><font color=#990000>,</font>   <font color=#993399>42</font><font color=#990000>,</font>   <font color=#993399>21</font><font color=#990000>,</font>
+       <font color=#993399>11</font><font color=#990000>,</font>   <font color=#993399>51</font><font color=#990000>,</font>   <font color=#993399>14</font><font color=#990000>,</font>   <font color=#993399>61</font><font color=#990000>,</font>   <font color=#993399>47</font><font color=#990000>,</font>   <font color=#993399>49</font><font color=#990000>,</font>   <font color=#993399>25</font><font color=#990000>,</font>   <font color=#993399>30</font><font color=#990000>,</font>
+        <font color=#993399>5</font><font color=#990000>,</font>   <font color=#993399>38</font><font color=#990000>,</font>   <font color=#993399>33</font><font color=#990000>,</font>   <font color=#993399>58</font><font color=#990000>,</font>   <font color=#993399>55</font><font color=#990000>,</font>   <font color=#993399>56</font><font color=#990000>,</font>   <font color=#993399>37</font><font color=#990000>,</font>   <font color=#993399>57</font><font color=#990000>,</font>
+       <font color=#993399>19</font><font color=#990000>,</font>   <font color=#993399>34</font><font color=#990000>,</font>   <font color=#993399>28</font><font color=#990000>,</font>   <font color=#993399>59</font><font color=#990000>,</font>   <font color=#993399>43</font><font color=#990000>,</font>    <font color=#993399>6</font><font color=#990000>,</font>   <font color=#993399>22</font><font color=#990000>,</font>   <font color=#993399>39</font><font color=#990000>,</font>
+       <font color=#993399>12</font><font color=#990000>,</font>   <font color=#993399>23</font><font color=#990000>,</font>   <font color=#993399>52</font><font color=#990000>,</font>   <font color=#993399>40</font><font color=#990000>,</font>   <font color=#993399>15</font><font color=#990000>,</font>   <font color=#993399>44</font><font color=#990000>,</font>   <font color=#993399>62</font><font color=#990000>,</font>    <font color=#993399>7</font><font color=#990000>,</font>
+       <font color=#993399>48</font><font color=#990000>,</font>   <font color=#993399>29</font><font color=#990000>,</font>   <font color=#993399>50</font><font color=#990000>,</font>   <font color=#993399>60</font><font color=#990000>,</font>   <font color=#993399>26</font><font color=#990000>,</font>   <font color=#993399>20</font><font color=#990000>,</font>   <font color=#993399>31</font><font color=#990000>,</font>   <font color=#993399>35</font><font color=#FF0000>}</font><font color=#990000>;</font>
+
+
+
+GF64 GF64<font color=#990000>:</font><font color=#990000>:</font>E<font color=#990000>[</font><font color=#993399>63</font><font color=#990000>]</font> <font color=#990000>=</font> 
+	<font color=#FF0000>{</font><font color=#993399>0x01</font><font color=#990000>,</font> <font color=#993399>0x02</font><font color=#990000>,</font> <font color=#993399>0x04</font><font color=#990000>,</font> <font color=#993399>0x08</font><font color=#990000>,</font> <font color=#993399>0x10</font><font color=#990000>,</font> <font color=#993399>0x20</font><font color=#990000>,</font> <font color=#993399>0x2d</font><font color=#990000>,</font> <font color=#993399>0x37</font><font color=#990000>,</font>
+     <font color=#993399>0x03</font><font color=#990000>,</font> <font color=#993399>0x06</font><font color=#990000>,</font> <font color=#993399>0x0c</font><font color=#990000>,</font> <font color=#993399>0x18</font><font color=#990000>,</font> <font color=#993399>0x30</font><font color=#990000>,</font> <font color=#993399>0x0d</font><font color=#990000>,</font> <font color=#993399>0x1a</font><font color=#990000>,</font> <font color=#993399>0x34</font><font color=#990000>,</font>
+     <font color=#993399>0x05</font><font color=#990000>,</font> <font color=#993399>0x0a</font><font color=#990000>,</font> <font color=#993399>0x14</font><font color=#990000>,</font> <font color=#993399>0x28</font><font color=#990000>,</font> <font color=#993399>0x3d</font><font color=#990000>,</font> <font color=#993399>0x17</font><font color=#990000>,</font> <font color=#993399>0x2e</font><font color=#990000>,</font> <font color=#993399>0x31</font><font color=#990000>,</font>
+     <font color=#993399>0x0f</font><font color=#990000>,</font> <font color=#993399>0x1e</font><font color=#990000>,</font> <font color=#993399>0x3c</font><font color=#990000>,</font> <font color=#993399>0x15</font><font color=#990000>,</font> <font color=#993399>0x2a</font><font color=#990000>,</font> <font color=#993399>0x39</font><font color=#990000>,</font> <font color=#993399>0x1f</font><font color=#990000>,</font> <font color=#993399>0x3e</font><font color=#990000>,</font>
+     <font color=#993399>0x11</font><font color=#990000>,</font> <font color=#993399>0x22</font><font color=#990000>,</font> <font color=#993399>0x29</font><font color=#990000>,</font> <font color=#993399>0x3f</font><font color=#990000>,</font> <font color=#993399>0x13</font><font color=#990000>,</font> <font color=#993399>0x26</font><font color=#990000>,</font> <font color=#993399>0x21</font><font color=#990000>,</font> <font color=#993399>0x2f</font><font color=#990000>,</font>
+     <font color=#993399>0x33</font><font color=#990000>,</font> <font color=#993399>0x0b</font><font color=#990000>,</font> <font color=#993399>0x16</font><font color=#990000>,</font> <font color=#993399>0x2c</font><font color=#990000>,</font> <font color=#993399>0x35</font><font color=#990000>,</font> <font color=#993399>0x07</font><font color=#990000>,</font> <font color=#993399>0x0e</font><font color=#990000>,</font> <font color=#993399>0x1c</font><font color=#990000>,</font>
+     <font color=#993399>0x38</font><font color=#990000>,</font> <font color=#993399>0x1d</font><font color=#990000>,</font> <font color=#993399>0x3a</font><font color=#990000>,</font> <font color=#993399>0x19</font><font color=#990000>,</font> <font color=#993399>0x32</font><font color=#990000>,</font> <font color=#993399>0x09</font><font color=#990000>,</font> <font color=#993399>0x12</font><font color=#990000>,</font> <font color=#993399>0x24</font><font color=#990000>,</font>
+     <font color=#993399>0x25</font><font color=#990000>,</font> <font color=#993399>0x27</font><font color=#990000>,</font> <font color=#993399>0x23</font><font color=#990000>,</font> <font color=#993399>0x2b</font><font color=#990000>,</font> <font color=#993399>0x3b</font><font color=#990000>,</font> <font color=#993399>0x1b</font><font color=#990000>,</font> <font color=#993399>0x36</font><font color=#FF0000>}</font><font color=#990000>;</font>
+</tt>
+</pre>
+</body>
+</html>

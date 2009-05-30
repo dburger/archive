@@ -1,0 +1,254 @@
+Cryptography Politics
+
+NSA (National Security Agency) - was started by Truman in 1952 although its existence 
+was denied for some time.  The purpose of the NSA is to decode and listen in on all 
+foreign communication of interest to the security of the United States.  NSA is the largest 
+employer and mathematicians and the largest purchaser of computer hardware in the 
+world.  In the past they have used their power to reduce the public availability of 
+cryptography.
+
+NCSC (National Computer Security Center) – A branch of the NSA.  They evaluate 
+commercial security products, sponsor and publish research, develop technical 
+guidelines, provide advice, support, and training.
+
+NIST (National Institute of Technology Standards) – A division of the U.S. department 
+of commerce.  They promote open standards and interoperability to spur economic 
+development.  NIST issues standards for cryptographic algorithms.
+
+RSA Data Security – A company founded to develop, license, and market the RSA 
+patent.
+
+Public Key Partners – Holders of important patents including RSA and Diffie Hellman.  
+These “cover all known methods of practicing the art of public key.”
+
+International Association for Cryptographic Research – State purpose is to advance the 
+theory and practice of cryptology and related fields.
+
+Research and Development in Advance Communications Technologies in Europe 
+(RACE) -  Puts together security requirements for integrated broadband communication.
+
+Conditional Access for Europe (CAFÉ) – Works on digital payment systems.  Computer 
+wallet.
+
+ISO (International Standards Organization) – registers cryptographic algorithms.
+
+IBM owns DES.
+
+Export rules:  Cryptography is treated like a munition.  If you sell cryptography overseas 
+without a proper export license you are an international arms smuggler.
+
+Digital Signatures have yet to survive a contest in a legally binding court.
+
+Key escrow with a chip called clipper.  The challenge is to develop a cryptosystem that 
+protects individual privacy but at the same time allows for court authorized wire tap.
+
+Tamper proof hardware – Each encryption chip has a unique ID # and secret key.  The 
+key is split into two pieces and store by two different escrow agencies with the ID.  It 
+sends the ID over the line with communications.
+
+Techniques have to do with key splitting.
+
+No advantage to the user.
+
+Disadvantage?  Have to trust escrow procedures and people.
+
+Clipper Chip – NSA designed tamper resistant VLSI chip designed for encrypting voice 
+communications.  It is a escrowed encryption standard.  Uses the skipjack algorithm.  
+Each chip has a secret key to encrypt a copy of each user’s message key.  Government 
+can recover session key.  LEAF (Law enforcement access field)  Escrow with key split in 
+two.  Sandia National Laboratories supposedly reverse engineered.
+Phil on PGP, If the information you are trying to protect is more valuable to your attacker 
+than the cost of the attack.  He admits his system is not perfect.
+
+1.  Compromised pass phrase and secret key.
+2.  Public key tampering.
+3.  Not quite deleted files.
+4.  Viruses and Trojan horses, can capture pass phrase or secret key.  Zombie-ized PGP 
+program source.
+5.  Physical security breach.
+6.  Tempest attack – remote detection of electromagnetic signals from the computer.
+7.  Exposure on muli-user systems.  Best used with an isolated single user machine
+8.  Traffic analysis for insight, how long, when, and to who?
+9.  Cryptanalysis
+
+IDEA is used in PGP as the conventional symmetric algorithm.
+It is insufficient to protect ourselves with laws, we must protect ourselves with 
+mathematics.
+
+Cryptography – the art of keeping secure.
+Cryptanalysis – breaking cryptography.
+Cryptology – the mathematical branch of cryptography and cryptanalysis.
+
+What are the goals of cryptography?
+1.  Confidentiality.
+2.  Authentication – you can ascertain the origin.
+3.  Integrity – verify that it has not be modified or substituted.
+4.  Non repudiation – sender not able to falsely deny sending message.
+
+Keyspace is the range of possible key values.
+
+Symmetric algorithm, encryption key can be calculated easily from the decryption key 
+and vice versa, or, they are the same.
+
+Stream algorithm – Encryption algorithm that does a bit or byte at a time.
+
+Block algorithm – encrypts a block at a time, often 64 bits.
+
+Public key algorithm – A public key for encryption, private key to decrypt.  Not the 
+same, and one can’t easily be calculated from the other in a reasonable amount of time.
+
+Kerchoffs – secret must reside entirely in the key.
+
+Attack types:
+1.  Ciphertext only attack.
+2.  Known plain text attack.
+3.  Chosen plain text attack.
+4.  Adaptive chosen plain text attack.
+5.  Chosen ciphertext attack.
+6.  Chosen key attack.
+7.  Rubber hose attack.
+
+Only the one time pad is unbreakable given infinite resources.
+
+One time pad – since every plain text message is equally possible, there is no way for a 
+cryptanalyst to determine the correct one.  Not practical for 1.54 Mbps channel.
+
+Even if you guessed the key you would have no way of knowing if the result was the 
+correct plain text.
+
+DES – Digital Encryption Standard, done by shifting and transposing bits.
+RSA -  Algorithm by Rivest, Shamir, and Adelman.
+DSA – Digital signature algorithm.
+
+If Z = X^Y then X = Z^Y
+
+Density of primes around n is approximately n/ln(n).
+
+PGP encryption encrypts to 64 printable characters.  Each one comes from a 6 bit nibble.
+
+PGP uses a public key algorithm to encode key for symmetric algorithm, currently uses 
+Difffie Helman for the public key algorithm.  Symmetric has been several things 
+currently IDEA I believe.
+
+PGP uses different keys for exchanging session keys and signatures.
+
+In PGP each message has a different session key.
+
+Matt Blaze “You can almost measure it.”  You know the cryptanalysis details but there 
+are other means of attack.
+
+Attackers rarely restrict themselves to the clean well defined models of the academic 
+world.  p. 620 list.
+
+Respect the limits of the art.
+
+RSA ,
+
+Public key encryption was invented by Diffie and Hellman, and independently by 
+Merkle.  e is public, d is private.
+
+All of the algorithms are slow.  Usually too slow to support bulk data encryption.
+
+Hybrid crypto systems speed things up.
+
+A symmetric algorithm is used with a random session key.  The message is encrypted 
+with the random session key and the session key is sent encrypted with the public key 
+algorithm.
+
+Rivest, Shamir, Adelman.  This has withstood years of cryptanalysis.  Gets security from 
+the difficulty of factoring large numbers.
+
+n = pq, choose e such that e and (p-1)(q-1) are relatively prime, find decryption key
+d such that ed = 1 mod (p-1)(q-1).  So d = e-1 mod (p-1)(q-1).
+
+C = Me mod n
+M = Cd mod n
+
+why?
+
+Cd = (Me)d so = Med = M 1 + k(q-1)(p-1) = M*Mk(q-1)(p-1) = M.
+
+RSA about 1000 times slower than DES in hardware, 100 times slower in software.
+
+It is conjectured that the security of RSA depends on the problem of factoring large 
+numbers.  That is factoring n.
+Key exchange – Need more from notes.
+
+Sending the encryption key over the same channel that requires encryption is, of course, 
+foolish.
+
+Some people solve by the concept of key encryption keys versus data keys.  Of course 
+key encryption keys must be distributed manually.
+
+Split key into different parts and send over different channels.
+
+Requirements for hash?
+
+Given M it is very easy to compute H(M).
+
+Given h, it is difficult to compute M such that H(M) = h
+
+Given M, it is hard to find M’ such that H(M) = H(M’)
+
+more notes!
+
+Attack on p. 430, Alice prepares a favorable and unfavorable contract.  Makes subtle 
+changes to each producing 2^32 version of each with 2^32 hashes for each.  Looks for a 
+match.  Has Bob sign hash for favorable one and then later substitutes unfavorable.  
+Works in case of protocol where you only sign a hash.
+
+this attack is feasible so 128 bits is better, and 160 even better!
+
+Key length required for symmetric algorithms.
+
+For RSA?
+
+For secure hash?  see previous.
+
+DES – 
+
+World wide standard for 20 years!  Held up remarkably well against cryptanalysis.  Still 
+secure against all but the most powerful adversaries.  Initiated in 1972 by the NBS (now 
+NIST).  They wanted a single standard for interoperation.  1973 asked for proposals and 
+didn’t get a good one until IBM came up with DES in 1974 (named Lucifer developed at 
+IBM during the early 70’s).  1975 NBS publishes details.  Adopted in fall Nov. 23, 1976.  
+FIPS pub. in 1977.  NSA though DES was going to be hardware only…they made a 
+mistake, because NBS put out enough details to program, NSA wishes they hadn’t done 
+this.
+
+It is a block cipher that does 64 bit blocks and has a 56 bit key…encoded in 64 with 
+parity bit.  The S box substitution is the critical step.  Same algorithm for encryption / 
+decryption with keys used in reverse order.
+
+Original key length was 112, NSA reduced to 56.
+
+In 1993 Michael Wiener designed a $1 million machine that cracks DES in 3.5 hours.
+
+Can be attacked via differential and linear cryptanalysis
+
+Some do triple des, uses des three times with two keys so 2112 keyspace.
+
+Plethra of variants.
+
+Rumors abound that NSA has computers and techniques to crack DES.
+
+Modes!
+
+ECB – electronic code book, great for random access.  Only framing errors will destroy.
+
+CBC – cipher block chaining.
+  en – plain text XORed with previous ciphertext block before encrypt.
+  de – block decrypted and XORed with feedback register
+  uses initialization vector for first block, in decrypt decrypt initialization vector just to 
+get the feedback ready.  Errors propagate to two blocks but is self recovering.
+
+CFB – cipher feedback mode, does stream.  uses iv,
+            encrypted left most eight bits Xored with first 8 bit character to become first 8 bit 
+character of ciphertext.  Same 8 bits become right most byte of queue in shift.
+
+Errors propagate.
+
+Decrypt reverse – Encrypt Xor with cipher, that is your plain and put character in queue.
+
+OFB – Output feedback mode, like CFB but uses n bits.
+

@@ -1,0 +1,70 @@
+David J. Burger
+ICS 321 Sec. 452
+6/06/01
+
+5.3)  Define functional dependency.  Give an example of two attributes that have a 
+functional dependency, and give an example of two attributes that do not have a 
+functional dependency.
+
+Functional dependency is a relationship between attributes such that if we know the value 
+of one attribute we can obtain the value of the other attribute.  For example, if Y can be 
+determined from X the Y is said to be functionally dependent of X and is written X->Y.
+
+5.6)  Give an example of a relation having a functional dependency in which the 
+determinant has two or more attributes.
+
+Imagine an application storing student grades.  If the key consists of the multi-attribute 
+combination of StudentID, Course, Term, and Year, then the Grade attribute is 
+functionally dependent upon this composite key.  Therefore the determinant is StudentID, 
+Course, Term, and Year.
+
+5.12)  Define second normal form.  Give an example of a relation in 1NF but not in 2NF.  
+Transform the relation into relations in 2NF.
+
+Relations in second normal form are in first normal form and all non key attributes are 
+functionally dependent on the entire key.  Imagine an application designed to track the 
+cars on a dealers car lot.  This dealer sells various models of Ford vehicles.  They have a 
+relation:
+
+Car (VIN, Model, Price, Color)
+Key:  VIN,Model
+Constraints:  Model->Price
+
+This relation is in first normal form because each cell will contain a single value, each 
+column stores data of the same kind, each column has a unique name and order does not 
+matter, and there are no duplicate rows and order does not matter.  This relation is not in 
+second normal form because Price is dependent on only a part of the key, Model.  To 
+convert it into second normal form we split the relation into two relations as follows:
+
+Car (VIN, Model, Color)
+Key: VIN
+
+Model-Price (Model, Price)
+Key: Model
+
+
+
+5.13)  Define third normal form.  Give an example of a relation in 2NF but not in 3NF.  
+Transform the relation into relations in 3NF.
+A relation is said to be in third normal form if it is in second normal form and contains no 
+transitive dependencies.  Imagine we have the following relation for a credit card 
+company:
+
+Customer (CustomerID, Group, CashBackBonus)
+Key: CustomerID
+Constraints: Group->CashBackBonus
+
+This relation is in first normal form for the reasons described above and is also is second 
+normal form because each non key attribute is functionally dependent on the entire key, 
+CustomerID.  This relation is not, however, in third normal form.  The reason is that 
+CustomerID->Group, and Group->CashBackBonus, therefore it contains a transitive 
+dependency.  This relation can be converted into third normal form by doing the 
+following:
+
+Customer (CustomerID, Group)
+Key: CustomerID
+
+Group-Bonus (Group, CashBackBonus)
+Key: Group
+
+

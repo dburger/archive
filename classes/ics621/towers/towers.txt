@@ -1,0 +1,227 @@
+The first thing to notice is that when doing the
+Towers of Hanoi with disks of the same size
+stacked upon each other is that each typical
+move can be made by treating the same sized disks
+as one disk.  For example if the regular Towers
+of Hanoi move said to move the top disk to pole
+C, it could be done with two moves:
+
+
+     |        |        |
+    aaa       |        |
+    bbb       |        |
+   ccccc      |        |
+   ddddd      |        |
+  eeeeeee     |        |
+  fffffff     |        |
+     |        |        |
+     A        B        C
+
+     |        |        |
+     |        |        |
+    bbb       |        |
+   ccccc      |        |
+   ddddd      |        |
+  eeeeeee     |        |
+  fffffff     |       aaa
+     |        |        |
+     A        B        C
+
+     |        |        |
+     |        |        |
+     |        |        |
+   ccccc      |        |
+   ddddd      |        |
+  eeeeeee     |       bbb
+  fffffff     |       aaa
+     |        |        |
+     A        B        C
+
+
+The regular Towers of Hanoi can easily
+be shown to require 2^n - 1 moves.  When
+moving double stacks, number of moves
+necessary is 2(2^n - 1) = 2^(n+1) -2,
+where n is the number of double stacks.
+
+With this preliminary out of the way, I
+will show my solution to the modified
+Towers of Hanoi problem, which involves
+changing this:
+
+
+     |        |        |
+    aaa       |       bbb
+   ccccc      |      ddddd
+  eeeeeee     |     fffffff
+     |        |        |
+     A        B        C
+
+into this:
+
+     |        |        |
+     |       aaa       |
+     |       bbb       |
+     |      ccccc      |
+     |      ddddd      |
+     |     eeeeeee     |
+     |     fffffff     |
+     |        |        |
+     A        B        C
+
+
+Here is my proposed algorithm:
+
+1)  Move the top disk of pole A to
+    pole B.
+
+2)  Use the regular Towers of Hanoi
+    to move the disks on C that are
+    in excess of those on A onto the
+    disk on B.  If all the disks are
+    now on B stop, you are done.
+
+3)  Use the regular Towers of Hanoi
+    to move all the disks from pole
+    B back onto pole C.
+
+4)  Go back to step 1.
+
+
+Here is how the algorithm would work
+in practice:
+
+
+     |        |        |
+    aaa       |       bbb
+   ccccc      |      ddddd
+  eeeeeee     |     fffffff
+     |        |        |
+     A        B        C
+
+
+     |        |        |
+     |        |       bbb
+   ccccc      |      ddddd
+  eeeeeee    aaa    fffffff
+     |        |        |
+     A        B        C
+
+
+     |        |        |
+     |        |        |
+   ccccc     bbb     ddddd
+  eeeeeee    aaa    fffffff
+     |        |        |
+     A        B        C
+
+
+     |        |       aaa
+     |        |       bbb 
+   ccccc      |      ddddd
+  eeeeeee     |     fffffff
+     |        |        |
+     A        B        C
+
+
+     |        |       aaa
+     |        |       bbb 
+     |        |      ddddd
+  eeeeeee   ccccc   fffffff
+     |        |        |
+     A        B        C
+
+
+     |       aaa       |
+     |       bbb       |
+     |      ddddd      |
+  eeeeeee   ccccc   fffffff
+     |        |        |
+     A        B        C
+
+
+     |        |       aaa
+     |        |       bbb
+     |        |      ccccc
+     |        |      ddddd
+  eeeeeee     |     fffffff
+     |        |        |
+     A        B        C
+
+
+     |        |       aaa
+     |        |       bbb
+     |        |      ddddd
+     |        |      ccccc
+     |     eeeeeee  fffffff
+     |        |        |
+     A        B        C
+
+
+     |       aaa       |
+     |       bbb       |
+     |      ddddd      |
+     |      ccccc      |
+     |     fffffff     |
+     |     eeeeeee     |
+     |        |        |
+     A        B        C
+
+
+(Unfortunately it looks like the disks
+will not be in top down abcdef order)
+
+Time complexity analysis given stacks
+of height n:
+
+Step 1 is obviously going to occur n
+times.  Each time step one occurs the
+regular towers of Hanoi is used twice,
+once to move the excess from C to B and
+once to move the disks back to pole C.
+Note that the first towers move from
+C to B will have a single disk at the
+bottom and not the double stack that
+will be moved back to C.  Thus the total
+amount of moves is:
+
+Single moves
+|         C to B moves
+|         |                     B to C moves
+|         |                     |
+V         V                     V
+n    +    (2^(1+1) - 3)    +    (2^(1+1) - 2)
+     +    (2^(2+1) - 3)    +    (2^(2+1) - 2)
+     +    (2^(3+1) - 3)    +    (2^(3+1) - 2)
+     +    ...
+     +    (2^(n  ) - 3)    +    (2^(n  ) - 2)
+     +    (2^(n+1) - 3)
+
+                n
+= n -3n -2n + 2sum(2^k) + 2^(n+1) - 3
+               k=2
+     n
+<= 2sum(2^k) + 2^(n+1)
+    k=2
+
+This is a geometric series of n+1 terms
+without the first two terms k=0 and k=1.
+Using the formula for a geometric series,
+
+= 2*(1(1-2^(n+1))/(1-2)) - 2^1 -2^0 + 2^(n+1)
+
+= 2*(2^(n+1) - 1) + 2^(n+1) - 3
+
+= 2*2^(n+1) - 2 + 2^(n+1) - 3
+
+= 3*2^(n+1) - 5
+
+= 3*2*2^(n+1) - 5
+
+= 6*2^(n+1) - 5
+
+<= 6*2^n for n >= 0.
+
+And therefore the modified Towers of Hanoi
+problem has the same time complexity as the
+normal Towers of Hanoi problem, O(2^n).

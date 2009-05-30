@@ -1,0 +1,104 @@
+David J. Burger
+ICS 321 Sec. 452
+7/15/01
+
+17.1)  Explain how object-oriented programming differs from traditional programming.
+
+In its broadest sense, the difference between object-oriented programming and traditional 
+programming is in the way data is handled.  In traditional programming data is treated as 
+being separate from instructions, and the code involves a sequence of instructions with 
+data being passed back and forth to these instructions.  In object oriented programming, 
+the data and the instructions are encapsulated into a unit called an object.  Program 
+execution involves the creation of objects and calling the methods of the objects.   Object 
+oriented programming has some real advantages in terms of hiding the implementation of 
+code thus reducing interdependence among different parts of a program.
+
+17.2)  Why are relational databases more popular than object databases today?
+
+There are many reasons why relational databases are more popular than object databases.  
+First off, most data is already in a relational format.  In addition, the query and reporting 
+tools available for object databases are still in an immature state.  Also, the performance 
+of object databases is not yet on a par with that of relational databases.  And lastly, it 
+requires object oriented programming and the learning curve necessary can be steep and 
+expensive.
+
+17.5)  Explain the difference between an interface and an implementation.
+
+The interface of an object consists of the methods and properties that are visible to the 
+outside world.  The implementation is the hidden internals of how the object 
+accomplishes its tasks.
+
+17.40)  Why is method persistence important?  Give an example of a problem that can 
+occur when such persistence is not provided.
+
+Method persistence is important because objects have methods and properties and both 
+need to be stored.  In particular, applications tend to evolve and methods may change.  
+Without proper method management different object instances may end up being based 
+on different versions of the methods.  As an example, imagine a basketball stats 
+application that computes an overall effectiveness score for players that coaches use to 
+evaluate the team.  Now if the method of calculating the effectiveness score changes, it 
+may be possible for two different player object to have different methods for calculating 
+this score if methods are not persisted correctly.
+
+17.42)  Compare and contrast object-oriented programming with traditional 
+programming.  Evaluate the two on the following criteria:
+
+a.  Ease of learning
+
+Understanding object-oriented programming involves more concepts than a sequential-
+functional languages.  Therefore, for beginners, object-oriented programming is probably 
+a little more difficult to understand at first, however, I feel that this learning curve is not 
+too steep and the differences here are exaggerated by many.
+
+b.  Ease of use
+
+Because object-oriented languages have a steeper learning curve, traditional functional 
+languages are probably easier to use.  Each language has its own idiosyncrasies,  and 
+there is probably no clear way to draw the line between object-oriented and traditional 
+languages here.  As an example, in many ways C is a very simple language to learn and 
+use, however, many people would say that C strings are overly complex to work with.  
+Language zealots could argue points like these among various languages for hours.
+
+c.  Quality of code
+
+Because of the easier changeability of code, as discussed in point d), object oriented 
+languages have an edge in the quality of code.  I also feel that the ability to read and 
+understand the code is one of the most important aspects when talking about quality of 
+code.  Properly coded object interfaces can make the code very clean and understandable.
+
+d.  Changeability of code
+
+This is an area where properly written object-oriented programs really shine.  If a 
+programmer sticks to the concept of creating an interface and then hiding implementation 
+details, then interdependencies in programs should be reduced.  This should allow for 
+changes to be made in implementations without affecting the rest of the program.  Die 
+hard traditionalist would tell you that it is possible to code this way in their favorite 
+language as well, but in object-oriented programming, this way of programming is the 
+intended and natural way.
+
+e.  Data persistence
+
+Some object-oriented languages have the methods for data persistence built in.  Java has 
+this with the Serializable interface.  Other object-oriented languages do not have this 
+feature.  Most functional languages do not have data persistence features built in.  In 
+cases where built in functions are not available, the I/O functions of the language can be 
+used to write properties out when saving and read them back in when restoring objects or 
+other data.
+
+f.  Representation of object (entity) relationships
+
+Undoubtedly object oriented languages can very effectively represent objects or entities 
+and the relationships among them.  Functional languages that have user defined types or 
+structures can do this also, however, object-oriented languages can do this better and 
+have the benefit of encapsulating properties and methods.
+
+For what types of applications do you think object-oriented programming should be 
+used?  For what types of applications do you think traditional programming should be 
+used?
+
+Object-oriented languages should be used in new and large projects.  The benefits of 
+inheritance, encapsulation, and polymorphism can be exploited to create solid, modifiable 
+programs.  For very small projects where the benefits or object-orientation are not 
+necessary a traditional functional language may be preferable.  Also, legacy projects 
+created with a traditional language may need modifications and additions continued with 
+the same language.

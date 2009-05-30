@@ -1,0 +1,73 @@
+Presentation Summary - Jini Technology
+
+My third presentation topic was on Jini technology.  This was a very
+interesting presentation for me as I had no knowledge of Jini technology before
+beginning my Jini research.  Many of the concepts involved in Jini have strong
+ties to both networking concepts and Java concepts therefore it was fairly easy
+for me to pull all of the information together.
+
+I started my presentation by explaining what Jini technology is.  While it
+takes some time to wade through the hype on Sun's site, I found that Jini
+technology was simply a way to share Java objects over a network.  Its
+implementation relies heavily on the concept of lookup servers being used to
+manage the object available on a network.  Servers, that is computers that are
+willing to provide a service, register a proxy with the lookup server.  The
+proxy is the minimal amount of information that will be need by clients to
+instantiate and use the objects provided by the server.  Clients request
+services form the lookup server.  If the requested service is available, the
+lookup server will deliver the proxy to the client and thereafter the client
+can interact directly with the server via the proxy.  Many of these ideas are
+present in other networking technologies and programming paradigms.
+
+I spent a fair amount of time talking about the proxy that is registered with
+the lookup server in Jini technology.  It is important to understand that by
+using the proxy the inefficiency of moving entire class files across the
+network is avoided.  In addition, the backend implementation can be easily
+changed while the same proxy manages outside interaction, thus allowing very
+simple modification and updates.
+
+With the basics of Jini technology out of the way I began to discuss the usages
+of such technology.  One major usage of Jini technology is to tie together
+computer systems that would otherwise need custom programming for
+intercommunication.  Because of the prevalence of the Java technology, Jini can
+be the glue that ties together any kind of service that a specific computer
+system may provide.  I also spent some time talking about the tremendous
+benefit that Jini can offer wireless users.  Because the lookup servers are
+fast and flexible, users that move in and out of range of a wireless connection
+can quickly connect to services of the network and provide services to the
+network without worrying about configuration issues.
+
+In the final segment of my presentation I talked about companies that have
+successfully deployed Jini technology.  These stories came from Sun's website
+and included a variety of industries, however, it seemed that the military was
+certainly one of the stronger participants in Jini technology.  I talked about
+how the Maui High Performance Computing Center used Jini to facilitate
+simulation exercises for the United States Navy.  I also talked about a company
+called eko systems, inc., and their usage of Jini technology in the medical
+industry.
+
+I concluded my talk with a look to the future of Jini technology.  I noted that
+Jini was similar to other technologies talked about in class as it is still in
+the early stages and not yet widely deployed.  Sun's position is that all is
+well and Jini is slowly being adopted as the number one choice in distributed
+object technology.  Others, such as Microsoft, may feel that Jini is not being
+adopted, and that technologies like DCOM and CORBA will be the dominant
+technology in the field.
+
+http://www.sun.com/jini/, Sun's own website for Jini information.
+
+http://www.jini.org, Another website full of Jini information.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

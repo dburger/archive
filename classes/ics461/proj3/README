@@ -1,0 +1,81 @@
+David J. Burger
+ICS 461, Curt Powley
+alpha beta minimax
+
+This program was very straight forward to write, as the pseudo code
+provided by Korf could be followed quite closely in C.
+
+For my program I wrote code that allowed tree data to be loaded from a
+file.  This allows for the creation of data files containing as many
+tree examples as you would want to run, which is much better than
+making code changes and recompiling.
+
+After the tree data is loaded it is placed into a tree structure where
+the tree is held as an array.  This can be done because we are only
+considering binary trees for this example program.  This makes for a
+scheme where the parent is at index 0, a left child can always be
+found at 2i + 1, and a right child always at 2i + 2.  The program
+proceeds by doing a depth first search to the bottom of the tree where
+the provided heuristic values can be found.  The alpha beta minimax
+algorithm works to return these values while pruning the tree when it
+can be determined that a branch cannot lead to a solution that will be
+chosen because of the alpha beta values of ancestors in the tree.
+
+One thing I learned from this assignment is the amazing elegance and
+simplicity of algorithms such as alpha beta minimax.  Although the
+description for alpha beta minimax can take some time to grasp, the
+program itself involves two very simple mutually recursive functions.
+It is neat to see so much power in so little code.
+
+Another thing I learned is how to construct trees that have the
+property of either requiring maximal or minimal leaf examination.
+After struggling with this for a bit I discovered that they could be
+constructed recursively.  Take maximal pruning as an example, if we
+start with the maximal leaf order for best pruning at depth 1:
+
+2 1
+
+and then for each next deeper level we can merely reverse the leaves
+and place them into the right subtree, while mirroring the right
+subtree in the left subtree with the numbers adjusted accordingly.  So
+for the 2 1 case it becomes:
+
+3 4 1 2
+
+This process, reverse, place in right subtree, mirror on the left, can
+be repeated to any depth you like.  For minimal pruning all that needs
+to be changed is to start with 1 2, and do the same thing with subtree
+placements reversed.
+
+Why does this work?  It works because the reordering techniques create
+subtrees that have maximal or minimal pruning, while placing the
+subtrees in a left to right order that will cause the root to provide
+maximal or minimal pruning as well.
+
+Although this algorithm is very simple it gets very nasty to carry out
+by hand for more than a few levels.  Therefore, I wrote an Emacs Lisp
+function that would help me produce such trees:
+
+(defun reverso-adder (depth)
+  (let ((round 1)
+        (leaves 2)
+        (the-list '(2 1)))
+    (while (< round depth)
+      (setq the-list (reverse the-list))
+      (let ((ptr the-list)
+            new-list)
+        (while ptr
+          (push (+ leaves (car ptr)) new-list)
+          (setq ptr (cdr ptr)))
+        (setq the-list (append (reverse new-list) the-list)))
+      (setq leaves (* 2 leaves))
+      (incf round))
+    the-list))
+
+Included with this document you will find:
+1) Source code of my program
+2) Input file used with the program
+3) Results of the input file
+
+I have included input that shows minimal and maximal pruning for trees
+of depths 5, 6, and 7.
