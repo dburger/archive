@@ -1,0 +1,5 @@
+Basic example that does minimal things, look for the .js file to see
+what.  Mainly a set up environment for building an extension, a
+starting point.  Originally from the tutorial at:
+
+http://developer.mozilla.org/en/docs/Building_an_Extension#Setting_up_the_Development_Environment

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+        <Description about="urn:mozilla:install-manifest">
+
+                <em:id>{ee04f931-9c85-4fed-b789-33138cf26ae5}</em:id>
+                <em:name>Text Dumper</em:name>
+                <em:version>0.1</em:version>
+                <em:description>Dumps the Selected Text to a File or a Command.</em:description>
+                <em:creator>David J. Burger</em:creator>
+                <em:homepageURL>http://www2.hawaii.edu/~dburger</em:homepageURL>
+                <em:iconURL>chrome://textdumper/skin/textdumper_small.png</em:iconURL>
+                <em:aboutURL>chrome://textdumper/content/about.xul</em:aboutURL>
+                <em:optionsURL>chrome://textdumper/content/options.xul</em:optionsURL>
+                <em:file>
+                        <Description about="urn:mozilla:extension:file:textdumper.jar">
+                                <em:package>content/textdumper/</em:package>
+                                <em:skin>skin/classic/textdumper/</em:skin>
+                        </Description>
+                </em:file>
+
+                <em:targetApplication>
+                        <Description>
+                                <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+                                <em:minVersion>0.9</em:minVersion>
+                                <em:maxVersion>3.0</em:maxVersion>
+                        </Description>
+                </em:targetApplication>
+
+        </Description>
+
+</RDF>

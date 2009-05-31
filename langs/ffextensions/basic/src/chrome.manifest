@@ -1,0 +1,2 @@
+content bigtribe chrome/content/
+overlay chrome://browser/content/browser.xul chrome://bigtribe/content/bigtribe.xul

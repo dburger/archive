@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<dialog id="textdumper-options"
+	title="Text Dumper - Options"
+        buttons="accept,cancel"
+        onload="textdumper_loadPreferences();"
+        ondialogaccept="return textdumper_doOk();"
+        ondialogcancel="return textdumper_doCancel();"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+<script type="application/x-javascript" src="chrome://textdumper/content/prefs.js" />
+<script type="application/x-javascript" src="chrome://textdumper/content/util.js" />
+<script type="application/x-javascript" src="chrome://textdumper/content/options.js" />
+
+  <groupbox>
+    <caption label="Action"/>
+    <radiogroup id="action">
+      <radio id="ask" oncommand="textdumper_disableSave('ask');"
+          label="Ask me where to save every selection"/>
+      <hbox>
+        <radio id="save" oncommand="textdumper_disableSave('save');"
+            label="Save every selection to this folder:"/>
+        <menulist id="folder-list" onpopupshowing="textdumper_oldSelection=document.getElementById('folder-list').selectedIndex;" oncommand="textdumper_folderChange();" flex="1">
+          <menupopup id="folder-popup">
+
+          </menupopup>
+        </menulist>
+      </hbox>
+      <hbox>
+        <label control="file-prefix" value="File prefix:"/>
+        <textbox id="file-prefix" flex="1"/>
+        <label control="file-suffix" value="File suffix:"/>
+        <textbox id="file-suffix" flex="1"/>
+      </hbox>
+      <hbox>
+        <radio id="command" oncommand="textdumper_disableSave('command');"
+            label="Dump the selection to this command:"/>
+        <textbox id="shell-command" flex="1"/>
+      </hbox>
+    </radiogroup>
+  </groupbox>
+  <checkbox id="write-url" label="With save action write the URL in the file"/>
+
+</dialog>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<overlay id="bigtribe-status"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+  <script type="application/x-javascript" src="chrome://bigtribe/content/bigtribe.js" />
+
+  <popup id="contentAreaContextMenu">
+    <menuseparator id="context-mapsep" />
+    <menuitem id="context-map" label="Map" accesskey="p"
+        oncommand="BigTribe.map();" />
+  </popup>
+
+  <menupopup id="menu_EditPopup">
+    <menuseparator id="edit-mapsep" />
+    <menuitem id="edit-map" label="Map" accesskey="p"
+        oncommand="BigTribe.map();" />
+  </menupopup>
+
+</overlay>

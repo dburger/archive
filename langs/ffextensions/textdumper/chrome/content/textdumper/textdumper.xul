@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<overlay id="textdumper"
+    xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+// This imports our javascript.
+<script type="application/x-javascript"
+    src="chrome://textdumper/content/prefs.js" />
+<script type="application/x-javascript"
+    src="chrome://textdumper/content/util.js" />
+<script type="application/x-javascript"
+    src="chrome://textdumper/content/textdumper.js" />
+
+
+// This sets up the chaining of the menu event handlers so the
+// enabled / disable of our items can be set correctly
+<script>
+  window.addEventListener("load", textdumper_menuInit, false);
+</script>
+
+
+// This is for the right click menu.
+<popup id="contentAreaContextMenu">
+  <menuitem id="context-dumptext" label="Dump Selected Text" accesskey="d"
+  insertafter="context-selectall" oncommand="textdumper_dumpText();"/>
+</popup>
+
+
+// This is for the File menu.
+<menupopup id="menu_FilePopup">
+  <menuitem id="file-dumptext" insertbefore="menu_saveFrame"
+      label="Dump Selected Text" accesskey="d" oncommand="textdumper_dumpText();" />
+</menupopup>
+
+</overlay>
