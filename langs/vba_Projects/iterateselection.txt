@@ -1,0 +1,20 @@
+'This is an example of a routine
+'that can iterate through a selection
+'doing things like uppercasing, or
+'flopping first and last names in excel
+'
+Public Sub DoSelection()
+  Dim rng As Range
+  Dim nRowLoop As Integer
+  Dim nColLoop As Integer
+  Dim nRows As Integer
+  Dim nCols As Integer
+  Set rng = Application.Selection
+  nRows = rng.Rows.Count
+  nCols = rng.Columns.Count
+  For nRowLoop = 1 To nRows
+    For nColLoop = 1 To nCols
+      rng.Cells(nRowLoop, nColLoop).FormulaR1C1 = "dakine"
+    Next nColLoop
+  Next nRowLoop
+End Sub
