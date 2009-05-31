@@ -1,0 +1,87 @@
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Title</title><style type="text/css">
+      @import "/~dburger/styles/markup.css";
+      @import "/~dburger/styles/layout.css";
+    </style></head><body><div id="header"><span class="heading">header</span></div><div id="content">
+  <div xmlns="" class="item">
+<a name="0"></a><div class="title">Java Proxy Demo</div>
+<div class="description">A demonstration of making dynamic proxies with Java.</div>
+    
+In Java 1.3 reflection classes were added to facilitate the creation of dynamic proxies.  A proxy acts as a stand in for an actual implementation and the typical example is when a proxy is used to work with an object as if it resides locally when it is actually across the network.  The proxy takes care of the communication with the actual object.  Here is a super simple  example of a proxy that forwards requests to an implementation:
+<pre>
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+/**
+ * Demonstration of Java dynamic proxies using reflection.  This demo creates
+ * a proxy of an implementation of the  <code>Frobnicator</code> interface.
+ *
+ * @author David J. Burger
+ * @version $Id$
+ */
+public class ProxyDemo {
+
+  /**
+   * Main entry point sets up and calls a method on the dynamic proxy.
+   *
+   * @param args unused command line parameters
+   */
+  public static void main(String[] args) {
+    /** The implementation that a proxy will be created for. */
+    final Frobnicator frobber = new FrobnicatorImpl();
+
+    /** This invocation handler will catch the calls on the proxy. */
+    InvocationHandler handler = new InvocationHandler() {
+
+        public Object invoke(Object proxy, Method meth, Object[] args)
+            throws Throwable {
+          try {
+            // here could do pre/post processing, logging, etc.
+            System.out.println("Proxy intercepting and forwarding method "
+                + meth.getName() + ".");
+            // invoking on the implementation
+            return meth.invoke(frobber, args);
+          } catch (InvocationTargetException e) {
+            throw e.getTargetException();
+          }
+        }
+
+      };
+
+    // creation of the proxy
+    Class[] interfaces = new Class[] { Frobnicator.class };
+    ClassLoader loader = Frobnicator.class.getClassLoader();
+    Frobnicator proxy = (Frobnicator)Proxy.newProxyInstance(loader, interfaces,
+        handler);
+
+    // calling method on proxy...gets called on the invocation handler
+    proxy.frobnicate();
+  }
+
+}
+
+/** Interface that implementations and proxies will share. */
+interface Frobnicator {
+
+  /** Frobnicate! */
+  void frobnicate();
+
+}
+
+/** Implementation of <code>Frobnicator</code> interface. */
+class FrobnicatorImpl implements Frobnicator {
+
+  /** Frobnicate! */
+  public void frobnicate() {
+    System.out.println("Implementation frobnicating!");
+  }
+
+}
+</pre>
+A good example of doing something useful with dynamic proxies combined with features of the Java Tiger release can be found at
+<a href="http://jroller.com/page/komu/20040727#proxy_based_event_multicaster">my cup of java</a>.
+    
+    </div>
+</div><div id="footer"><span class="footing">footer</span></div></body></html>
