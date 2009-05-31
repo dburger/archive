@@ -1,0 +1,8 @@
+frmMain = 44, 44, 531, 390, , 22, 22, 509, 368, C
+frmImageTag = 132, 132, 305, 478, C, 22, 86, 384, 432, C
+frmHTMLSkeleton = 88, 88, 283, 394, C, 7, 47, 369, 353, C
+basAPIHelpers = 44, 44, 239, 350, C
+frmHyperlink = 0, 0, 173, 346, C, 110, 110, 327, 456, C
+frmTableBuilder = 44, 44, 239, 350, C, 132, 132, 327, 438, C
+frmFontBuilder = 110, 110, 348, 416, C, 22, 22, 531, 328, C
+basFileRoutines = 44, 44, 437, 350, 

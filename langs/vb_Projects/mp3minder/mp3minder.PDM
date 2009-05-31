@@ -1,0 +1,92 @@
+[Root]
+Most Recent Package=mp3 minder setup package
+
+
+[Package|mp3 minder setup package|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=C:\My Documents\mp3 minder install
+
+[Package|mp3 minder setup package|Configure DAO ISAMs]
+Applicable=No
+
+[Package|mp3 minder setup package|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|mp3 minder setup package|Files Found]
+
+[Package|mp3 minder setup package|Files Released]
+
+[Package|mp3 minder setup package|Missing Dependency Information]
+
+[Package|mp3 minder setup package|Out-of-Date Dependency Information]
+
+[Package|mp3 minder setup package|Files Added]
+
+[Package|mp3 minder setup package|Files Removed]
+
+[Package|mp3 minder setup package|Files In Project]
+C:\WINDOWS\SYSTEM\msvbvm60.dll=Yes
+C:\WINDOWS\SYSTEM\OLEAUT32.DLL=Yes
+C:\WINDOWS\SYSTEM\OLEPRO32.DLL=Yes
+C:\WINDOWS\SYSTEM\ASYCFILT.DLL=Yes
+C:\WINDOWS\SYSTEM\STDOLE2.TLB=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\WINDOWS\SYSTEM\mscomctl.ocx=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\WINDOWS\SYSTEM\VB6STKIT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+C:\WINDOWS\Desktop\mp3mind.exe=Yes
+
+[Package|mp3 minder setup package|Configure Registry Files]
+Applicable=No
+
+[Package|mp3 minder setup package|Configure Remote Servers]
+Applicable=No
+
+[Package|mp3 minder setup package|Install Locations]
+C:\My Documents\My Website\mp3minder\mp3mind.exe=$(AppPath)
+C:\WINDOWS\SYSTEM\msvbvm60.dll=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\OLEAUT32.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\OLEPRO32.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\ASYCFILT.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\STDOLE2.TLB=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\mscomctl.ocx=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINDOWS\SYSTEM\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+C:\WINDOWS\Desktop\mp3mind.exe=$(AppPath)
+
+[Package|mp3 minder setup package|Configure Shared Files]
+Applicable=Yes
+C:\My Documents\My Website\mp3minder\mp3mind.exe=No
+C:\WINDOWS\Desktop\mp3mind.exe=No
+
+[Package|mp3 minder setup package|Distribution]
+Type=single
+Size=
+Title=mp3minder install
+
+[Package|mp3 minder setup package|Package]
+PackageFolder=C:\My Documents\mp3 minder install
+ProjectFolder=C:\My Documents\archives\VB_Projects\mp3minder
+ServerSideCab=
+File1=C:\My Documents\mp3 minder install\setup.exe
+File2=C:\My Documents\mp3 minder install\Setup.Lst
+File3=C:\My Documents\mp3 minder install\mp3mind.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz
+
+[Package|mp3 minder setup package|IconGroups]
+Group0=mp3minder install
+PrivateGroup0=True
+Parent0=$(Programs)
+
+[Package|mp3 minder setup package|mp3minder install]
+Icon1=mp3mind.exe
+Title1=mp3minder install
+StartIn1=$(AppPath)
+Key1=Icon1

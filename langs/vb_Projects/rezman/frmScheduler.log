@@ -1,0 +1,5 @@
+Line 16: Class VSFlex6Ctl.vsFlexGrid of control grdPayments was not a loaded control class.
+Line 101: Class MSComctlLib.TabStrip of control tabgrdDetail was not a loaded control class.
+Line 233: Class CTSCHEDULELibCtl.ctSchedule of control schMain was not a loaded control class.
+Line 290: Class VSFlex6Ctl.vsFlexGrid of control grdProducts was not a loaded control class.
+Line 375: Class VSFlex6Ctl.vsFlexGrid of control grdPassengers was not a loaded control class.

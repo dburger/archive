@@ -1,0 +1,53 @@
+#!/usr/bin/perl -w
+
+# pagemon, a program used to monitor web pages for changes
+# Copyright (C) 2002  David J. Burger, dburger@hawaii.edu
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+(@ARGV == 2) || die("Proper usage is $0 link.file dbm.file\n");
+
+($linkfile, $dbmfile) = @ARGV;
+
+open(FP, $linkfile) || die("Unable to open $linkfile: $!\n");
+@urls = <FP>;
+close(FP);
+
+chomp(@urls);
+
+dbmopen(%DBMFILE, $dbmfile, 0600) || die("Unable to open $dbmfile: $!\n");
+
+$message = "";
+
+foreach $url (@urls) {
+  $newhash = `curl -fs $url | md5sum`;
+  if ($newhash ne "d41d8cd98f00b204e9800998ecf84e  -\n") { # the empty hash
+    if (defined($oldhash = $DBMFILE{$url})) {
+      ($oldhash ne $newhash) && ($message .= "Changed: " . $url . "\n");
+    }
+    $DBMFILE{$url} = $newhash;
+  } else {
+    $message .= "Failed:  " . $url . "\n";
+  }
+}
+
+dbmclose(%DBMFILE);
+
+if (length($message)) {
+  open(MAIL, "|mail -s 'tracked page change' you\@you.com")
+      || die("Unable to open mail: $!");
+  print(MAIL $message);
+  close(MAIL);
+}

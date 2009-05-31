@@ -1,0 +1,134 @@
+[Root]
+Most Recent Package=Rezman Setup Package
+Most Recent Deploy=Rezman Deployment
+
+[Deploy|Rezman Deployment|Root]
+Package=Rezman Setup Package
+Handler=PDWizard.FolderDplySubWiz
+Folder=C:\My Documents\Rezman Install\Deploy
+
+
+[Package|Rezman Setup Package|Root]
+SubWizProgID=PDWizard.SetupPkgSubWiz
+BuildFolder=C:\My Documents\Rezman Install\Package
+
+[Package|Rezman Setup Package|Configure DAO ISAMs]
+Applicable=No
+
+[Package|Rezman Setup Package|Configure DAO ODBC]
+JetWorkspace=
+ODBCDirect=
+
+[Package|Rezman Setup Package|Files Found]
+
+[Package|Rezman Setup Package|Files Released]
+
+[Package|Rezman Setup Package|Missing Dependency Information]
+C:\My Documents\VB_Projects\Shared\Reports\Reports.exe=
+C:\WINDOWS\SYSTEM\VsVIEW6.ocx=
+C:\WINDOWS\SYSTEM\Vsflex6.ocx=
+C:\Program Files\SS2Demo\ctschedule.ocx=
+C:\WINDOWS\SYSTEM\mfc42.dll=
+C:\WINDOWS\SYSTEM\Reports.exe=
+C:\WINDOWS\SYSTEM\ctschedule.ocx=
+C:\My Documents\VB_Projects\Shared\Reports\djbReports.exe=
+
+[Package|Rezman Setup Package|Out-of-Date Dependency Information]
+
+[Package|Rezman Setup Package|Files Added]
+c:\my documents\vb_projects\rezman\data\rez.rzm=
+c:\windows\system\mfc42.dll=
+c:\program files\microsoft visual studio\vb98\wizards\pdwizard\redist\msvcrt40.dll=
+c:\windows\system\vsview6.oca=
+
+[Package|Rezman Setup Package|Files Removed]
+
+[Package|Rezman Setup Package|Files In Project]
+C:\My Documents\VB_Projects\Rezman\Rezman.exe=Yes
+C:\WINDOWS\SYSTEM\msvbvm60.dll=Yes
+C:\WINDOWS\SYSTEM\OLEAUT32.DLL=Yes
+C:\WINDOWS\SYSTEM\OLEPRO32.DLL=Yes
+C:\WINDOWS\SYSTEM\ASYCFILT.DLL=Yes
+C:\WINDOWS\SYSTEM\STDOLE2.TLB=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=Yes
+C:\WINDOWS\SYSTEM\Vsflex6.ocx=Yes
+C:\WINDOWS\SYSTEM\VsVIEW6.ocx=Yes
+C:\WINDOWS\SYSTEM\MSCOMCT2.OCX=Yes
+C:\WINDOWS\SYSTEM\mscomctl.ocx=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\MDAC_TYP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=Yes
+C:\WINDOWS\SYSTEM\VB6STKIT.DLL=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=Yes
+C:\My Documents\VB_Projects\Rezman\Data\rez.rzm=Yes
+C:\WINDOWS\SYSTEM\mfc42.dll=Yes
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\MSVCRT40.DLL=Yes
+C:\WINDOWS\SYSTEM\ctschedule.ocx=Yes
+C:\My Documents\VB_Projects\Shared\Reports\djbReports.exe=Yes
+C:\WINDOWS\SYSTEM\VSVIEW6.oca=Yes
+
+[Package|Rezman Setup Package|Configure Registry Files]
+Applicable=No
+
+[Package|Rezman Setup Package|Configure Remote Servers]
+Applicable=No
+
+[Package|Rezman Setup Package|Install Locations]
+C:\My Documents\VB_Projects\Rezman\Rezman.exe=$(AppPath)
+C:\WINDOWS\SYSTEM\msvbvm60.dll=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\OLEAUT32.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\OLEPRO32.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\ASYCFILT.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\STDOLE2.TLB=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\COMCAT.DLL=$(WinSysPathSysFile)
+C:\Program Files\SS2Demo\ctschedule.ocx=$(WinSysPath)
+C:\WINDOWS\SYSTEM\Vsflex6.ocx=$(WinSysPath)
+C:\WINDOWS\SYSTEM\VsVIEW6.ocx=$(WinSysPath)
+C:\My Documents\VB_Projects\Shared\Reports\Reports.exe=$(WinSysPath)
+C:\WINDOWS\SYSTEM\MSCOMCT2.OCX=$(WinSysPath)
+C:\WINDOWS\SYSTEM\mscomctl.ocx=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\MDAC_TYP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP.EXE=$(AppPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\SETUP1.EXE=$(WinPath)
+C:\WINDOWS\SYSTEM\VB6STKIT.DLL=$(WinSysPathSysFile)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\ST6UNST.EXE=$(WinPath)
+C:\My Documents\VB_Projects\Rezman\Data\rez.rzm=$(AppPath)\Data
+C:\WINDOWS\SYSTEM\mfc42.dll=$(WinSysPath)
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\MSVCRT40.DLL=$(WinSysPathSysFile)
+C:\WINDOWS\SYSTEM\ctschedule.ocx=$(WinSysPath)
+C:\WINDOWS\SYSTEM\Reports.exe=$(WinSysPath)
+C:\My Documents\VB_Projects\Shared\Reports\djbReports.exe=$(WinSysPath)
+C:\WINDOWS\SYSTEM\VSVIEW6.oca=$(AppPath)
+
+[Package|Rezman Setup Package|Configure Shared Files]
+Applicable=Yes
+C:\My Documents\VB_Projects\Rezman\Rezman.exe=No
+C:\Program Files\Microsoft Visual Studio\VB98\Wizards\PDWizard\Redist\MDAC_TYP.EXE=Yes
+C:\My Documents\VB_Projects\Rezman\Data\rez.rzm=No
+C:\WINDOWS\SYSTEM\VSVIEW6.oca=Yes
+
+[Package|Rezman Setup Package|Distribution]
+Type=single
+Size=
+Title=Rezman
+
+[Package|Rezman Setup Package|Package]
+PackageFolder=C:\My Documents\Rezman Install\Package
+ProjectFolder=C:\My Documents\VB_Projects\Rezman
+ServerSideCab=
+File1=C:\My Documents\Rezman Install\Package\setup.exe
+File2=C:\My Documents\Rezman Install\Package\Setup.Lst
+File3=C:\My Documents\Rezman Install\Package\Rezman.CAB
+Handler1=PDWizard.FolderDplySubWiz
+Handler2=PDWizard.WebPostDplySubWiz
+
+[Package|Rezman Setup Package|IconGroups]
+Group0=Rezman
+PrivateGroup0=True
+Parent0=$(Programs)
+
+[Package|Rezman Setup Package|Rezman]
+Icon1=Rezman.exe
+Title1=Rezman
+StartIn1=$(AppPath)
+Key1=Icon1

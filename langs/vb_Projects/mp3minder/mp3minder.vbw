@@ -1,0 +1,16 @@
+clsFileFinder = 9, 55, 360, 401, C
+clsDirectoryChooser = 88, 88, 483, 355, C
+basAPIHelpers = 88, 88, 439, 434, C
+basMiscRoutines = 0, 0, 218, 306, 
+clsWindowPosition = 154, 154, 565, 490, 
+basComboListHelpers = 110, 110, 484, 456, C
+basFileRoutines = 88, 88, 318, 434, C
+clsFileDialog = 154, 154, 385, 500, C
+basBitManip = 110, 110, 439, 456, 
+basMain = 88, 88, 366, 434, 
+clsMP3Info = 66, 66, 513, 345, 
+frmMP3Information = 66, 66, 248, 412, C, 74, 39, 427, 387, C
+frmMain = 132, 132, 410, 478, Z, 96, 71, 374, 417, C
+frmSearchDepth = 22, 22, 517, 368, C, 0, 0, 182, 346, C
+frmPlaylistPicker = 66, 66, 338, 412, C, 44, 44, 686, 390, C
+clsPlaylist = 154, 154, 497, 500, C
