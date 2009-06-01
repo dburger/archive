@@ -140,7 +140,3 @@ Returns the new point."
     (goto-char (+ end (length link)))
     (insert "</a>")
     (point)))
-
-
-
-
