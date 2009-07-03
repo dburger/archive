@@ -9,8 +9,8 @@ var dequeue = function() {
     }
 
     var that = {};
-    head = node(null);
-    tail = node(null, head);
+    var head = node(null);
+    var tail = node(null, head);
     head.next = tail;
     that.empty = function() {return head.next == tail;};
     that.push = function(data) {
