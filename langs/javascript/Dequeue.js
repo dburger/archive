@@ -13,7 +13,7 @@ Dequeue.Node = function(data) {
 };
 
 Dequeue.prototype.empty = function() {
-    return this._head._next == this._tail;
+    return this._head._next === this._tail;
 };
 
 Dequeue.prototype.push = function(data) {

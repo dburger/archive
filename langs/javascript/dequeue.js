@@ -12,7 +12,7 @@ var dequeue = function() {
     var head = node(null);
     var tail = node(null, head);
     head.next = tail;
-    that.empty = function() {return head.next == tail;};
+    that.empty = function() {return head.next === tail;};
     that.push = function(data) {
         var n = node(data, tail.prev, tail)
         tail.prev.next = n;
