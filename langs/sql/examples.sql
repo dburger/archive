@@ -42,3 +42,13 @@ SET @sql = 'UPDATE dses_rollup.dbo.dses_data_sources
            ')
             WHERE name = ''DMDC CIVILIAN PERSONNEL'''
 exec(@sql)
+
+-- mysql has an default escape character \
+SELECT * FROM people WHERE symbol LIKE 'hello\_world';
+-- or you can specify the escape character
+SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
+
+-- tsql has no default but you can go with a single character class
+SELECT * FROM people WHERE symbol LIKE 'hello[_]world';
+-- or you can specify an escape character
+SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
