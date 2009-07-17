@@ -1,32 +1,32 @@
 // Javascript Doubly Ended Queue
-function Dequeue() {
-    this._head = new Dequeue.Node();
-    this._tail = new Dequeue.Node();
+function Deque() {
+    this._head = new Deque.Node();
+    this._tail = new Deque.Node();
     this._head._next = this._tail;
     this._tail._prev = this._head;
 }
 
-Dequeue.Node = function(data) {
+Deque.Node = function(data) {
     this._data = data;
     this._prev = null;
     this._next = null;
 };
 
-Dequeue.prototype.empty = function() {
+Deque.prototype.empty = function() {
     return this._head._next === this._tail;
 };
 
-Dequeue.prototype.push = function(data) {
-    var node = new Dequeue.Node(data);
+Deque.prototype.push = function(data) {
+    var node = new Deque.Node(data);
     node._prev = this._tail._prev;
     node._prev._next = node;
     node._next = this._tail;
     this._tail._prev = node;
 };
 
-Dequeue.prototype.pop = function() {
+Deque.prototype.pop = function() {
     if (this.empty()) {
-        throw new Error("pop() called on empty dequeue");
+        throw new Error("pop() called on empty deque");
     } else {
         var node = this._tail._prev;
         this._tail._prev = node._prev;
@@ -35,17 +35,17 @@ Dequeue.prototype.pop = function() {
     }
 };
 
-Dequeue.prototype.unshift = function(data) {
-    var node = new Dequeue.Node(data);
+Deque.prototype.unshift = function(data) {
+    var node = new Deque.Node(data);
     node._next = this._head._next;
     node._next._prev = node;
     node._prev = this._head;
     this._head._next = node;
 };
 
-Dequeue.prototype.shift = function() {
+Deque.prototype.shift = function() {
     if (this.empty()) {
-        throw new Error("shift() called on empty dequeue");
+        throw new Error("shift() called on empty deque");
     } else {
         var node = this._head._next;
         this._head._next = node._next;

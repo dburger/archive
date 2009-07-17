@@ -1,5 +1,5 @@
 // Javascript Doubly Ended Queue
-var dequeue = function() {
+var deque = function() {
     var node = function(data, prev, next) {
         var that = {};
         that.data = data;
@@ -20,7 +20,7 @@ var dequeue = function() {
     };
     that.pop = function() {
         if (that.empty()) {
-            throw new Error("pop() called on empty dequeue");
+            throw new Error("pop() called on empty deque");
         } else {
             var n = tail.prev;
             tail.prev = n.prev;
@@ -35,7 +35,7 @@ var dequeue = function() {
     };
     that.shift = function() {
         if (that.empty()) {
-            throw new Error("shift() called on empty dequeue");
+            throw new Error("shift() called on empty deque");
         } else {
             var n = head.next;
             head.next = n.next;
