@@ -15,7 +15,7 @@ function getElementsByClassName(parent, className) {
   walkTheDom(parent, function(node) {
     var classNames = (node.className + "").split(" ");
     for (var i = 0; i < classNames.length; i++) {
-      if (classNames[i] == className) {
+      if (classNames[i] === className) {
         results.push(node);
         break;
       }
