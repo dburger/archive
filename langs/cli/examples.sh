@@ -4,7 +4,7 @@
 ls QuizUI_* | sed 's/Quiz\(UI_[0-9][0-9]\.png\)/mv Quiz\1 \1/' | sh
 
 # another fancy rename
-ls *consolidated.xls | sed 's/\(.*\)-consolidated.xls/mv \0 consolidated-\1.xls/'
+ls *consolidated.xls | sed 's/\(.*\)-consolidated.xls/mv \0 consolidated-\1.xls/' | sh
 
 # remove from { to } in a text file spanning multiple lines, used to clean up
 # an informix DDL for usage with SQL Server, derived from sed one liners page
