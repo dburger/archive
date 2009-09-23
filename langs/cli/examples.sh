@@ -3,7 +3,7 @@
 # rename a bunch of files from a prefix + number to just the number
 ls QuizUI_* | sed 's/Quiz\(UI_[0-9][0-9]\.png\)/mv Quiz\1 \1/' | sh
 
-# another fancy rename
+# another fancy rename making *-consolidated.xls consolidated-*.xls
 ls *consolidated.xls | sed 's/\(.*\)-consolidated.xls/mv \0 consolidated-\1.xls/' | sh
 
 # remove from { to } in a text file spanning multiple lines, used to clean up
