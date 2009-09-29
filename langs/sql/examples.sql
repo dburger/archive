@@ -60,3 +60,41 @@ FROM employment_statuses es JOIN
    mde_mishaps.dbo.employment_statuses_dim esd ON
    es.tier1 = esd.employment_status_tier1 AND
    es.tier2 = esd.employment_status_tier2
+
+-- some updates against a fact table from several raw tables, uses cursor etc.
+-- on tsql
+IF NOT EXISTS (SELECT * FROM information_schema.columns WHERE column_name = 'transport_mode' AND table_name = 'traces_fact')
+BEGIN
+  ALTER TABLE dbo.traces_fact ADD transport_mode VARCHAR(255)
+
+  -- this only needs to be ran the first time we add these columns as the
+  -- populate_traces_fact will handle filling in these columns for all new
+  -- records in the future
+  DECLARE @table_name VARCHAR(255)
+  DECLARE @sql_string VARCHAR(4000)
+  DECLARE mycursor CURSOR FOR SELECT table_name
+      FROM stg_raw.information_schema.tables
+      WHERE table_name LIKE 'traces_%'
+  OPEN mycursor
+  FETCH NEXT FROM mycursor INTO @table_name
+  WHILE @@fetch_status = 0
+  BEGIN
+      SET @sql_string = 'UPDATE dbo.traces_fact SET
+                            age = raw.age,
+                            age_unit = raw.age_unit,
+                            cite = raw.cite,
+                            db = raw.db,
+                            gender = raw.gender,
+                            mission_id#_of_last_mission = raw.mission_id#_of_last_mission,
+                            personnel_status_name = raw.personnel_status_name,
+                            service_active_duty = raw.service_active_duty,
+                            service_grade_code = raw.service_grade_code,
+                            service_grade_name = raw.service_grade_name
+                        FROM dbo.traces_fact JOIN stg_raw.dbo.' + @table_name + ' raw
+                            ON dbo.traces_fact.pmr_identifier = raw.pmr_identifier'
+      EXEC(@sql_string)
+      FETCH NEXT FROM mycursor INTO @table_name
+  END
+  CLOSE mycursor
+  DEALLOCATE mycursor
+END

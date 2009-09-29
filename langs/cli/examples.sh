@@ -42,3 +42,9 @@ chown -h user:group symlink
 svn log -q ./src/java/com/bigtribe/sync/adapter/SimpleCsvReader.java | \
     grep "^r[0-9]\+ " | awk '{ print substr($1, 2) }' | \
     while read rev; do svn cat -r $rev src/java/com/bigtribe/sync/adapter/SimpleCsvReader.java > $rev.txt; done
+
+# awk to print second column identify longest line
+awk 'BEGIN {FS=","}; {print $2}' hotspot-list2.txt | wc -L
+
+# awk to pull ip address from box
+ifconfig | grep 'Bcast' | awk '{print $2' | awk 'BEGIN {FS=":"} ; {print $2}'
