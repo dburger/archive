@@ -91,3 +91,7 @@ service geohana{
 
 # on OS X using firewall rules having 80 hit 9080
 ipfw add 100 fwd 127.0.0.1,9080 tcp from any to any 80 in
+
+# remote X11 execution
+ssh -X -Y -C dburger@uhunix.its.hawaii.edu emacs
+
