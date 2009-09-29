@@ -1,0 +1,60 @@
+If you change the persistence.xml to "update" instead of validate then when the entity bean is dropped in the container it will actually modify the schema of the database. 
+
+The persistence.xml file (usually located in src/java/META-INF/ contains a property that instructs whether or not the schema for the entities in the project should be adjusted or just validated when the container brings up the entities.  The whole file looks like this as an example:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence ./persistence_1_0.xsd"
+        version="1.0">
+        <persistence-unit name="poi">
+                <jta-data-source>java:/poiDS</jta-data-source>
+                <properties>
+                        <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect"/>
+                        <property name="hibernate.hbm2ddl.auto" value="validate"/>
+         <property name="jboss.entity.manager.jndi.name" value="java:/EntityManagers/poi"/>
+                </properties>
+        </persistence-unit>
+</persistence>
+
+The property in question is listed in bold.  If "validate," then the container will merely check that the underlying schema is valid for this bean and complain if not.  If "update," then the container will actually modify the schema as necessary to hold the entities.
+
+if you want to dynamically fetch an EntityManager from a persistence unit into a servlet or web service dynamically based upon a mapped name you must first add a description of the logical name in your WEB-INF/web.xml file:
+
+    <persistence-context-ref>
+        <persistence-context-ref-name>
+            persistence/LogicalName
+        </persistence-context-ref-name>
+        <persistence-unit-name>
+            /ejb.jar#afsas
+        </persistence-unit-name>
+    </persistence-context-ref>
+
+Note, this will also work for fetching an EntityManagerFactory but the ref definition is of course slightly different:
+
+    <persistence-unit-ref>
+        <persistence-unit-ref-name>
+            logical
+        </persistence-unit-ref-name>
+        <persistence-unit-name>
+            /ejb.jar#afsas
+        </persistence-unit-name>
+    </persistence-unit-ref>
+
+Notice the naming to get to the persistence unit "afsas" deployed in the ejb.jar jar file.  Then in your servlet or service you need to look up the persistence unit as so:
+        Context envCtx;
+        EntityManager em;
+        try {
+            envCtx = (Context)new InitialContext().lookup("java:comp/env");
+            em = (EntityManager)envCtx.lookup("persistence/LogicalName");
+        } catch (Exception exc) {
+            throw new RuntimeException(exc);
+        }
+
+This will allow you to write a web service or servlet that can have its entity manager swapped out by changing the web.xml that you bundle into the war.
+
+You can turn on logging on the fly using the jmx-console.  Search for logging on the top level page, I think it is actually the second logging link you find.  Then on the second page there is a form to enter the class or package and logging level.  When you submit this form the logging level is changed right away for the class or package.
+
+The database transaction timeout value is set in the jboss-service.xml file.  It is an attribute which is set on the org.jboss.tm.TransactionManagerService mbean:
+
+<attribute name="TransactionTimeout">300</attribute>

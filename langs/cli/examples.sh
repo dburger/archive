@@ -66,3 +66,28 @@ awk 'BEGIN {FS=","}; {print $2}' hotspot-list2.txt | wc -L
 
 # awk to pull ip address from box
 ifconfig | grep 'Bcast' | awk '{print $2' | awk 'BEGIN {FS=":"} ; {print $2}'
+
+# send through netcat
+tar cvf  - * | nc target 12345
+# receive through netcat
+nc -lp 12345 | tar xvf -
+
+# cause hit to port 80 to hit 9080 with iptables
+sudo iptables -t nat -A OUTPUT -d 127.0.0.1 -p tcp --dport 80 -j REDIRECT --to-port 9080
+# and port 443 to 9443
+sudo iptables -t nat -A OUTPUT -d 127.0.0.1 -p tcp --dport 443 -j REDIRECT --to-port 9443
+
+# andy actually did this with an xinetd setup:
+service geohana{
+        type            = unlisted
+        socket_type     = stream
+        protocol        = tcp
+        user            = root
+        wait            = no
+        port            = 80
+        redirect        = localhost 9080
+        disable         = no
+}
+
+# on OS X using firewall rules having 80 hit 9080
+ipfw add 100 fwd 127.0.0.1,9080 tcp from any to any 80 in
