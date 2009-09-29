@@ -52,3 +52,11 @@ SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
 SELECT * FROM people WHERE symbol LIKE 'hello[_]world';
 -- or you can specify an escape character
 SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
+
+-- tsql style multi table update
+UPDATE employment_statuses SET
+    mde_id = esd.id
+FROM employment_statuses es JOIN
+   mde_mishaps.dbo.employment_statuses_dim esd ON
+   es.tier1 = esd.employment_status_tier1 AND
+   es.tier2 = esd.employment_status_tier2
