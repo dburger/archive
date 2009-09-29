@@ -3,6 +3,12 @@
 # rename a bunch of files from a prefix + number to just the number
 ls QuizUI_* | sed 's/Quiz\(UI_[0-9][0-9]\.png\)/mv Quiz\1 \1/' | sh
 
+# chop up a web page changing a <option> list into a couple of columns
+sed -e 's/<option value=\(....\)>\(.*\)/put(\1, "\2");/g' countries.txt
+
+# in place edit with backup remove single space in CSV column
+sed -i[bak] -e 's/, ,/,,/g' hotspot-list2.txt
+
 # another fancy rename making *-consolidated.xls consolidated-*.xls
 ls *consolidated.xls | sed 's/\(.*\)-consolidated.xls/mv \0 consolidated-\1.xls/' | sh
 
@@ -28,3 +34,11 @@ ssh -L  lport:tohost:rport throughhost
 
 # chown a symlink, pass -h
 chown -h user:group symlink
+
+# email a picture to your flickr addr
+(cat description.txt; uuencode laura.jpg laura.jpg) | mail -s 'subject' flickraddr@photos.flickr.com
+
+# checkout every revision of a file from subversion
+svn log -q ./src/java/com/bigtribe/sync/adapter/SimpleCsvReader.java | \
+    grep "^r[0-9]\+ " | awk '{ print substr($1, 2) }' | \
+    while read rev; do svn cat -r $rev src/java/com/bigtribe/sync/adapter/SimpleCsvReader.java > $rev.txt; done
