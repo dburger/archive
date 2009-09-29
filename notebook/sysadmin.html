@@ -1,0 +1,21 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>sysadmin</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">sysadmin</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  April 7, 2007 
+<br></div></div>
+
+<a name="NDQduDQoQ5eeL6ZQk"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">set up system on hailstorm:<br><br>1. sudo mkdir ordnance (/var/www)<br>2. sudo chown dburger:developers ordnance<br>3. sudo chmod 775 ordnance<br>--. capify .<br>4. cap deploy:setup<br>5. sudo chown -R dburger:developers *<br>6. cap -q deploy:check<br>6.5 mkdir -p shared/config<br>7. chown dburger:developers config<br>8. sudo chmod 755 config<br>9. create database<br>10. GRANT ALL ON database.* TO &#39;username&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;password&#39;<br>11. put database.yml in place<br></div>
+</div></div></body></html>

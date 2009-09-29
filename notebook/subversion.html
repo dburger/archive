@@ -1,0 +1,74 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>subversion</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">subversion</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  March 29, 2007 
+<br></div></div>
+
+<a name="NDQS1SwoQpr2Bu70i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">To make sure that file properties are set correctly on commit by default you need to tweak the:<br><br>~/.subversion/config<br><br>file.  The defaults are off by default.  Uncomment the line to turn them on and then uncomment / add the lines as needed from the examples that are at the bottom.  Props that can be set are line ending and executable bit, for example. <br></div>
+</div> <a name="NDSHRIgoQz422hqEi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif"> Example of merging a branch:<br><br>First you need the revision number that was your copying of the trunk.  This can be done with the following command:<br><br></font><font face="arial,sans-serif"><font face="courier new,monospace">$ svn log --verbose --stop-on-copy svn+ssh://svn.bigtribe.com/home/svn/bigtribe/ageo/branches/TRY-quickreg</font><br></font><font face="arial,sans-serif"><br>The lost log entry will be the copy, record that revision number.  In this case it is r10862.  Now go to the trunk and make sure you are fully up to date:<br><br></font><font face="courier new,monospace"><font face="arial,sans-serif"><font face="courier new,monospace">$ svn up<br>At revision 10939.</font><br><br></font><font face="arial,sans-serif">So the trunk is at 10939 and you merge the changes into your copy of the trunk as follows:<br><br><font face="courier new,monospace">$ svn merge -r 10862:10939 svn+ssh://svn.bigtribe.com/home/svn/bigtribe/ageo/branches/TRY-quickreg</font><br><br>This should show all of the action that took place in the branch being applied to the trunk.  The next step is to test the trunk and make sure everything works as expected.  If so, check er in.<br></font></font></div>
+</div> <a name="NDQiWIwoQ88aqgJoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">Removing the executable bit: &gt; svn propdel svn:executable ageo_init_failure.jsp<br>Adding the executable bit: &gt; svn propset svn:executable ON ageo_init_failure.jsp<br></font></div>
+</div> <a name="NDQGMIgoQha-ogJoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">Changing the eol-style property: &gt; svn ps svn:eol-style native src/webapp/demo/locator.jspx</font></div>
+</div> <a name="NDSLRIgoQ1celgJoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">Example of making a branch:<br><br>&gt; svn
+copy svn+ssh://svn.bigtribe.com/home/svn/bigtribe/ageo/trunk
+svn+ssh://svn.bigtribe.com/home/svn/bigtribe/ageo/branches/TRY-postgres
+-m &quot;branch for transition to postgres database work&quot;</font></div>
+</div> <a name="NDROMIgoQuPKhgJoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">Example of how to look at an old version of a single file: &gt;svn cat -r 8756 foo.xml<br><br>That will cat the file as in revistion 8765 to the screen and obviously if you want to save it you can redirect it into a file.</font></div>
+</div> <a name="NDRqkIwoQs7OcgJoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">You can switch a project to a branch project and back to the trunk with
+a switch command.  In eclipse, right click on the project choose Team
+-&gt; Switch and type the url for the project you want to switch to. 
+Make sure you give the full project name and not just the name to the
+branch.  To do such a thing on the command line you can use the sw
+command, make sure you are in the directory of the project you want to switch and go like this:<br><br>svn sw svn+ssh://svn.bigtribe.com/home/svn/bigtribe/ageo/branches/synccommit/sync</font></div>
+</div> <a name="NDQiWIwoQ6r-ZgJoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"> <font face="arial,sans-serif">Simple svn checkout example:<span><br><br>&gt;</span>svn co svn+ssh://svn.bigtribe.com/home/svn/bigtribe/ageo/trunk<br><br>or for camber:<br><br>&gt;svn co <a href="https://svn.camberhawaii.org/repos/ses/trunk/webapps/ses">https://svn.camberhawaii.org/repos/ses/trunk/webapps/ses</a><br></font></div>
+</div> <a name="NDQKYIgoQi4jV2LYi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">How to ignore things in the directory structure.  Say you have a tmp directory in the root of your structure that is generated as a compilation by product.  Then to ignore do:<br><br>&gt; svn propset svn:ingore tmp .<br><br>The last parameter is what directory it applies to, in this case the current directory.  The parameters before that are the patterns to ignore, in this case the literal tmp directory.<br></div>
+</div> <a name="NDQGkIwoQw_SXm7si"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"> GRANT ALL PRIVILEGES ON sps_development.* TO &#39;sps&#39;@&#39;localhost&#39; IDENTIFIED BY &#39;sps0509&#39;;</div>
+</div> <a name="NDQbSIgoQ6qPEhMYi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">The plugin commands to directly check out stuff from the <a href="http://svn.camberhawaii.org/">svn.camberhawaii.org</a> repository won&#39;t work because they only operate over http, not https.  Thus to drop in a plugin you can navigate to the vendor/plugins directory and run an export command like this:<br><br>&gt; svn export <a href="https://svn.camberhawaii.org/repos/plugins/session_scrubber/trunk/session_scrubber">https://svn.camberhawaii.org/repos/plugins/session_scrubber/trunk/session_scrubber</a><br><br>This will put the session scrubber into your project, remember to navigate to vendor/plugins first.<br></div>
+</div> <a name="NDSMpIgoQ8pj-vM0i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Look at a deleted file with svn cat.  First do an svn log on the parent directory and look for the revision when deleted.  Then use the prior revision in a peg reference:<br><br>svn cat <a href="https://svn.camberhawaii.org/repos/ses/trunk/webapps/ses/app/models/resource.rb@6641">https://svn.camberhawaii.org/repos/ses/trunk/webapps/ses/app/models/resource.rb@6641</a> &gt; resource.rb<br></div>
+</div> <a name="NDR_wIgoQ0tb9sNoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Merging from the trunk into a branch:<br><br>    svn log --verbose --stop-on-copy <a href="https://svn.camberhawaii.org/repos/medevac/branches/release_1_2">https://svn.camberhawaii.org/repos/medevac/branches/release_1_2</a><br><br>from this I got that the branch was made on r8253, svn up showed latest is r8273 , then I cd release_1_2, then<br><br>    svn merge -r 8253:8273 <a href="https://svn.camberhawaii.org/repos/medevac/trunk">https://svn.camberhawaii.org/repos/medevac/trunk</a><br></div>
+</div> <a name="NDRCSIwoQiISA-dwi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">You can use svn export to drop our plugins into a project...since our repository is https and won&#39;t allow the other methods of plugin installation:<br><br> svn export <a href="https://svn.camberhawaii.org//repos/plugins/session_scrubber/trunk/session_scrubber/">https://svn.camberhawaii.org//repos/plugins/session_scrubber/trunk/session_scrubber/</a> vendor/plugins/session_scrubber</div>
+</div> <a name="NDRdkIgoQl4jOv98i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Example of creating a tag of the trunk of the drsc project:<br><br>svn copy <a href="https://svn.camberhawaii.org/repos/drsc/trunk">https://svn.camberhawaii.org/repos/drsc/trunk</a> <a href="https://svn.camberhawaii.org/repos/drsc/tags/release-0.4">https://svn.camberhawaii.org/repos/drsc/tags/release-0.4</a> -m &quot;Tagging the 0.4 release of the TACT project.&quot;</div>
+</div> <a name="NDSLwIgoQuZyuiuIi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Undo changes see here: <a href="http://svnbook.red-bean.com/en/1.4/svn-book.html#svn.branchmerge.commonuses.undo">http://svnbook.red-bean.com/en/1.4/svn-book.html#svn.branchmerge.commonuses.undo</a><br><br>Example.  I want to undo the checkin that goes from r 8762 to 8763.  Then I do:<br><br>svn merge -r 8763:8762 <a href="https://svn.camberhawaii.org/repos/GOO/trunk/">https://svn.camberhawaii.org/repos/GOO/trunk/</a><br><br>  or more simply, because only one revision number is involved:<br><br>svn merge --change -8763 <a href="https://svn.camberhawaii.org/repos/GOO/trunk/">https://svn.camberhawaii.org/repos/GOO/trunk/</a><br></div>
+</div></div></body></html>

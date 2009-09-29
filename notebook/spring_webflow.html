@@ -1,0 +1,54 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>spring + webflow</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">spring + webflow</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  April 6, 2007 
+<br></div></div>
+
+<a name="NDSLRIgoQz8zA1pwi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">The BindException is the object by which errors are communicated back
+to the web layer in spring.  Validators have one of these by default
+through the errors that is passed to the validate method. 
+UserActions.java also show the manual construction of such an object:<br><br></font><div><font face="arial,sans-serif"><font face="courier new,monospace">Errors errors = new BindException(user, UserActions.FORM_OBJECT_NAME);</font><br></font></div><font face="arial,sans-serif"><br>When
+populating such an object with errors you can either provide a
+rejection message or a message key to a properties file to provide the
+message to display.  There are basically two varieties of such
+rejections, per field, or for the whole object.  The per field kind
+looks like this:<br><br></font><div><font face="courier new,monospace">errors.rejectValue(field, messageKey);<br>errors.rejectValue(field, messageKey, default);<br></font></div><font face="arial,sans-serif"><br>The full object rejections look like this:<br><br></font><div><font face="arial,sans-serif"><font face="courier new,monospace">errors.reject(messageKey);<br>errors.reject(messageKey, default);</font><br></font></div><font face="arial,sans-serif"><br>There
+are other signatures, however, these are the primary ones I&#39;ve used. 
+When you mix and match these, using either a message key or a deefault
+message, then to display on a page you will not know which you are
+getting.  This makes it advantageous to use something like the
+following to display the message.  It will catch it either way:<br><br></font><div><font face="arial,sans-serif"><font face="courier new,monospace">&lt;spring:hasBindErrors name=&quot;user&quot;&gt;<br>    &lt;div class=&quot;errors&quot;&gt;<br>      &lt;c:forEach items=&quot;${errors.allErrors}&quot; var=&quot;error&quot;&gt;<br>        &lt;%-- some errors set the code, some set the default --%&gt;<br>        &lt;c:catch var=&quot;exc&quot;&gt;&lt;spring:message message=&quot;${error}&quot;/&gt;&lt;/c:catch&gt;<br>        &lt;c:if test=&quot;${!empty exc}&quot;&gt;${error.defaultMessage}&lt;/c:if&gt;<br>        &lt;br/&gt;<br>      &lt;/c:forEach&gt;<br>    &lt;/div&gt;<br>&lt;/spring:hasBindErrors&gt;</font><br></font></div></div>
+</div> <a name="NDROMIgoQtZOHuZoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">I started switching the user-web flows over to using a different flow
+executor that would work with the forward and back buttons.  This
+required that I use a property setter to put a different flowExecutor
+into the flowController.  It now looks like this:<br><font face="courier new,monospace"><br>    &lt;bean id=&quot;flowController&quot;<br>        class=&quot;org.springframework.webflow.executor.mvc.FlowController&quot;&gt;<br>        &lt;property name=&quot;flowExecutor&quot; ref=&quot;flowExecutor&quot;/&gt;<br>        &lt;property name=&quot;argumentExtractor&quot;&gt;<br>            &lt;bean class=&quot;org.springframework.webflow.executor.support.RequestPathFlowExecutorArgumentExtractor&quot;/&gt;<br>        &lt;/property&gt;<br>    &lt;/bean&gt;</font><br><br>And the flowLocator property had to be moved out of the flowController and into the flowExecutor, which looks like this:<br><br><font face="courier new,monospace">    &lt;bean name=&quot;flowExecutor&quot; class=&quot;org.springframework.webflow.executor.FlowExecutorImpl&quot;&gt;<br>        &lt;constructor-arg&gt;<br>           
+&lt;bean id=&quot;repositoryFactory&quot;
+class=&quot;org.springframework.webflow.execution.repository.continuation.ContinuationFlowExecutionRepositoryFactory&quot;&gt;<br>                &lt;constructor-arg ref=&quot;flowRegistry&quot;/&gt;<br>            &lt;/bean&gt;<br>        &lt;/constructor-arg&gt;<br>    &lt;/bean&gt;</font><br><br>Of
+course the big change is the change to the
+ContinuationFlowExecutionRepositoryFactory.  Which allows the forward
+and back browsers to work.<br><br>EXCEPT, I had to start putting the
+user object into CONVERSATION scope instead of flow scope so that the
+data would be available with both back and forward buttons.  With the
+flow scope, I could back up (which I couldn&#39;t do before without getting
+an exception) but I wouldn&#39;t have my data in place on the form I backed
+up to.  Nor would data be in place if I would hit forward again.  I
+guess this is somewhat explained here:<br><br><a href="http://forum.springframework.org/showthread.php?p=57461">http://forum.springframework.org/showthread.php?p=57461</a><br><br>So the user object backing beans had to be moved to CONVERSATION scope as so:<br><font face="courier new,monospace"><br>        setFormObjectScope(ScopeType.CONVERSATION);</font><br><br>and
+then in the flow files the user had to be refered to with the
+corresponding conversationScope.user.  I will need to do some testing
+to see if any other pieces of the actions / flows need to be changed. </font></div>
+</div></div></body></html>

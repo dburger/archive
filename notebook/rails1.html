@@ -1,0 +1,159 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>rails II</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">rails II</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  July 22, 2007 
+<br></div></div>
+
+<a name="NDQcrDAoQ-qmD_Mwj"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"> one way to produce an atom field with a rails controller would be to have the format be atom, or to render atom, and use a builder.  So the view would be page.atom.builder and then may look something like this:<br><br>xml.instruct! :xml, :version =&gt; &#39;1.0&#39;<br>xml.feed(:xmlns =&gt; &#39;http://.....atom....&#39;) do |feed|<br>    feed.title(&#39;whatevers&#39;)<br>    feed.link(&#39;whatevers&#39;)<br>    ....<br></div>
+</div> <a name="NDQtSDQoQsbuK_Mwj"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"> Couple of ways to have CSV output in rails, first, return it straight from the controller:<br><br>    @rs = ActiveRecord::Base.connection.select_all(sql)<br>    respond_to do |format|<br>      format.xls {render :layout =&gt; false}<br>      # TODO: CSV speed up, use fastercsv?, render with template?, render to temp file<br>      # and send_file on it?<br>      format.csv {<br>        render :text =&gt; Proc.new {|response, output|<br>          CSV::Writer.generate(output) do |out|<br>            out &lt;&lt; COL_HEADERS<br>            @rs.each do |rec|<br>              out &lt;&lt; [rec[&#39;id&#39;], rec[&#39;account_full_name&#39;], rec[&#39;cause_code&#39;],<br>                     rec[&#39;state&#39;], rec[&#39;updated_at&#39;], rec[&#39;service&#39;],<br>                     (rec[&#39;is_injury&#39;]) ? &#39;yes&#39; : &#39;no&#39;, rec[&#39;brief_history&#39;],<br>                     rec[&#39;notes&#39;], rec[&#39;injury_type&#39;].tableize.singularize.titleize,<br>                     rec[&#39;body_part_code&#39;], rec[&#39;body_part_description&#39;],<br>                     rec[&#39;noise_injury&#39;], rec[&#39;hernia&#39;], rec[&#39;injury_prior_to_deployment&#39;],<br>                     rec[&#39;trauma_code_code&#39;],  rec[&#39;trauma_code_description&#39;],<br>                     rec[&#39;trauma_code_prior_code&#39;], rec[&#39;trauma_code_prior_description&#39;],<br>                     rec[&#39;cause_code&#39;], rec[&#39;cause_code_prior&#39;], rec[&#39;other_stanag&#39;],<br>                     rec[&#39;latest_event_log_login&#39;],<br>                     rec[&#39;ready_date_1&#39;], rec[&#39;origin_theater_1&#39;], rec[&#39;destination_theater_1&#39;], rec[&#39;primary_diagnosis_code_1&#39;], rec[&#39;primary_diagnosis_name_1&#39;], rec[&#39;casualty_event_1&#39;], rec[&#39;history_1&#39;],<br>                       rec[&#39;ready_date_2&#39;], rec[&#39;origin_theater_2&#39;], rec[&#39;destination_theater_2&#39;], rec[&#39;primary_diagnosis_code_2&#39;], rec[&#39;primary_diagnosis_name_2&#39;], rec[&#39;casualty_event_2&#39;], rec[&#39;history_2&#39;],<br>                       rec[&#39;ready_date_3&#39;], rec[&#39;origin_theater_3&#39;], rec[&#39;destination_theater_3&#39;], rec[&#39;primary_diagnosis_code_3&#39;], rec[&#39;primary_diagnosis_name_3&#39;], rec[&#39;casualty_event_3&#39;], rec[&#39;history_3&#39;],<br>                     rec[&#39;activity_type_code&#39;], rec[&#39;activity_type_description&#39;],<br>                     rec[&#39;armored_code&#39;], rec[&#39;armored_description&#39;],<br>                     rec[&#39;contributing_factor_code&#39;], rec[&#39;contributing_factor_description&#39;],<br>                     rec[&#39;fall_circumstance_code&#39;], rec[&#39;fall_circumstance_description&#39;],<br>                     rec[&#39;fall_type_code&#39;], rec[&#39;fall_type_description&#39;],<br>                     rec[&#39;injury_cause_type_code&#39;], rec[&#39;injury_cause_type_description&#39;],<br>                     rec[&#39;moving_vehicle_accident_type_code&#39;],<br>                     rec[&#39;moving_vehicle_accident_type_description&#39;], rec[&#39;near_fall_type_code&#39;],<br>                     rec[&#39;near_fall_type_description&#39;], rec[&#39;other_activity_type&#39;],<br>                     rec[&#39;other_circumstance&#39;], rec[&#39;other_contributing_factor&#39;],<br>                     rec[&#39;other_vehicle_type&#39;], rec[&#39;place_code_code&#39;],<br>                     rec[&#39;place_code_description&#39;], rec[&#39;vehicle_involved_incident_type&#39;],<br>                     rec[&#39;vehicle_military_owned_code&#39;], rec[&#39;vehicle_military_owned_description&#39;],<br>                     rec[&#39;vehicle_role_code&#39;], rec[&#39;vehicle_role_description&#39;],<br>                     rec[&#39;vehicle_type_code&#39;], rec[&#39;vehicle_type_description&#39;],<br>                     rec[&#39;weapon_type_code&#39;], rec[&#39;weapon_type_description&#39;]]<br>            end<br>          end<br>        }<br>      }<br><br>Now it would also be possible to handle this with a view and an erb template.  This would have a page page.csv.erb and might look something like this:<br><br>titles,yeah,yeah<br>&lt;% @rs.each {|rec| %&gt;&lt;%= &quot;#{rec[&#39;vehicle_type&#39;]},#{rec[&#39;whatever&#39;]},...&quot; %&gt;&lt;% } %&gt;<br><br>Now you would of course need to worry about properly escaping fields according to CSV rules.  Look at wikipedia entry for CSV format.<br></div>
+</div> <a name="NDSelIwoQvYG-usgj"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"> has_many adds collection_singular_ids getter and setter.  With forms and checkboxes if none are checked the form won&#39;t send the value, so can do with hidden field, and filter on the controller.<br></div>
+</div> <a name="NDSS8IgoQpZirgq4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Generally you use :success, :failure, and :complete as a kind of try/catch/finally for you AJAX calls.  Whoops, begin/rescure/ensure Typical:<br><br>&lt;% form_remote_tag(:url =&gt; {:action =&gt; &#39;iffy_function&#39;},<br>                   :before =&gt; &quot;Element.show(&#39;spinner&#39;);&quot;,<br>                   :success =&gt; &quot;show_results(xhr);&quot;,<br>                   :failure =&gt; &quot;show_error(xhr);&quot;,<br>                   :complete =&gt; &quot;Element.hide(&#39;spinner&#39;);&quot;) do %&gt; </div>
+</div> <a name="NDSOeIgoQt_iQgK4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">For performance testing the book recommends putting the fixtures into test/fixtures/performance.  A very nice example of a dynamic fixture is used to load up a bunch of data at once:<br><br>&lt;% 1.upto(1000) do |i| %&gt;<br>product_&lt;%= i %&gt;:<br>  id: &lt;%= i %&gt;<br>  title: Product Number &lt;%= i %&gt;<br>  description: My Descrption<br>  image_url: product.gif<br>  price: 1234<br>&lt;%end%&gt;<br> </div>
+</div> <a name="NDR-OIgoQr_PFgK4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">The connection object is available in models, views, controllers and thus can be used to operate where needed:<br><br>def run_with_index(column)<br>  connection.add_index(:orders, column)<br>  begin<br>    yield<br>  ensure<br>    connection.remove_index(:orders, column)<br>  end<br>end<br><br>Now can do:<br><br>run_with_index(&#39;city&#39;) do<br>  # create the report<br>end<br></div>
+</div> <a name="NDQ3RIgoQv_OLgK4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">The dynamic fixture:<br><br>&lt;% SALT = &quot;NaCl&quot; unless defined?(SALT) %&gt;<br><br>dave:<br>  id:   1<br>  name: dave<br>  salt: &lt;%= SALT %&gt;<br>  hashed_password: &lt;%= User.encrypted_password(&#39;secret&#39;, SALT) %&gt;<br></div>
+</div> <a name="NDR-kIwoQzNC6gq4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">RJS templates are templates which contain directives that will create javascript to execute on the client.  If a request comes in from an XHR then the dispatcher will preferentially look for an .rjs template.  You can alternatively render :update the rjs calls straight from an action:<br><br>render :update do |page|<br>  page.replace_html &#39;pending_todos&#39;, :partial =&gt; &#39;pending_todos&#39;<br>  page.replace_html &#39;completed_todos&#39;, :partial =&gt; &#39;completed_todos&#39;<br>  page.sortable &#39;pending_todos_list&#39;,<br>      :url =&gt; {:action =&gt; :sort_pending_todos, :id =&gt; @user}<br>end </div>
+</div> <a name="NDRqeIgoQuNqRgK4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">It is recommended to keep performance tests separate so they go in the test/performance folder.  This change will require you to override the fixture path so that the performance test fixture can be found:<br><br>self.fixture_path = File.join(File.dirname(__FILE__),<br>    &#39;../fixtures/performance&quot;)<br></div>
+</div> <a name="NDRqeIgoQvIS8ga4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Rails does optimistic locking automatically if you have a column called lock_version in your table:<br><br>t.column :lock_version, :integer, :default =&gt; 0<br><br>   You can turn off optimistic locking with:<br><br>ActiveRecord::Base.lock_optimistically = false<br></div>
+</div> <a name="NDQO8IgoQ3PvzgK4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Relationships can be extended with methods.  This very clever example is in the book:<br><br>has_many :articles, :through =&gt; :readings do<br>  def rated_at_or_above(rating)<br>    find :all, :conditions =&gt; [&#39;rating &gt;= ?&#39;, rating]<br>  end<br>end<br><br>good_articles = User.articles.rated_at_or_above(4) </div>
+</div> <a name="NDQgjIgoQndLEgK4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Sometimes you will like to do data only migrations right in the migration file.  You can also do a data migration that loads data from YAML much like the test fixtures:<br><br>def self.up<br>  down<br><br>  directory = File.join(File.dirname(__FILE__), &#39;dev_data&#39;)<br>  Fixtures.create(directory, &#39;users&#39;)<br>end<br></div>
+</div> <a name="NDQO8IgoQ4JnzgK4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">In the spirit of doing the data the right way, it is now recommended that join tables that hold extra information be there own model object.  These are hooked up with the joined tables using has_many and the join table having two belongs_to.  In this case to get through to the other side you also have to add:<br><br>has_many :readings<br>has_many :users, :through =&gt; :readings<br></div>
+</div> <a name="NDQ6bSwoQ2sfYgq4i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">To do raw javascript back to the client:<br><br>render :update do |page|<br>  page &lt;&lt; &quot;cur_todo = #{todo.id};&quot;<br>  page &lt;&lt; &quot;show_todo(#{todo.id});&quot;<br>end </div>
+</div> <a name="NDQGMIgoQ0YnY_a0i"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">execute &quot;ALTER TABLE line_items ADD CONSTRAINT fk_line_items_products<br>         FOREIGN KEY (product_id) REFERENCES products(id)&quot;<br>execute &quot;ALTER TABLE orders DROP FOREIGN KEY fk_orders_payment_type&quot;</div>
+</div> <a name="NDSKpIgoQzpTI9b0j"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Way of doing conditions for search in controller from railscast and improved by me -- doesn&#39;t use new scope which would be a modern way to go.<br><br>class Something<br>
+<br>
+  def first_conditions<br>
+    # [&#39;first_name is NULL&#39;]<br>
+  end<br>
+<br>
+  def second_conditions<br>
+    # [&#39;second = ?&#39;, 13] unless params[:second]<br>
+  end<br>
+<br>
+  def third_conditions<br>
+  end<br>
+<br>
+  def conditions<br>
+    conds = methods.grep(/_conditions$/).<div>map {|m| send(m)}.compact<br>
+    return nil if conds.empty?<br>
+    [conds.map {|c| c[0]} * &quot; AND &quot;] + conds.inject([]) {|m, c| m + c[1..-1]}<br>
+  end<br>
+<br>
+end<br>
+<br>
+s = Something.new<br>
+puts s.conditions.inspect</div></div>
+</div> <a name="NDSaoIgoQpcvN9b0j"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">Two approaches for checkboxes that represent the presence of a join<br>
+record between two models.  In this case,<br>
+    Unit &lt;--- UnitMembership ---&gt; Account<br>
+<br>
+<br>
+1. The first approach targets the specific unit_membership record by indicating<br>
+if it should be destroyed with a hidden field that is kept in sync with<br>
+javascript.  Note that because checkboxes are not submitted as data when not<br>
+selected we don&#39;t use the checkbox for anything other than to sync the hidden<br>
+destroy field.  If the user had the given role it is marked with its<br>
+membership_id, otherwise, it is marked -1.  Whether or not it was checked on<br>
+the submit is indicated by destroy = 0 or 1.  Code follows:<br>
+<br>
+<br>
+&lt;td&gt;&lt;label for=&quot;&quot;&gt;Unit roles&lt;/label&gt;&lt;/td&gt;<br>
+&lt;td&gt;<br>
+    &lt;% Role.find(:all).each do |r| %&gt;<br>
+        &lt;% membership = @unit_memberships.find {|um| um.role_id == <a href="http://r.id/">r.id</a>} %&gt;<br>
+        &lt;%= check_box_tag &#39;not_used&#39;, <a href="http://r.id/">r.id</a>, membership, :onclick =&gt;<br>
+&#39;$(this).next(&quot;.destroy&quot;).<div>value = (this.checked) ? 0 : 1;&#39; %&gt;<br>
+        &lt;%= hidden_field_tag &#39;unit_membership_attributes[][role_id]&#39;, <a href="http://r.id/">r.id</a> %&gt;<br>
+        &lt;%= hidden_field_tag &#39;unit_membership_attributes[][destroy]&#39;,<br>
+(membership) ? 0 : 1, :class =&gt; &#39;destroy&#39; %&gt;<br>
+        &lt;%= hidden_field_tag<br>
+&#39;unit_membership_attributes[][unit_membership_id]&#39;, (membership) ?<br>
+<a href="http://membership.id/">membership.id</a> : -1 %&gt;<br>
+        &lt;%= <a href="http://r.name/">r.name</a> %&gt;<br>
+    &lt;% end %&gt;<br>
+&lt;/td&gt;<br>
+<br>
+<br>
+  def set_unit_memberships(unit, unit_membership_attributes)<br>
+    unit_membership_attributes.each do |uma|<br>
+      if uma[:destroy] == &#39;1&#39; &amp;&amp; uma[:unit_membership_id] != &#39;-1&#39;<br>
+        unit_memberships.find(uma[:unit_membership_id]).destroy<br>
+      elsif uma[:destroy] == &#39;0&#39; &amp;&amp; uma[:unit_membership_id] == &#39;-1&#39;<br>
+        unit_memberships &lt;&lt; UnitMembership.new(:role_id =&gt;<br>
+uma[:role_id], :unit =&gt; unit)<br>
+      end<br>
+    end<br>
+  end<br>
+<br>
+2. The second approach is the super simple approach.  It merely<br>
+submits the role_ids<br>
+of the roles the user would like to have after the submit.  The code<br>
+on the back end<br>
+merely uses iteration on the supplied on ids to figure out which<br>
+unit_memberships to<br>
+keep, destroy, and create.  Code follows:<br>
+<br>
+&lt;% Role.find(:all).each do |r| %&gt;<br>
+    &lt;%= check_box_tag &#39;unit_roles[]&#39;, <a href="http://r.id/">r.id</a>, @unit_roles.include?(r)<br>
+%&gt;&lt;%= <a href="http://r.name/">r.name</a> %&gt;<br>
+&lt;% end %&gt;<br>
+<br>
+  def set_unit_roles(unit, role_ids)<br>
+    role_ids ||= []<br>
+    memberships = unit_memberships.find(:all, :conditions =&gt; [&#39;unit_id<br>
+= ?&#39;, <a href="http://unit.id/">unit.id</a>])<br>
+    role_ids.each do |rid|<br>
+      membership = memberships.find {|m| m.role_id == rid.to_i}<br>
+      if membership<br>
+        membership.keep = true<br>
+      else<br>
+        unit_memberships &lt;&lt; UnitMembership.new(:role_id =&gt; rid, :unit =&gt; unit)<br>
+      end<br>
+    end<br>
+    memberships.each {|m| m.destroy if !m.keep}<br>
+  end</div> </div>
+</div></div></body></html>
