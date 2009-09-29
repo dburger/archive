@@ -52,3 +52,11 @@ SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
 SELECT * FROM people WHERE symbol LIKE 'hello[_]world';
 -- or you can specify an escape character
 SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
+
+-- mutli-table delete in mysql
+DELETE address, licenseproperties, userLicenses, userprefs, userproperties, userroles, user
+FROM
+    address, licenseproperties, userLicenses, userprefs, userproperties, userroles, user
+WHERE
+    user.id = address.userId AND user.id = licenseproperites.userId AND ...
+AND userId < 100000;
