@@ -22,11 +22,11 @@ var Combinatorics = {
         var k = a.length - 1;
         while (a[j] > a[k]) k--;
 
-        Combinatorics.swap(a, j, k);
+        this.swap(a, j, k);
 
         var r = a.length - 1;
         var s = j + 1;
-        while (r > s) Combinatorics.swap(a, r--, s++);
+        while (r > s) this.swap(a, r--, s++);
 
         return a;
     },
@@ -39,9 +39,9 @@ var Combinatorics = {
             currPerm.push(i);
             lastPerm.unshift(i);
         }
-        while (!Combinatorics.arrayEquals(currPerm, lastPerm)) {
+        while (!this.arrayEquals(currPerm, lastPerm)) {
             callback(currPerm);
-            currPerm = Combinatorics.nextPerm(currPerm);
+            currPerm = this.nextPerm(currPerm);
         }
         callback(currPerm);
     },
@@ -70,9 +70,9 @@ var Combinatorics = {
             lastPerm.push(n - 1);
         }
         print("last: " + lastPerm);
-        while (!Combinatorics.arrayEquals(currPerm, lastPerm)) {
+        while (!this.arrayEquals(currPerm, lastPerm)) {
             callback(currPerm);
-            currPerm = Combinatorics.nextPermWithReplacement(currPerm, n);
+            currPerm = this.nextPermWithReplacement(currPerm, n);
         }
         callback(currPerm);
     },
@@ -97,9 +97,9 @@ var Combinatorics = {
             currComb.push(i);
             lastComb.push(n - r + i);
         }
-        while (!Combinatorics.arrayEquals(currComb, lastComb)) {
+        while (!this.arrayEquals(currComb, lastComb)) {
             callback(currComb);
-            currComb = Combinatorics.nextRComb(currComb, n);
+            currComb = this.nextRComb(currComb, n);
         }
         callback(currComb);
     }
