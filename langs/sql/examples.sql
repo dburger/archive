@@ -158,3 +158,8 @@ SELECT urla.*, ag.id AS group_id,
 -- all database dump from one system, then load on another
 > mysqldump -uroot -proot --all-databases >  dumpfile.sql
 mysql> source dumpfile.sql
+
+-- oracle 'SHOW CREATE TABLE' done from sqlplus
+SQL> set pages 0
+SQL> set long 999999
+SQL> select dbms_metadata.get_ddl('TABLE', 'EMPLOYEES', 'EMP') from dual;
