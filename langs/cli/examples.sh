@@ -48,3 +48,10 @@ awk 'BEGIN {FS=","}; {print $2}' hotspot-list2.txt | wc -L
 
 # awk to pull ip address from box
 ifconfig | grep 'Bcast' | awk '{print $2' | awk 'BEGIN {FS=":"} ; {print $2}'
+
+# change jpg to pdf using ImageMagick
+convert page1.jpg -compress jpeg page1.pdf
+
+# merge pdfs using ghostscript
+gs -q -sPAPERSIZE=letter -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
+   -sOutputFile=out.pdf page1.pdf page2.pdf
