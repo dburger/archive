@@ -1,0 +1,98 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>character encoding</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">character encoding</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  April 6, 2007 
+<br></div></div>
+
+<a name="NDRrRIgoQgZLQ1pwi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">This information was proved wrong...setting the charset attribute of the returned script element seemed to make all browsers digest it just fine.<br><br>It appears it is not possible to get all browsers to accept a mixed
+character encoding.  What I&#39;m talking about is when the page has one
+encoding and then either an On Demand Javascript (ODJ) or framed fetch
+returns a different encoding.  Within the ageo system this comes into
+play when the page hosting our mashup is in iso-8859-1 and we attempt
+to return either of the aforementioned contents as utf-8.  Firefox has
+no problems with this type of mixed encoding.  Safari and Internet
+Explorer both have problems when doing this type of encoding and don&#39;t
+render the content correctly.<br>
+<br>
+For ODJ calls there are certain ways you can try to work around the problem.  Many of these have been investigated here:<br>
+<br>
+<div>
+  <a href="http://www2.hawaii.edu/%7Edburger/broken.html">http://www2.hawaii.edu/~dburger/broken.html</a><br>
+</div>
+<br>
+Adding the charset attribute to the script element appeared to hold
+promise but did not work on the mac would used in an ODJ manner.  Thus
+no cross browser way of getting mixed encodings to work with ODJ was
+found.  Maybe in the next release of Safari the charset parameter will
+do the trick.<br>
+<br>
+For framed included pages I have not done such experimentation but the
+same problem exists.  That is if the frame returns in a different
+encoding that the enclosing page Safari will not render it correct. 
+Firefox is fine with this and I have not witnessed the result on
+Internet Explorer.<br>
+<br>
+So the solution we have in place now involves multiple ways to
+determine the encoding of the mashup, with this information being sent
+back to the ageo server on each request.  The encoding in the mashup is
+set in a variable called ageo.request, and can be set in three ways
+from highest to lowest priority:<br><br><ol><li>by passing in the encoding= parameter on the initial ageo script request.</li><li>by setting an encoding license property in the database</li><li>by javascript sniffing the encoding in the client, for now only looking for meta tag</li></ol><br>If the encoding technique is not determined from any of these means, the ageo.encoding variable is left undefined.<br><br>So
+on every ODJ request the ageo controller makes sure to tack on
+encoding=&quot;the encoding&quot; if this value is defined.  Then, as the ODJ
+call goes through JsonResponseUtilities setHeaders method it looks on
+this value, if it is set it attempts to use it.  If it is not set then
+it defaults to utf-8.  This works something like this:<br><br><div>response.setContentType(&quot;application/x-javascript; charset=&quot; + encoding);<br></div><br>Of
+course if there are links or forms that fetch other content into the
+mashup then an ODJ call is not involved and thus the encoding cannot be
+transmitted in the same manner.  Furthermore when the result that comes
+back is actually a .jsp page then the encoding can&#39;t be set in the same
+manner.<br><br>To get the links to have this parameter javascript client code will be needed looking something like this:<br><br><div>&lt;a
+href=&quot;yadayada?&lt;script&gt;if (ageo.encoding != undefined)
+document.write(&quot;encoding=&quot; +
+ageo.encoding)&lt;/script&gt;&quot;&gt;whatever&lt;/a&gt;<br></div><br>For forms the code can be similar but a bit cleaner:<br><br><div>&lt;form ....&gt;<br>    form elements<br>    &lt;script&gt;<br>        if (ageo.encoding != undefined) {<br>            document.write(&#39;&lt;input type=&quot;hidden&quot; name=&quot;encoding&quot; value=&quot;&#39; + ageo.encoding + &#39;&quot;/&gt;&#39;);<br>        }<br>    &lt;/script&gt;<br>&lt;/form&gt;<br></div><br>With
+these in place, the only question left to answer is how to write this
+out in a .jsp file.  To put the charset out statically in a jsp page
+you use a page directive like this:<br><br><div>
+&lt;%@ page contentType=&quot;text/html; charset=Big5&quot; %&gt;<br></div><br>Of
+course we can&#39;t do that, we must do it dynamically based upon the value
+of the encoding parameter.  Now this step may be server dependent,
+because you have to set the encoding before the output writer has been
+fetched.  I believe on Tomcat, this will be ok by doing this very near
+the top of the jsp before any outputs have been created:<br><br><div>&lt;%<br>    String encoding = &quot;UTF-8&quot;;<br>    String requestedEncoding = request.getParameter(&quot;encoding&quot;);<br>    if (requestedEncoding != null) {<br>        // Andy&#39;s trick for making sure it is a valid encoding for this server<br>        try {<br>            Charset cset = Charset.forName(requestedEncoding);<br>            encoding = cset.name();<br>        } catch (Exception exc) {<br>            // maybe a log message<br>        }<br>    }<br>    response.setContentType(&quot;text/html; charset=&quot; + encoding);<br>%&gt;<br></div><br>If
+this can be rolled out as a tag that would be the way to go.  Yes, all
+this work just because Safari, and IE to a lesser extent, won&#39;t accept
+mixed encodings.</div>
+</div> <a name="NDRmWIwoQ2-DJ1pwi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">GET uses URLs.  URLs encode non-ASCII characters in UTF-8.  RFC 3986
+and 3987 are clear on this point.  Thus in our server.xml for the
+connector we have:<br><br><div>useBodyEncodingForURI=&quot;false&quot; URIEncoding=&quot;UTF-8&quot;<br></div><br>This
+will cause GET requests to be correctly decoded from UTF-8.  For POST
+things are a bit different.  What we are doing now is along the lines
+of this with the RequestEncodingValve.java:<br><br><div>if (request.getCharacterEncoding() == null) request.setCharacterEncoding(&quot;UTF-8&quot;);<br></div><br>This
+needs to be done because if the request.getCharacterEncoding() is null
+Tomcat will attempt to decode as the platform default, which in our
+case is ISO-8859-1.  This appears to work so far, but I&#39;m concerned
+with broken clients who will not set the character encoding on the
+request and will encode in the page encoding.  So say the page is
+iso-8859-1 and the form submits in that encoding, but the browser does
+not add any information about that to the request headers.  This will
+cause us to try and interpret as utf-8.  With forms you can set the
+enctype attribute.  The default is
+&quot;applicatino/x-www-form-urlencoded&quot;.  It would seem from the
+&quot;urlencoded&quot; that this means we are going to get utf-8 but time will
+tell.<br><span></span><span><a href=""><span></span></a></span></div>
+</div></div></body></html>

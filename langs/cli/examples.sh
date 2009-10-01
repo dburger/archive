@@ -16,8 +16,26 @@ ls *consolidated.xls | sed 's/\(.*\)-consolidated.xls/mv \0 consolidated-\1.xls/
 # an informix DDL for usage with SQL Server, derived from sed one liners page
 sed -e ':a;s/{[^}]*}//g;/{/N;/{/ba' input.ddl
 
+# fetchmail forward to dburger@camberhawaii.org every 5 minutes from dburger
+# account at ip
+fetchmail -d 300 --smtpname dburger@camberhawaii.org -p POP3 -u dburger 172.16.100.7
+
+# syntax colorization
+source-highlight Test.java -f html
+
+# set up ethernet card from command line
+sudo ifconfig eth0 netmask 255.255.255.0 72.235.74.144
+route add default gw 72.235.74.1
+sudo ifconfig eth0 up
+
+# checkout a git repo
+git clone ssh://git.camberhawaii.org/var/data/repos/first.git
+
+# make a local branch also remote
+git push origin local-branch-name
+
 # mail with sendmail compatible send
-mail -s 'pagemon report' to@addr.com -- -F'David J. Burger' --ffrom@addr.com"
+mail -s 'pagemon report' to@addr.com -- -F'David J. Burger' --ffrom@addr.com
 
 # simple loop
 for i in *; do ....; .....; done
@@ -55,3 +73,31 @@ convert page1.jpg -compress jpeg page1.pdf
 # merge pdfs using ghostscript
 gs -q -sPAPERSIZE=letter -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
    -sOutputFile=out.pdf page1.pdf page2.pdf
+
+# send through netcat
+tar cvf  - * | nc target 12345
+# receive through netcat
+nc -lp 12345 | tar xvf -
+
+# cause hit to port 80 to hit 9080 with iptables
+sudo iptables -t nat -A OUTPUT -d 127.0.0.1 -p tcp --dport 80 -j REDIRECT --to-port 9080
+# and port 443 to 9443
+sudo iptables -t nat -A OUTPUT -d 127.0.0.1 -p tcp --dport 443 -j REDIRECT --to-port 9443
+
+# andy actually did this with an xinetd setup:
+service geohana{
+        type            = unlisted
+        socket_type     = stream
+        protocol        = tcp
+        user            = root
+        wait            = no
+        port            = 80
+        redirect        = localhost 9080
+        disable         = no
+}
+
+# on OS X using firewall rules having 80 hit 9080
+ipfw add 100 fwd 127.0.0.1,9080 tcp from any to any 80 in
+
+# remote X11 execution
+ssh -X -Y -C dburger@uhunix.its.hawaii.edu emacs

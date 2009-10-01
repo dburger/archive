@@ -1,0 +1,120 @@
+DOM Scripting Book Notes:
+
+In javascript "var" provides scoping to a variable otherwise it is global.
+
+Arrays are automatically also associative arrays in java.
+
+Properties can be added to objects on the fly in javascript.
+
+DOM has nodes: element, attribute, text
+
+var elem = document.getElementById("whatever");
+
+typeof elem
+
+var elems = document.getElementsByTagName("a");
+
+elem.getAttribute("name");
+
+elem.setAttribute("name", "value");
+
+while you can always call get and setAttribute, HTML dom has some shortcuts like picture.src, document.body, document.forms, etc..  see HTML dom guides
+
+element nodes have a childNodes property
+
+node.nodeType returns a constant, several nodes are possible with most common being Element 1, Attribute 2, Text 3
+
+nodeValue is a DOM property such as text from text node
+
+firstChild and lastChild dom properties
+
+Unobtrusive javascript involves fetching the element, add the behaviour, keeps javascript out of the markup.  So you set it all up in a window.onload event assigning behaviours to elements with things like element.onclick = function() {
+also, keep browser safe... if (!document.getElementById) return, forget doing this via browser sniffing
+
+addLoadEvent p. 103:
+function addLoadEvent(func) {
+  var oldonload = window.onload;
+  if (typeof window.onload != 'function') {
+    window.onload = func;
+  } else {
+    window.onload = func() {
+      oldonload();
+      func();
+    }
+  }
+}
+
+document.write is a broken thing to use, innerHtml is almost as bad but not really
+
+createElement
+appendChild
+createTextNode
+insertBefore
+
+insertAfter p. 136
+function insertAfter(newElement, targetElement) {
+  var parent = targetElement.parentNode;
+  if (parent.lastChild == targetElement) {
+    parent.appendChild(newElement);
+  } else {
+    parent.insertBefore(newElement, targetElement.nextSibling);
+  }
+}
+
+aha! he was wrong about this, because if you call inserBefore with null as the second parameter it will append to the end of the list, so you can do simply like this:
+function insertAfter(newElement, targetElement) {
+  var parent = targetElement.parentNode;
+  parent.insertBefore(newElement, targetElement.nextSibling);
+}
+
+Enhancing content, harvest <addr>, create definition list, add to document
+
+Enhancing content, harvet blockquote, look for cite="", add cite tags
+
+structure (X)HTML
+presentation CSS
+behaviour DOM Scripting
+
+you can do styling in dom, page.style.font = "lkdjfksjdf"
+
+getNextElement p 190
+function getNextElement(node) {
+  if (node.nodeType == 1) {
+    return node;
+  } else {
+    return getNextElement(node.nextSibling);
+  }
+}
+
+Can do elem.setAttribute("class", "intro");
+or shortcut
+elem.className
+
+addClass p 202
+function addClass(element, value) {
+  if (!element.className) {
+    element.className = value;
+  } else {
+    newClassName = element.className + " " + value;
+    element.className = newClassName
+  }
+}
+
+very cool animation end of ch. 10, uses relative with overflow hidden then does offset inside an absolute
+
+recommends
+/images
+/styles
+/scripts
+
+then link basic.css where equals:
+@import url(layout.css);
+@import url(color.css);
+@import url(typography.css);
+
+forms on 281
+uses class names to determine what kind of validation to do, hooks the onsubmit in forms via an onload callback
+
+progressive enhancement with ajax
+
+final DOM reference, where is the HTML dom reference

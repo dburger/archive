@@ -1,0 +1,21 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>awk</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">awk</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  March 29, 2007 
+<br></div></div>
+
+<a name="NDQiWIwoQoebN_5ki"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">awk can be used quite easily to work with fixed width files.  The need came up at BigTribe to convert a fixed width file to a csv file so that it could be more easily processed by postgresql.  In awk this can be done by making a file similar to this:<br><br>BEGIN  { FIELDWIDTHS = &quot;9 6 10&quot; }<br>NR &gt; 2 {<br>    for (i = 1; i &lt;= 3; i++) {<br>      temp = $i<br>      sub(/^  */, &quot;&quot;, temp)<br>      sub(/ *$/, &quot;&quot;, temp)<br>      printf &quot;\&quot;&quot; temp &quot;\&quot;&quot;<br>      if (i &lt; 3) printf &quot;, &quot;<br>    }<br><br>    print &quot;&quot;<br>}<br><br>Note that that NF variable will not be &quot;3&quot; in this case like you might like it.  But that is ok as you have to define the actual column widths in the to line so specifying loop using the max value of 3 is ok.  This example is set up to work with the w command and can be ran with a:<br><br>w | awk -f script<br><br>The script is pretty self explanatory as it gets each field and chops out leading and trailing spaces and dumps it into a csv format.</div>
+</div></div></body></html>

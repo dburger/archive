@@ -1,0 +1,113 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>tomcat</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">tomcat</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  March 29, 2007 
+<br></div></div>
+
+<a name="NDRKLIwoQoIaW15wi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea">I had a little hiccup with the URL encoding / decoding being done when
+chaining a query parameter through more than one redirect.  The problem
+is that I wanted to send a logout with a target command to /logout
+which actually does another redirect to /lout if the user is really
+logged in.  The reason for this double logout is that in order for
+session.invalidate() to work with SSO the servlet / jsp doing such a
+call must be under a security constraint, otherwise the logout does not
+&quot;stick.&quot;  Thus /logout is not secure while /lout is.  If /logout finds
+the req.getUserPrincipal() to be null then it simply redirects to the
+target, while if it finds the user is logged in, it redirects to /lout
+to do the real logout.  So if you have a complicated target after
+logout that you wish to hit, such as this:<br><br><div>/logout?target=/ssllogin?flash=Log back in to have a party!&amp;target=<a href="http://bigtribe.com/publisher_landing.jsp">http://bigtribe.com/publisher_landing.jsp</a><br></div><br>Then,
+because you are packing URL query params within URL query params, you
+have to URL encode it, that is this chunk would need to be URL encoded:<br><br><div>/ssllogin?flash=Log back in to have a party!&amp;target=<a href="http://bigtribe.com/publisher_landing.jsp">http://bigtribe.com/publisher_landing.jsp</a><br></div><br>So using URLEncoder.encode on that part of the URL you will end up with a URL that looks like this:<br><br><div>/logout?target=/ssllogin%3Fflash%3DLog%20back%20in%20to%20have%20a%20party%21%26target%3Dhttp%3A//bigtribe.com/publisher_landing.jsp<br></div><br>So
+when the servlet backed by /logout receives the URL, remember that
+req.getParameter(target) will do URL decoding automatically.  So if you
+simply send that back on to /lout with this:<br><br><div>res.sendRedirect(&quot;/lout?target=&quot; + target);<br></div><br>Then
+it isn&#39;t going to work correctly, because target has been URL decoded
+automatically and now has its own target parameter which will be
+interpreted as a second target to /lout.  In other words, it will look
+like this:<br><br><div>/lout?target=/ssllogin?flash=Log back in to have a party!&amp;target=<a href="http://bigtribe.com/publisher_landing.jsp">http://bigtribe.com/publisher_landing.jsp</a><br></div><br>So req.getParameter() will return only the first, which will be:<br><br><div>/ssllogin?flash=Log back in to have a party!<br></div><br>The
+second has been lost, as it is available to /lout in
+req.getParameterValues(&quot;target&quot;) as the 2nd parameter.  To solve this
+problem, just remember that if you are going to send this query
+parameter on through another redirect you need to re-encode it in the
+/logout servlet:<br><br><div>res.sendRedirect(&quot;/lout?target=&quot; + URLEncoder.encode(target));<br></div><br>Now you have what you want. </div>
+</div> <a name="NDRKLIwoQ-Jzy1Zwi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">I added global error pages by putting &lt;error-page&gt; directives in the global web.xml file.  Unfortunately even though these are entered in a global web.xml file the &lt;location&gt; element of the entry is always evaluated as being relative to the web app within which the error occurs.  Therefore I pointed these error directives at a forwarding file called errorForward.jsp.  The entries look like this:<br><br><font face="courier new,monospace">   &lt;error-page&gt;<br>      &lt;exception-type&gt;java.lang.Throwable&lt;/exception-type&gt;<br>      &lt;location&gt;/WEB-INF/jsp/errorForward.jsp?context=/&amp;amp;page=/WEB-INF/jsp/error.jsp&lt;/location&gt;<br>   &lt;/error-page&gt;<br><br>   &lt;error-page&gt;<br>      &lt;error-code&gt;403&lt;/error-code&gt;<br>      &lt;location&gt;/WEB-INF/jsp/errorForward.jsp?context=/&amp;amp;page=/WEB-INF/jsp/error.jsp&lt;/location&gt;<br>   &lt;/error-page&gt;<br><br>   &lt;error-page&gt;<br>      &lt;error-code&gt;404&lt;/error-code&gt;<br>      &lt;location&gt;/WEB-INF/jsp/errorForward.jsp?context=/&amp;amp;page=/WEB-INF/jsp/error.jsp&lt;/location&gt;<br>   &lt;/error-page&gt;</font><br><br>Although I would have liked to have made just one entry, like the Throwable entry, it became apparent that some of the other error code problems are not caught by that entry.  While 500 is caught by throwable, it may become necessary to add, for example, 400 in the future.<br><br>Now I pointed these at a jsp file that has been copied into each project that looks like this:<br><br><font face="courier new,monospace">&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;<br>&lt;%@ page import=&quot;javax.servlet.RequestDispatcher&quot; %&gt;<br><br>&lt;%<br>  String context = request.getParameter(&quot;context&quot;);<br>  String errorPage = request.getParameter(&quot;page&quot;);<br>  RequestDispatcher disp =<br>      application.getContext(context).getRequestDispatcher(errorPage);<br>  disp.forward(request, response);<br>%&gt;</font><br><br>Now the reasons that I didn&#39;t make this a servlet in a utility project and then point the &lt;location&gt; at a servlet are:<br><br><font face="courier new,monospace">   1. then I would have to make a servlet mapping to the servlet in each project<br>   2. this servlet mapping would be publicly accessbile, as it is now, the jsp is hidden in WEB-INF</font><br><br>So I have copied this file into each project, which fails the DRY test, but I think in this case it is ok because the alternatives aren&#39;t much better.<br><br>Now this introduced a very hard to track down bug in the system when running under the selenium tests.  What was happening is that on Firefox the first request would be for the faveicon.ico file.  Because we do not have one of these this would cause the container to kick in my 404 page which would take a long time because it has to be compiled.  Meanwhile the test had already gone through 3 or 4 pages by the time the servlet was compiled and the result for faveicon.ico came back, with a new JSESSIONID, thus blowing up the previous JSESSIONID and losing all the state.  Andy put in a temporary fix that made sure the error jsp got compiled before the selenium tests start, however a better solution for now might be to put a faveicon.ico in place so this doesn&#39;t even happen.<br><br>After that I put in server.patch changes to put jmx-console and web-console into the ageo security domain by adjusting the jboss-web.xml accorindingly in each project.  Then in production.diffs I set it up so that the security-constraint was put in place in the web.xml in each of these projects with a required jbossadmin role.<br></font><br>Lastly I fixed the detached entity problem of saving a new Address.  In the process the addAddress method is no longer needed as it is used nowhere - unfortunately used in some of the tests so can&#39;t remove it straight away.</div>
+</div> <a name="NDRKLIwoQiN7x1Zsi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">Typically the HttpServletRequest object is used to create dispatchers that dispatch to another location within the same web application, however, an HttpServlet has a getServletContext method which can be used to
+create a RequestDispatcher that can dispatch into any web app of the
+container, that is, not just within the same web app.  Code might look something like this (from within an
+HttpServlet):<br><br></font><div><font face="arial,sans-serif"><font face="courier new,monospace">    RequestDispatcher disp = getServletContext().getContext(&quot;/anothercontext&quot;).getRequestDispatcher(&quot;/foo/bar.html&quot;);</font><br></font></div><font face="arial,sans-serif"><br>This
+initial object is also available from the session object, although it
+forces you to create a session to use it with
+req.getSession().getServletContext().  Within a jsp page, the implicit
+application object is a ServletContext and thus can be used as follows:<br><br></font><div><font face="arial,sans-serif"><font face="courier new,monospace">    RequestDispatcher disp = application.getContext(context).getRequestDispatcher(errorPage);</font><br></font></div><font face="arial,sans-serif"><br>And this can be used from inter-war includes:<br><br></font><div><font face="arial,sans-serif"><font face="courier new,monospace">    &lt;jsp:scriptlet&gt;<br>        application.getContext(&quot;/&quot;).getRequestDispatcher(&quot;/demo/googleScript.jspx&quot;).include(request,response);<br>    &lt;/jsp:scriptlet&gt;<br></font></font></div></div>
+</div> <a name="NDSSOIgoQia_WuZoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">How to - instead of declaring
+what you want to be secured by a security-constraint declare what you
+want not to be secured by a security constraint.  I found out that this
+is in fact possible.  It is done by first securing everything with a
+global constraint:<br><br><font face="courier new,monospace">    &lt;security-constraint&gt;<br>        &lt;display-name&gt;Yada yada&lt;/display-name&gt;<br>        &lt;web-resource-collection&gt;<br>            &lt;web-resource-name&gt;Name name name&lt;/web-resource-name&gt;<br>            &lt;url-pattern&gt;/*&lt;/url-pattern&gt;<br>        &lt;/web-resource-collection&gt;<br>        &lt;auth-constraint&gt;<br>            &lt;description&gt;description&lt;/description&gt;<br>            &lt;role-name&gt;consumer&lt;/role-name&gt;<br>        &lt;/auth-constraint&gt;<br>    &lt;/security-constraint&gt;</font><br><br>So this puts a consumer required role constraint on everything.  Then &quot;undo&quot; the role constraint on a page by page basis:<br><br><font face="courier new,monospace">    &lt;security-constraint&gt;<br>        &lt;display-name&gt;Yado yo&lt;/display-name&gt;<br>        &lt;web-resource-collection&gt;<br>            &lt;web-resource-name&gt;Name o Name&lt;/web-resource-name&gt;<br>            &lt;url-pattern&gt;/html/pagelet-client.js&lt;/url-pattern&gt;<br>            &lt;url-pattern&gt;/html/another.js&lt;/url-pattern&gt;<br>        &lt;/web-resource-collection&gt;<br>    &lt;/security-constraint&gt;</font><br><br>The lack of an &lt;auth-constraint&gt; section removes the role required for the specified pages. </font></div>
+</div> <a name="NDQe8IgoQk4m5uZoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">Setting HttpServletRequest parameters trick:  Also because of something Andres was working on remembered another
+trick dealing with the HttpServletRequest.  The problem is that said
+object has no setParameter method.  Thus you can&#39;t manually set a few
+parameters on it and forward it via a dispatcher.forward call.  The way
+around this limitation is to use a HttpServletRequestWrapper and to
+override getParameter.  In getParameter you first check if they are
+attempting to retrieve a parameter with one of your custom keys, if so,
+you provide the value.  If not you defer to the wrapped
+HttpServletRequest&#39;s getParameter method.  This is the best workaround
+the lack of a setParameter in the HttpServletRequest object. </font></div>
+</div> <a name="NDQUjIgoQ1Mv4hJoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif"> The CONFIDENTIAL security constraint works by sending back a 301
+redirect to the client.  So putting that on /*j_security_check would be pointless as params would have already been sent to it in the clear. 
+They recommend putting all your pages under a CONFIDENTIAL constraint
+so that the login page would only be encountered after the container
+has flipped to https.  The problem with this is, of course, that then
+you are always in https regardless of the nature of the page in
+question.  My solution was to make a target that is under a security
+constraint of both CONFIDENTIAL and requiring login (requiring a certain role, these are both defined in the web.xml file) called /ssllogin. 
+The servlet mapped at ssllogin is a simple servlet that accepts a
+target parameter that it redirects to, but of course only after the
+user has successfully logged in.  The &lt;form-login-page&gt; that are in web-apps external to the web-app hosting /ssllogin construct the target URL and the redirect to /ssllogin.  Here is the redirector that is used in the web apps that don&#39;t host /ssllogin:<br><br><font face="courier new,monospace">&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;<br><br>&lt;%<br>  String serverName = request.getServerName();<br>  String colonPort = &quot;:&quot; + System.getProperty(&quot;ageo.public.httpport&quot;);<br>  if (&quot;:80&quot;.equals(colonPort)) colonPort = &quot;&quot;;<br><br>  // available here through FORM authentication are:<br>  //<br>  // javax.servlet.forward.request_uri   (example: /user/profile)<br>  // javax.servlet.forward.context_path  (example: /user)<br>  // javax.servlet.forward.servlet_path  (example: /profile)<br>  // javax.servlet.forward.query_string  (example: blank)<br>  String requestUri =<br>      (String)request.getAttribute(&quot;javax.servlet.forward.request_uri&quot;);<br>  String queryString =<br>      (String)request.getAttribute(&quot;javax.servlet.forward.query_string&quot;);<br>  String questQuery = (queryString == null || queryString.length() == 0) ? &quot;&quot; :\<br> &quot;?&quot; + queryString;<br><br>  String target = &quot;http://&quot; + serverName + colonPort + requestUri + questQuery;<br><br>  response.sendRedirect(&quot;/ssllogin?target=&quot; + java.net.URLEncoder.encode(target\<br>));<br>%&gt;</font><br><span></span><br>Why a jsp and not a servlet?  Well a with a servlet you are forced to make a public mapping for it and that just makes it so people can mess with it and also so that they can hit it without the possibility of deriving the correct target page.  So yeah, it leads to a little copy paste among web apps.  The redirect code is here:<br><br><font face="courier new,monospace">public class RedirectServlet extends HttpServlet {<br><br>    /** {@inheritDoc} */<br>    @Override<br>    protected void service(HttpServletRequest req, HttpServletResponse res)<br>            throws IOException {<br>        String target = req.getParameter(&quot;target&quot;);<br><br>        String colonPort = &quot;:&quot; + System.getProperty(&quot;ageo.public.httpport&quot;);<br>        if (&quot;:80&quot;.equals(colonPort)) colonPort = &quot;&quot;;<br>        String serverUrl = &quot;http://&quot; + req.getServerName() + colonPort + &quot;/&quot;;<br><br>        if (target == null) {<br>            target = serverUrl;<br>            // you could alternatively do some if req.isUserInRole(&quot;publisher&quot;)<br>            // yada yada different target pages<br>        }<br><br>        res.sendRedirect(target);<br>    }<br><br>}</font><br><br>In another security story the
+PFA allows for logins that that send the login params to the
+j_security_check without the page holding the login being under a
+security constraint.  A problem occurs in that it requires a &quot;j_uri&quot;
+target hidden parameter to forward to after the login.  If this j_uri
+page is not under a security constraint the login will no hold under
+single sign on.  Thus I made another simple redirect servlet mapped
+under /login which is under a security constraint.  For PFA logins the
+target j_uri is this servlet with a redirect target parameter added at
+the end for the /login servlet to forward the login too.  Thus the
+final target need not be under a security constraint and the login will
+still stick.</font><br></div>
+</div> <a name="NDQKYIgoQk4LjuZoi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">If you want to serve up a file in a web application that needs to
+result in a download you need to set a header that gives a content type
+that the browser will actually download.  So, for example, if you are
+serving up a csv file then a &quot;Content-Type&quot; header of &quot;text/csv&quot; will
+likely cause the browser to ask the user where to save the file while
+&quot;text/plain&quot; will likely just display directly in the browser.  To set
+the filename that will be displayed by default in the download box you
+need to set a &quot;Content-Disposition&quot; header with a value like
+&quot;attachment; filename=&quot;whatever.csv&quot;. </font></div>
+</div></div></body></html>

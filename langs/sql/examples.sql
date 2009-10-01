@@ -53,6 +53,14 @@ SELECT * FROM people WHERE symbol LIKE 'hello[_]world';
 -- or you can specify an escape character
 SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
 
+-- mutli-table delete in mysql
+DELETE address, licenseproperties, userLicenses, userprefs, userproperties, userroles, user
+FROM
+    address, licenseproperties, userLicenses, userprefs, userproperties, userroles, user
+WHERE
+    user.id = address.userId AND user.id = licenseproperites.userId AND ...
+AND userId < 100000;
+
 -- tsql style multi table update
 UPDATE employment_statuses SET
     mde_id = esd.id
@@ -98,3 +106,60 @@ BEGIN
   CLOSE mycursor
   DEALLOCATE mycursor
 END
+
+-- show the indices in a table mysql
+SHOW INDEX FROM table;
+
+-- set up mysql command line client to correctly display UTF8
+SET NAMES utf8;
+
+-- likewise iso-8859, latin1
+SET NAMES latin1;
+
+-- mysql check table integrity
+mysqlcheck -uroot -proot -v  --all-databases
+
+-- mysql repair
+mysqlcheck -uroot -proot -v  -r database table
+
+-- multi-table update example for mysql
+UPDATE users u, user_unit_roles uur
+    SET u.system_role_id = uur.role_id
+    WHERE u.id = uur.user_id AND uur.all_units_flag = 1;
+
+-- multi-table update with aggregate from related table
+-- join a derived table and assign from the derived fields
+-- mysql
+UPDATE quiz_results JOIN (
+   SELECT qr.id, COUNT(*) AS num_correct
+       FROM quiz_results qr
+       JOIN user_answers ua ON qr.id = ua.quiz_result_id
+       JOIN answers a ON ua.answer_id = a.id
+       WHERE a.correct = 1 GROUP BY qr.id) derived
+   ON quiz_results.id = derived.id
+   SET quiz_results.num_correct = derived.num_correct;
+
+-- mysql change associated records when given the new set of related ids
+DELETE FROM account_roles WHERE account_id = ? AND role_id NOT IN (?);
+INSERT INTO user_roles (user_id, role_id)
+    SELECT ?, r.id FROM
+    roles r LEFT JOIN
+    (SELECT role_id FROM account_roles WHERE account_id = ?) ar ON r.id = ar.role_id
+    WHERE ar.role_id IS NULL AND r.id IN (?);
+
+-- use case in select statement
+SELECT urla.*, ag.id AS group_id,
+    CASE ag.public WHEN 1 THEN
+        ag.name
+    ELSE
+        CONCAT_WS(' ', rl.name, 'Direct Attributes')
+    END AS group_name, ...
+
+-- all database dump from one system, then load on another
+> mysqldump -uroot -proot --all-databases >  dumpfile.sql
+mysql> source dumpfile.sql
+
+-- oracle 'SHOW CREATE TABLE' done from sqlplus
+SQL> set pages 0
+SQL> set long 999999
+SQL> select dbms_metadata.get_ddl('TABLE', 'EMPLOYEES', 'EMP') from dual;

@@ -1,0 +1,26 @@
+<!--
+Content-type: Preventing XSRF in IE.
+
+-->
+<html><head><link type="text/css" rel="stylesheet" href="/notebook/resources/1553808490-public_css.css">
+<title>ssh</title></head>
+<body bgcolor="#FFFFFF" onload=""><link type="text/css" rel="stylesheet" href="/notebook/resources/3158938506-staticpages_css.css">
+<table align="center" border="0" cellpadding="5" cellspacing="0" width="100%"><tr valign="middle"><td width="1%"><a href="/notebook/"><img src="/notebook/images/en_notebook_150x55.png" align="left" border="0" height="55" width="150" alt="Google Notebook"></a></td>
+<td><table style="margin-bottom: 5px;" align="center" bgcolor="#c3d9ff" border="0" cellpadding="0" cellspacing="0" width="100%" dir="ltr"><tr><td class="bubble tl" align="left" valign="top"><img src="/notebook/images/corner_tl.gif" class="c" alt=""></td>
+<td class="bubble1" rowspan="2" style="padding: 3px 0pt; font-family: arial; text-align: left; font-weight: bold; font-size: 100%;">ssh</td>
+<td class="bubble tr" align="right" valign="top"><img src="/notebook/images/corner_tr.gif" class="c" alt=""></td></tr>
+<tr><td class="bubble bl" align="left" valign="bottom"><img src="/notebook/images/corner_bl.gif" class="c" alt=""></td>
+<td class="bubble br" align="right" valign="bottom"><img src="/notebook/images/corner_br.gif" class="c" alt=""></td></tr></table></td></tr></table>
+<br>
+<div id="pubContent"><div id="pubHeader"><div id="pubHeaderSub">Last edited  March 31, 2007 
+<br></div></div>
+
+<a name="NDQKYIgoQ6JCl1pwi"></a>
+<div class="PubNote">
+<div class="PubNoteContentArea"><font face="arial,sans-serif">Brian showed me some cool ssh things today.  First off, we used ssh
+keys to allow password free logins, which I have done before.  Here is
+the old song and dance:<br><font face="courier new,monospace"><br></font></font><div><font face="arial,sans-serif"><font face="courier new,monospace"># if you want to use a different key pair first generate one<br>ssh-keygen -t rsa -f ~/.ssh/xterra-id_rsa<br>cd ~<br>cat .ssh/xterra-id_rsa.pub | ssh remote.host &#39;cat - &gt;&gt; .ssh/authorized_keys&#39;</font><br></font></div><font face="arial,sans-serif"><br>Then
+he showed me some info on the ~/.ssh/config file.  Setting up this file
+can make working with ssh among different hosts and different key pairs
+much easier.  Here is an example of what is in mine now:<br><br><font face="courier new,monospace">Host release<br> HostName <a href="http://xterra.bigtribe.com">xterra.bigtribe.com</a><br> User release<br> ForwardX11 no<br> ForwardAgent no<br> Cipher blowfish<br> Compression yes<br> IdentitiesOnly yes<br> IdentityFile ~/.ssh/xterra-id_rsa<br><br>Host qaremote<br> HostName <a href="http://g2.bigtribe.com">g2.bigtribe.com</a><br> User ageo<br> ForwardX11 no<br> ForwardAgent no<br> Cipher blowfish<br> Compression yes<br> IdentitiesOnly yes<br> IdentityFile ~/.ssh/qa-id_rsa<br><br>Host qamain<br> HostName <a href="http://h2.bigtribe.com">h2.bigtribe.com</a><br> User ageo<br> ForwardX11 no<br> ForwardAgent no<br> Cipher blowfish<br> Compression yes<br> IdentitiesOnly yes<br> IdentityFile ~/.ssh/qa-id_rsa<br><br>Host ginsu<br> HostName <a href="http://ginsu.bigtribe.com">ginsu.bigtribe.com</a><br> User dburger<br> ForwardX11 yes<br> ForwardX11Trusted yes<br> ForwardAgent no<br> Cipher blowfish<br> Compression yes<br> IdentitiesOnly yes</font><br></font></div>
+</div></div></body></html>

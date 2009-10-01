@@ -1,0 +1,196 @@
+Example of how to call a goal from a maven.xml file in another project:
+
+<goal name="setup-test-db">
+    <maven:reactor basedir="${basedir}/../poi" includes="project.xml" goals="createTestDB" banner="Creating test database using project" ignoreFailures="false"/>
+</goal>
+
+<!---------------------------------------------------------------------------->
+
+This is an example of how to do a loop on a group of files in a maven file (maven.xml) using ant tasks.  This particular goal grabs all the .js files it finds in the given path and creates gzip version of them.
+
+<ant:fileScanner var="jsFiles">
+  <ant:fileset dir="${basedir}/target/consumer-web/prototype/" includes="**/*.js"/>
+</ant:fileScanner>
+  <j:forEach items="${jsFiles.iterator()}" var="jsFile"
+      indexVar="counter">
+  <gzip src="${jsFile}" zipfile="${jsFile}.gz"/>
+</j:forEach>
+
+<!---------------------------------------------------------------------------->
+
+Starting out today to enter a post goal that will replace an identifier with the geohana keys used by geohana to make this less of a nightmare.  My reference on postGoal is a goal I have already written for the root project to take unwanted files out of the war:
+
+    <postGoal name="war:webapp">
+        <ant:delete>
+            <ant:fileset dir="${basedir}/target/root/"
+                    includes="**/*.psd,**/*.ai"/>
+        </ant:delete>
+    </postGoal>
+
+Andy found a better way to do this with the project.properties file and this property:
+ maven.war.src.excludes=**/*.psd,**/*.ai
+Here is something I did some time ago to create gzip versions of files, this became unecessary because it was discovered that a tomcat valve could be set in server.xml to handle this:
+
+        <!-- gzip javascript so ReturnGzipFilter can return the .gz versions when appropriate. -->
+        <!--
+        <ant:fileScanner var="jsFiles">
+            <ant:fileset dir="${basedir}/target/consumer-web/"
+                    includes="**/*.js"/>
+        </ant:fileScanner>
+        <j:forEach items="${jsFiles.iterator()}" var="jsFile"
+                indexVar="counter">
+            <gzip src="${jsFile}" zipfile="${jsFile}.gz"/>
+        </j:forEach>
+        -->
+
+Now to add a postGoal that replaces $BIG_TRIBE_GEOHANA_KEYS$ with the actual keys:
+
+    <postGoal name="war:webapp">
+
+        <!-- remove unecessary files that bloat the war -->
+        <ant:delete>
+            <ant:fileset dir="${basedir}/target/root/"
+                    includes="**/*.psd,**/*.ai"/>
+        </ant:delete>
+
+        <!-- insert bigtribe geohana keys -->
+        <ant:replace dir="${basedir}/target/root/"
+                token="$BIG_TRIBE_GEOHANA_KEYS$"
+                value="demo4&amp;key=demo5&amp;key=demo6&amp;key=demo9&amp;key=demo10&amp;key=NmIwNmU2ZmItZjBjYi00NTgxLTkwYmEtYjRiNmI2OTRmOTU2&amp;key=YzQ5NjAzMjEtOGI2My00\
+NjY2LTljZDEtNjQ2MjI2ZTZiZmQ3&amp;key=NDkwMTA5ZTYtOWQyYS00ZWQ0LWFlYzItZTE2NjljMjRlYTZk&amp;key=NTQ3OWVhYzItNjBiYy00OTBiLTlmZDUtOGU3OWU4NmRjZTZk"/>
+
+<!---------------------------------------------------------------------------->
+
+I did some massive maven work today.  The work is in the utility project and does the job of producing two jar artifacts out of the same project, one for utility itself, and one for the valves that are in utility.  First I tried a very ant like way to do it with the following code:
+
+    <!-- splits up the valves into a separate dir structure  and jars them up
+         into valves-#.##.jar -->
+    <preGoal name="jar:jar">
+      <!-- make copy of dir structure to be jarred as valves-#.##.jar
+           including only *Valve.class files -->
+      <ant:copy todir="${basedir}/target/valve-classes">
+        <ant:fileset dir="${basedir}/target/classes">
+          <include name="**/*Valve.class"/>
+        </ant:fileset>
+      </ant:copy>
+      <!-- delete *Valve.class files from dir structure which will be jarred
+           as utility-#.##.jar -->
+      <ant:delete>
+        <ant:fileset dir="${basedir}/target/classes"
+            includes="**/*Valve.class"/>
+      </ant:delete>
+      <!-- and jar up the *Valve.class files into a valves-#.##.jar -->
+      <ant:jar basedir="${basedir}/target/valve-classes"
+          destfile="${basedir}/target/valves-${pom.currentVersion}.jar"/>
+    </preGoal>
+
+    <!-- copies the valves-#.##.jar into the local repository -->
+    <postGoal name="install">
+      <maven:pom var="valves" projectDescriptor="${basedir}/valves-pom.xml" />
+      <artifact:install
+          artifact="${basedir}/target/valves-${pom.currentVersion}.jar"
+          type="jar" project="${valves}"/>
+    </postGoal>
+
+    <!-- deploys the valves-#.##.jar -->
+    <postGoal name="deploy">
+      <maven:pom var="valves" projectDescriptor="${basedir}/valves-pom.xml" />
+      <artifact:deploy
+          artifact="${basedir}/target/valves-${pom.currentVersion}.jar"
+          type="jar" project="${valves}"/>
+    </postGoal>
+
+this worked fine, but the build was failing (more on the reason for that later), so I tried to change it to a more maven way.  This came down to specifying a new pom for the valves jar and tweaking the project.xml for the existing utility project.  In the project.xml I had to tell it not to include the *Valve classes in the build:
+
+        <build>
+                <nagEmailAddress>engineering@bigtribe.com</nagEmailAddress>
+                <sourceDirectory>src/java</sourceDirectory>
+                <sourceModifications>
+                        <sourceModification>
+                                <className>*Valve</className>
+                                <excludes>
+                                        <exclude>**/*Valve.java</exclude>
+                                </excludes>
+                        </sourceModification>
+                </sourceModifications>
+                ....
+
+Then I needed to create a pom for the valves which I called valves-pom.xml:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [
+        <!ENTITY % versions SYSTEM "file:../ageo/versions.ent">
+%versions;
+]>
+<project>
+        <pomVersion>3</pomVersion>
+        <id>valves</id>
+        <name>Ageo Valves</name>
+        <groupId>bigtribe</groupId>
+        <currentVersion>&bigtribe-utility-version;</currentVersion>
+        <shortDescription>Valves used in Ageo</shortDescription>
+        <developers />
+        <dependencies>
+                <dependency>
+                        <groupId>tomcat</groupId>
+                        <artifactId>catalina</artifactId>
+                        <version>&catalina-version;</version>
+                </dependency>
+                <dependency>
+                        <groupId>tomcat</groupId>
+                        <artifactId>servlet-api</artifactId>
+                        <version>&tomcat-version;</version>
+                </dependency>
+                <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                        <version>&log4j-version;</version>
+                </dependency>
+        </dependencies>
+        <build>
+                <sourceDirectory>src/java</sourceDirectory>
+                <sourceModifications>
+                        <sourceModification>
+                                <className>*</className>
+                                <includes>
+                                        <include>**/*Valve.java</include>
+                                </includes>
+                        </sourceModification>
+                </sourceModifications>
+        </build>
+</project>
+
+Lastly I made the install and deploy targets in maven.xml for utility also install and deploy the valves as so:
+
+    <goal name="install-valves" prereqs="clean,jar:install" />
+    <goal name="deploy-valves" prereqs="clean,jar:deploy" />
+
+    <postGoal name="install">
+      <maven:maven descriptor="${basedir}/valves-pom.xml"
+          goals="install-valves"/>
+    </postGoal>
+
+    <postGoal name="deploy">
+      <maven:maven descriptor="${basedir}/valves-pom.xml"
+          goals="deploy-valves"/>
+    </postGoal>
+
+So the above work does a fine job of building the valves-*.jar and installing and deploying it.
+
+But the build was still failing!  The reason is that for each dependency we have a script in the build process in all-ageo that tries to locate the sources for each dependency.  When it looked for the sources for valves it would crap out and quit.  So valves needed to be added to this script, callled FindSource.groovy, as an exception to the look for the sources rule.  This looks like this in that file:
+
+def build = ["libams":1, "ams-jni":1, "valves":1]
+def depends = [:]
+new java.io.File("..").eachDir { dir ->
+    def project = new java.io.File(dir.getPath() + "/project.xml")
+    if (project.exists()) {
+        def xml = new groovy.util.XmlSlurper().parse(project)
+        build[xml.id.text()] = 1
+        xml.dependencies.dependency.each { node ->
+            if (node.groupId.text() == "bigtribe")
+                depends[node.artifactId.text()] = 1
+        }
+    }
+}
+def missing = depends.keySet().findAll { build[it] != 1 }
+assert missing == [], "missing source for dependencies"
