@@ -10,7 +10,7 @@ public class Combinatorics {
         a[i] = tmp;
     }
 
-    /** nPr index permutation lexicographic order. */
+    /** nPn without replacement index permutation lexicographic order. */
     public static int[] nextPerm(int[] a) {
         // find largest subscript j with a[j] < a[j + 1]
         int j = a.length - 2;
@@ -30,7 +30,7 @@ public class Combinatorics {
         return a;
     }
 
-    /** Returns Iterator over nPr index permutation lexicographic order. */
+    /** Returns Iterator over nPn without replacement index permutation lexicographic order. */
     public static Iterator<int[]> permIterator(final int length) {
         return new Iterator<int[]>() {
             boolean done = false;
@@ -69,7 +69,7 @@ public class Combinatorics {
         };
     }
 
-    /** nPr with replacement index permutation lexicographic order. */
+    /** nPn with replacement index permutation lexicographic order. */
     public static int[] nextPermWithReplacement(int[] perm, int n) {
         int hiValue = n - 1;
         int digit = perm.length - 1;
@@ -84,7 +84,7 @@ public class Combinatorics {
         throw new IllegalArgumentException("Illegal permutation state.");
     }
 
-    /** Returns Iterator over nPr with replacement index permutation lexicographic order. */
+    /** Returns Iterator over nPn with replacement index permutation lexicographic order. */
     public static Iterator<int[]> permsWithReplacementIterator(final int n, final int r) {
         return new Iterator<int[]>() {
             int[] currPerm = null;

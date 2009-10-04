@@ -1,6 +1,6 @@
 class Combinatorics
 
-  # nPr index permutation lexicographic order.
+  # nPn without replacement index permutation lexicographic order.
   def self.next_permutation(a)
     # find largest subscript j with a[j] < a[j + 1]
     j = a.length - 2
@@ -29,7 +29,7 @@ class Combinatorics
     a
   end
 
-  # Yields nPr index permutation lexicographic order.
+  # Yields nPn without replacement index permutation lexicographic order.
   def self.generate_permutations(length)
     curr_perm = (0...length).to_a
     last_perm = curr_perm.reverse

@@ -14,7 +14,7 @@ var Combinatorics = {
         return true;
     },
 
-    // nPr index permutation lexicographic order.
+    // nPn without replacement index permutation lexicographic order.
     nextPerm: function(a) {
         var j = a.length - 2;
         while (a[j] > a[j + 1]) j--;
@@ -31,7 +31,7 @@ var Combinatorics = {
         return a;
     },
 
-    /// callback over nPr index permutation lexicographic order.
+    /// callback over nPn without replacement index permutation lexicographic order.
     generatePerms: function(length, callback) {
         var currPerm = [];
         var lastPerm = [];
@@ -46,7 +46,7 @@ var Combinatorics = {
         callback(currPerm);
     },
 
-    // nPr with replacement index permutation lexicographic order.
+    // nPn with replacement index permutation lexicographic order.
     nextPermWithReplacement: function (perm, n) {
         var hiValue = n - 1;
         var digit = perm.length - 1;
@@ -61,7 +61,7 @@ var Combinatorics = {
         throw new Error("Illegal permutation state.");
     },
 
-    // callback over nPr with replacement index permutation lexicographic order.
+    // callback over nPn with replacement index permutation lexicographic order.
     generatePermsWithReplacement: function(n, r, callback) {
         var currPerm = [];
         var lastPerm = [];
@@ -90,6 +90,7 @@ var Combinatorics = {
         return a;
     },
 
+    // callback over nCr index combination lexicographic order.
     generateRCombs: function(n, r, callback) {
         var currComb = [];
         var lastComb = [];
