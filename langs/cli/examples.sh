@@ -67,6 +67,13 @@ awk 'BEGIN {FS=","}; {print $2}' hotspot-list2.txt | wc -L
 # awk to pull ip address from box
 ifconfig | grep 'Bcast' | awk '{print $2' | awk 'BEGIN {FS=":"} ; {print $2}'
 
+# change jpg to pdf using ImageMagick
+convert page1.jpg -compress jpeg page1.pdf
+
+# merge pdfs using ghostscript
+gs -q -sPAPERSIZE=letter -dNOPAUSE -dBATCH -sDEVICE=pdfwrite \
+   -sOutputFile=out.pdf page1.pdf page2.pdf
+
 # send through netcat
 tar cvf  - * | nc target 12345
 # receive through netcat
@@ -94,4 +101,3 @@ ipfw add 100 fwd 127.0.0.1,9080 tcp from any to any 80 in
 
 # remote X11 execution
 ssh -X -Y -C dburger@uhunix.its.hawaii.edu emacs
-
