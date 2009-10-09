@@ -101,3 +101,6 @@ ipfw add 100 fwd 127.0.0.1,9080 tcp from any to any 80 in
 
 # remote X11 execution
 ssh -X -Y -C dburger@uhunix.its.hawaii.edu emacs
+
+# git pull multiple projects under the current directory
+for dir in */; do (cd "$dir" && git pull) done
