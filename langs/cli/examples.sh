@@ -104,3 +104,9 @@ ssh -X -Y -C dburger@uhunix.its.hawaii.edu emacs
 
 # git pull multiple projects under the current directory
 for dir in */; do (cd "$dir" && git pull) done
+
+# template for executing multiple commands with find
+find . -type f | while read $file; do
+  echo "$file"
+  # do lots o stuff
+done
