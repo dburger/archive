@@ -110,3 +110,7 @@ find . -type f | while read $file; do
   echo "$file"
   # do lots o stuff
 done
+
+# batch resize and compress images - will attempt to keep aspect ratio
+# unless you add a ! to the end of the dimensions
+mogrify -resize 1024x1024 -quality 75 *JPG
