@@ -114,3 +114,9 @@ done
 # batch resize and compress images - will attempt to keep aspect ratio
 # unless you add a ! to the end of the dimensions
 mogrify -resize 1024x1024 -quality 75 *JPG
+
+# generate self signed cert
+openssl req -new -x509 -days 30 \
+  -keyout /etc/apache2/conf/ssl.key/server.key \
+  -out /etc/apache2/conf/ssl.crt/server.crt \
+  -subj '/CN=Test-Only Certificate
