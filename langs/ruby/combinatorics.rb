@@ -1,5 +1,16 @@
 class Combinatorics
 
+# this is a cool - but slow way to do permutations using recursion
+# class Array
+#   def permutations
+#     return [self] if size < 2
+#     perm = []
+#     each { |e| (self - [e]).permutations.each { |p| perm << ([e] + p) } }
+#     perm
+#   end
+# end
+
+
   # nPn without replacement index permutation lexicographic order.
   def self.next_permutation(a)
     # find largest subscript j with a[j] < a[j + 1]

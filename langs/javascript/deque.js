@@ -6,7 +6,7 @@ var deque = function() {
         that.prev = prev;
         that.next = next;
         return that;
-    }
+    };
 
     var that = {};
     var head = node(null);
