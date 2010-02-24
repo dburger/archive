@@ -163,3 +163,6 @@ mysql> source dumpfile.sql
 SQL> set pages 0
 SQL> set long 999999
 SQL> select dbms_metadata.get_ddl('TABLE', 'EMPLOYEES', 'EMP') from dual;
+
+-- mysql simple add column to existing table
+ALTER TABLE Services ADD Family VARCHAR(128) NOT NULL;
