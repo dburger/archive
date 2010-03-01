@@ -123,3 +123,9 @@ openssl req -new -x509 -days 30 \
 
 # notifications on the gnome desktop
 notify-send -i info -t 3000 "don't do that"
+
+# generate TAG file with exuberant etags recursively from the current directory
+# ignoring directories starting with blaze
+# (note, "sudo apt-get install exuberant-ctags", this is not standard
+#  etags / ctags syntax)
+ctags --exclude=blaze* -e -R .
