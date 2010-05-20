@@ -166,3 +166,12 @@ SQL> select dbms_metadata.get_ddl('TABLE', 'EMPLOYEES', 'EMP') from dual;
 
 -- mysql simple add column to existing table
 ALTER TABLE Services ADD Family VARCHAR(128) NOT NULL;
+
+-- mysql delete from one table where the related row does not exist in the other
+DELETE ti FROM TaskInstance ti LEFT JOIN Task t ON ti.TaskId = t.TaskId WHERE t.TaskId IS NULL;
+
+-- mysql create a table for a select, different from the sybase (microsoft) extension
+CREATE TABLE OrphanedTaskInstance (
+  SELECT ti.* FROM TaskInstance ti LEFT JOIN Task t ON ti.TaskId = t.TaskId
+  WHERE t.TaskId IS NULL AND ti.RepeatCount = -1
+);
