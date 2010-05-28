@@ -175,3 +175,19 @@ CREATE TABLE OrphanedTaskInstance (
   SELECT ti.* FROM TaskInstance ti LEFT JOIN Task t ON ti.TaskId = t.TaskId
   WHERE t.TaskId IS NULL AND ti.RepeatCount = -1
 );
+
+-- mysql multi table delete example
+DELETE ti
+FROM
+ Arg a
+ INNER JOIN TaskInstance ti
+ INNER JOIN Task  t ON ti.TaskId = t.TaskId
+ LEFT OUTER JOIN TaskInstanceArg tia ON (a.ArgId = tia.ArgId AND
+                                         tia.TaskInstanceId = ti.TaskInstanceId)
+ LEFT OUTER JOIN TaskArg ta ON (a.ArgId = ta.ArgId AND ta.TaskId = ti.TaskId)
+ LEFT OUTER JOIN ServiceArg sa ON (a.ArgId = sa.ArgId AND
+sa.ServiceId = t.ServiceId)
+WHERE
+ a.ArgId = 5001
+ AND COALESCE(tia.Value, ta.Value, sa.Value, a.DefaultValue) = -1
+ AND t.TaskType LIKE '%EXTRACTION%'
