@@ -129,3 +129,17 @@ notify-send -i info -t 3000 "don't do that"
 # (note, "sudo apt-get install exuberant-ctags", this is not standard
 #  etags / ctags syntax)
 ctags --exclude=blaze* -e -R .
+
+# regular expression comparison in bash
+if [[ "Hour 1276625700" =~ ^Hour\ [0-9]+$ ]]; then
+  echo "matched"
+else
+  echo "nomatch"
+fi
+
+# negation of regular expression comparison in bash
+if [[ ! "Hour 1276625700" =~ ^Hour\ [0-9]+$ ]]; then
+  echo "nomatch"
+else
+  echo "matched"
+fi
