@@ -143,3 +143,6 @@ if [[ ! "Hour 1276625700" =~ ^Hour\ [0-9]+$ ]]; then
 else
   echo "matched"
 fi
+
+# make a backup at 4:20 am everyday with rsync via cron
+20 4 * * * rsync -av --delete /usr/local/google/git/eye3 /home/dburger/bak
