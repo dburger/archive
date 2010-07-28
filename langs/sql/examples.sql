@@ -193,6 +193,7 @@ WHERE
  AND t.TaskType LIKE '%EXTRACTION%'
 
 -- example of creating a mysql function to convert a bigint into its base 64 representation
+-- actually not pure base 64 as we are appending an "=" and using a "websafe" alphabet
 DELIMITER |
 DROP FUNCTION IF EXISTS BASE64_ENCODE |
 CREATE FUNCTION BASE64_ENCODE(input BIGINT)
