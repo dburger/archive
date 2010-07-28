@@ -191,3 +191,25 @@ WHERE
  a.ArgId = 5001
  AND COALESCE(tia.Value, ta.Value, sa.Value, a.DefaultValue) = -1
  AND t.TaskType LIKE '%EXTRACTION%'
+
+-- example of creating a mysql function to convert a bigint into its base 64 representation
+DELIMITER |
+DROP FUNCTION IF EXISTS BASE64_ENCODE |
+CREATE FUNCTION BASE64_ENCODE(input BIGINT)
+  RETURNS BLOB
+  DETERMINISTIC
+BEGIN
+  -- DECLARE base BLOB DEFAULT 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  -- "websafe" alphabet see CharBase64.java
+  DECLARE base BLOB DEFAULT 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  DECLARE chunks TINYINT DEFAULT 11;
+  DECLARE chunk TINYINT;
+  DECLARE ret BLOB DEFAULT '';
+  WHILE chunks > 0 DO BEGIN
+    SET chunk = input & 0x3F;
+    SET input = input >> 6;
+    SET chunks = chunks - 1;
+    SET ret = CONCAT(SUBSTRING(base, chunk + 1, 1), ret);
+  END; END WHILE;
+  RETURN CONCAT(ret, '=');
+END |
