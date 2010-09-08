@@ -207,8 +207,13 @@ BEGIN
   DECLARE chunk TINYINT;
   DECLARE ret BLOB DEFAULT '';
   WHILE chunks > 0 DO BEGIN
-    SET chunk = input & 0x3F;
-    SET input = input >> 6;
+    IF chunks = 11 THEN
+      SET chunk = (input & 0xF) << 2;
+      SET input = input >> 4;
+    ELSE
+      SET chunk = input & 0x3F;
+      SET input = input >> 6;
+    END IF;
     SET chunks = chunks - 1;
     SET ret = CONCAT(SUBSTRING(base, chunk + 1, 1), ret);
   END; END WHILE;
