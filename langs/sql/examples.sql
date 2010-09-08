@@ -219,3 +219,23 @@ BEGIN
   END; END WHILE;
   RETURN CONCAT(ret, '=');
 END |
+
+-- TWO examples of looking for TaskInstances that don't point at valid server dims, one uses a subselect while
+-- the other does not
+SELECT ti.TaskInstanceId, tia.Value, s.Name, t.TaskType FROM
+  TaskInstance ti
+  JOIN TaskInstanceArg tia ON (ti.TaskInstanceId = tia.TaskInstanceId AND tia.ArgId = 5001)
+  JOIN Task t ON t.TaskId = ti.TaskId
+  JOIN Services s ON t.ServiceId = s.ServiceId
+  LEFT JOIN ServerDim sd ON tia.Value = sd.ServerId
+  WHERE sd.ServerId IS NULL
+
+SELECT x.TaskInstanceId, x.Value, x.Name, x.TaskType FROM (
+SELECT tia.TaskInstanceId, tia.Value, s.Name, t.TaskType FROM
+   TaskInstance ti
+   JOIN TaskInstanceArg tia ON ti.TaskInstanceId = tia.TaskInstanceId
+   JOIN Task t ON t.TaskId = ti.TaskId
+   JOIN Services s ON t.ServiceId = s.ServiceId
+   WHERE tia.ArgId = 5001
+) AS x LEFT JOIN ServerDim sd ON x.Value = sd.ServerId
+WHERE sd.ServerId IS NULL;
