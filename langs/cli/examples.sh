@@ -146,3 +146,6 @@ fi
 
 # make a backup at 4:20 am everyday with rsync via cron
 20 4 * * * rsync -av --delete /usr/local/google/git/eye3 /home/dburger/bak
+
+# scrape with curl and mail
+30 9 * * * curl http://eye3-analysis/varz | grep "\(\(g\|p\)4.*invocations\)\|\(sccs.*\)" | sed -e 's/<b>//g;s/<\/b>//g;s/<br>//g' | mail -s "SCCS Stats - example script harvested output" recipient@foo.com
