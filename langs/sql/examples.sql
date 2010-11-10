@@ -239,3 +239,40 @@ SELECT tia.TaskInstanceId, tia.Value, s.Name, t.TaskType FROM
    WHERE tia.ArgId = 5001
 ) AS x LEFT JOIN ServerDim sd ON x.Value = sd.ServerId
 WHERE sd.ServerId IS NULL;
+
+-- multiple step example of removing an enum type by transferring the values to
+-- a temporary column, altering the column, and copying them back in with a
+-- where
+;; add a temporary column to hold the current values for TaskType
+ALTER TABLE Task
+ADD TempTaskType ENUM('JAVA_SAMPLE_EXTRACTION', 'HEAPZ_GARBAGE_EXTRACTION',
+     'EXCEPTION_EXTRACTION', 'SQL_EXTRACTION', 'SPLAT_EXTRACTION',
+     'VARZ_EXTRACTION', 'ANALYSIS', 'SUMMARY_MAIL','AGGREGATION') NOT NULL;
+
+;; copy the current TaskType values into the temporary column
+UPDATE Task SET TempTaskType = TaskType;
+
+;; switch the existing TaskType to the appropriate enum values
+;; this will give warnings as the ones with underscores will not convert it is
+;; not a problem as we will update from TempTaskType in next step
+ALTER TABLE Task
+MODIFY TaskType ENUM('JavaSampleExtraction', 'HeapzGarbageExtraction',
+    'ExceptionExtraction', 'SqlExtraction', 'VarzExtraction','Analysis',
+    'SummaryMail','Aggregation') NOT NULL;
+
+;; copy the correct values back into TaskType based on the values in
+;; the temporary column
+UPDATE Task
+SET TaskType = CASE TempTaskType
+                 WHEN 'JAVA_SAMPLE_EXTRACTION' THEN 'JavaSampleExtraction'
+                 WHEN 'HEAPZ_GARBAGE_EXTRACTION' THEN 'HeapzGarbageExtraction'
+                 WHEN 'EXCEPTION_EXTRACTION' THEN 'ExceptionExtraction'
+                 WHEN 'SQL_EXTRACTION' THEN 'SqlExtraction'
+                 WHEN 'VARZ_EXTRACTION' THEN 'VarzExtraction'
+                 WHEN 'ANALYSIS' THEN 'Analysis'
+                 WHEN 'SUMMARY_MAIL' THEN 'SummaryMail'
+                 WHEN 'AGGREGATION' THEN 'Aggregation'
+               END;
+
+;; drop the temporary column
+ALTER TABLE Task DROP TempTaskType;
