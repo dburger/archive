@@ -5,6 +5,7 @@ INSERT INTO table1 (
     ON t2.id = t1.id WHERE t1.id IS NULL
 );
 
+
 -- same as above, real world example (MySql)
 INSERT INTO dses_rollup.dbo.unit_dimension
     (uic, short_name, long_name, service, parent_uic, major_command_uic,
@@ -25,6 +26,7 @@ INSERT INTO dses_rollup.dbo.unit_dimension
      ud.id IS NULL
 );
 
+
 -- dynamically determine latest table name for usage in an update query
 -- (SQL Server)
 DECLARE @table_name AS VARCHAR(MAX)
@@ -43,15 +45,18 @@ SET @sql = 'UPDATE dses_rollup.dbo.dses_data_sources
             WHERE name = ''DMDC CIVILIAN PERSONNEL'''
 exec(@sql)
 
+
 -- mysql has an default escape character \
 SELECT * FROM people WHERE symbol LIKE 'hello\_world';
 -- or you can specify the escape character
 SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
 
+
 -- tsql has no default but you can go with a single character class
 SELECT * FROM people WHERE symbol LIKE 'hello[_]world';
 -- or you can specify an escape character
 SELECT * FROM people WHERE symbol LIKE 'hello|_world' ESCAPE '|';
+
 
 -- mutli-table delete in mysql
 DELETE address, licenseproperties, userLicenses, userprefs, userproperties, userroles, user
@@ -61,6 +66,7 @@ WHERE
     user.id = address.userId AND user.id = licenseproperites.userId AND ...
 AND userId < 100000;
 
+
 -- tsql style multi table update
 UPDATE employment_statuses SET
     mde_id = esd.id
@@ -68,6 +74,7 @@ FROM employment_statuses es JOIN
    mde_mishaps.dbo.employment_statuses_dim esd ON
    es.tier1 = esd.employment_status_tier1 AND
    es.tier2 = esd.employment_status_tier2
+
 
 -- some updates against a fact table from several raw tables, uses cursor etc.
 -- on tsql
@@ -107,25 +114,32 @@ BEGIN
   DEALLOCATE mycursor
 END
 
+
 -- show the indices in a table mysql
 SHOW INDEX FROM table;
+
 
 -- set up mysql command line client to correctly display UTF8
 SET NAMES utf8;
 
+
 -- likewise iso-8859, latin1
 SET NAMES latin1;
+
 
 -- mysql check table integrity
 mysqlcheck -uroot -proot -v  --all-databases
 
+
 -- mysql repair
 mysqlcheck -uroot -proot -v  -r database table
+
 
 -- multi-table update example for mysql
 UPDATE users u, user_unit_roles uur
     SET u.system_role_id = uur.role_id
     WHERE u.id = uur.user_id AND uur.all_units_flag = 1;
+
 
 -- multi-table update with aggregate from related table
 -- join a derived table and assign from the derived fields
@@ -139,6 +153,7 @@ UPDATE quiz_results JOIN (
    ON quiz_results.id = derived.id
    SET quiz_results.num_correct = derived.num_correct;
 
+
 -- mysql change associated records when given the new set of related ids
 DELETE FROM account_roles WHERE account_id = ? AND role_id NOT IN (?);
 INSERT INTO user_roles (user_id, role_id)
@@ -146,6 +161,7 @@ INSERT INTO user_roles (user_id, role_id)
     roles r LEFT JOIN
     (SELECT role_id FROM account_roles WHERE account_id = ?) ar ON r.id = ar.role_id
     WHERE ar.role_id IS NULL AND r.id IN (?);
+
 
 -- use case in select statement
 SELECT urla.*, ag.id AS group_id,
@@ -155,26 +171,32 @@ SELECT urla.*, ag.id AS group_id,
         CONCAT_WS(' ', rl.name, 'Direct Attributes')
     END AS group_name, ...
 
+
 -- all database dump from one system, then load on another
 > mysqldump -uroot -proot --all-databases >  dumpfile.sql
 mysql> source dumpfile.sql
+
 
 -- oracle 'SHOW CREATE TABLE' done from sqlplus
 SQL> set pages 0
 SQL> set long 999999
 SQL> select dbms_metadata.get_ddl('TABLE', 'EMPLOYEES', 'EMP') from dual;
 
+
 -- mysql simple add column to existing table
 ALTER TABLE Services ADD Family VARCHAR(128) NOT NULL;
 
+
 -- mysql delete from one table where the related row does not exist in the other
 DELETE ti FROM TaskInstance ti LEFT JOIN Task t ON ti.TaskId = t.TaskId WHERE t.TaskId IS NULL;
+
 
 -- mysql create a table for a select, different from the sybase (microsoft) extension
 CREATE TABLE OrphanedTaskInstance (
   SELECT ti.* FROM TaskInstance ti LEFT JOIN Task t ON ti.TaskId = t.TaskId
   WHERE t.TaskId IS NULL AND ti.RepeatCount = -1
 );
+
 
 -- mysql multi table delete example
 DELETE ti
@@ -191,6 +213,7 @@ WHERE
  a.ArgId = 5001
  AND COALESCE(tia.Value, ta.Value, sa.Value, a.DefaultValue) = -1
  AND t.TaskType LIKE '%EXTRACTION%'
+
 
 -- example of creating a mysql function to convert a bigint into its base 64 representation
 -- actually not pure base 64 as we are appending an "=" and using a "websafe" alphabet
@@ -220,6 +243,7 @@ BEGIN
   RETURN CONCAT(ret, '=');
 END |
 
+
 -- TWO examples of looking for TaskInstances that don't point at valid server dims, one uses a subselect while
 -- the other does not
 SELECT ti.TaskInstanceId, tia.Value, s.Name, t.TaskType FROM
@@ -240,28 +264,29 @@ SELECT tia.TaskInstanceId, tia.Value, s.Name, t.TaskType FROM
 ) AS x LEFT JOIN ServerDim sd ON x.Value = sd.ServerId
 WHERE sd.ServerId IS NULL;
 
+
 -- multiple step example of removing an enum type by transferring the values to
 -- a temporary column, altering the column, and copying them back in with a
 -- where
-;; add a temporary column to hold the current values for TaskType
+-- add a temporary column to hold the current values for TaskType
 ALTER TABLE Task
 ADD TempTaskType ENUM('JAVA_SAMPLE_EXTRACTION', 'HEAPZ_GARBAGE_EXTRACTION',
      'EXCEPTION_EXTRACTION', 'SQL_EXTRACTION', 'SPLAT_EXTRACTION',
      'VARZ_EXTRACTION', 'ANALYSIS', 'SUMMARY_MAIL','AGGREGATION') NOT NULL;
 
-;; copy the current TaskType values into the temporary column
+-- copy the current TaskType values into the temporary column
 UPDATE Task SET TempTaskType = TaskType;
 
-;; switch the existing TaskType to the appropriate enum values
-;; this will give warnings as the ones with underscores will not convert it is
-;; not a problem as we will update from TempTaskType in next step
+-- switch the existing TaskType to the appropriate enum values
+-- this will give warnings as the ones with underscores will not convert it is
+-- not a problem as we will update from TempTaskType in next step
 ALTER TABLE Task
 MODIFY TaskType ENUM('JavaSampleExtraction', 'HeapzGarbageExtraction',
     'ExceptionExtraction', 'SqlExtraction', 'VarzExtraction','Analysis',
     'SummaryMail','Aggregation') NOT NULL;
 
-;; copy the correct values back into TaskType based on the values in
-;; the temporary column
+-- copy the correct values back into TaskType based on the values in
+-- the temporary column
 UPDATE Task
 SET TaskType = CASE TempTaskType
                  WHEN 'JAVA_SAMPLE_EXTRACTION' THEN 'JavaSampleExtraction'
@@ -274,5 +299,33 @@ SET TaskType = CASE TempTaskType
                  WHEN 'AGGREGATION' THEN 'Aggregation'
                END;
 
-;; drop the temporary column
+-- drop the temporary column
 ALTER TABLE Task DROP TempTaskType;
+
+
+-- multiple step example of removing a set type by transferring the values to
+-- a temporary column, altering the column, and copying them back in with a
+-- where
+-- add a tempory column to hold current Flags values
+ALTER TABLE TaskInstance
+ADD TempFlags SET('run_in_prod', 'run_in_corp') NOT NULL;
+
+-- copy the current Flags values into the temporary column
+UPDATE TaskInstance
+SET TempFlags = Flags;
+
+-- alter the current Flags schema to the camel case
+-- will give warnings because values don't auto-convert
+ALTER TABLE TaskInstance
+MODIFY Flags SET('RunInProd', 'RunInCorp') NOT NULL;
+
+-- copy the correctly camel case values back into the Flags column
+UPDATE TaskInstance
+SET Flags = CASE
+              WHEN FIND_IN_SET('run_in_prod', TempFlags) AND FIND_IN_SET('run_in_corp', TempFlags) > 0 THEN 'RunInProd,RunInCorp'
+              WHEN FIND_IN_SET('run_in_prod', TempFlags) > 0 THEN 'RunInProd'
+              ELSE 'RunInCorp'
+            END;
+
+-- drop the temporary column
+ALTER TABLE TaskInstance DROP TempFlags;
