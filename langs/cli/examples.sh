@@ -16,6 +16,12 @@ ls *consolidated.xls | sed 's/\(.*\)-consolidated.xls/mv \0 consolidated-\1.xls/
 # an informix DDL for usage with SQL Server, derived from sed one liners page
 sed -e ':a;s/{[^}]*}//g;/{/N;/{/ba' input.ddl
 
+# output lines from line 1 to line 1000 to a file
+sed -n '1,1000 p' file > output
+
+#output a range of a file turning on with first regex and off with second
+sed -n '/Starting analysis mailing.*30379003/,/Completed analysis mailing.*30379003/p' gse.log-2010_11_17_19_11_46
+
 # fetchmail forward to dburger@camberhawaii.org every 5 minutes from dburger
 # account at ip
 fetchmail -d 300 --smtpname dburger@camberhawaii.org -p POP3 -u dburger 172.16.100.7
