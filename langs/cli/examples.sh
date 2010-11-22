@@ -19,8 +19,11 @@ sed -e ':a;s/{[^}]*}//g;/{/N;/{/ba' input.ddl
 # output lines from line 1 to line 1000 to a file
 sed -n '1,1000 p' file > output
 
-#output a range of a file turning on with first regex and off with second
+# output a range of a file turning on with first regex and off with second
 sed -n '/Starting analysis mailing.*30379003/,/Completed analysis mailing.*30379003/p' gse.log-2010_11_17_19_11_46
+
+# add line numbers to the output and then dump the range
+cat -n foo.txt | sed -n "/start/,/finish/p"
 
 # fetchmail forward to dburger@camberhawaii.org every 5 minutes from dburger
 # account at ip
