@@ -329,3 +329,7 @@ SET Flags = CASE
 
 -- drop the temporary column
 ALTER TABLE TaskInstance DROP TempFlags;
+
+
+-- remote command line execution example against mysql, see looping example in cli
+ssh root@$host "mysql -u user -ppassword database -e 'CHECKSUM TABLE IdSequences'"
