@@ -333,3 +333,6 @@ ALTER TABLE TaskInstance DROP TempFlags;
 
 -- remote command line execution example against mysql, see looping example in cli
 ssh root@$host "mysql -u user -ppassword database -e 'CHECKSUM TABLE IdSequences'"
+
+-- remote command line execution of a batch of commands
+cat sample.sql | ssh host "mysql -u user -p"
