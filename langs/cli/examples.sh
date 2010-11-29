@@ -158,3 +158,13 @@ fi
 
 # scrape with curl and mail
 30 9 * * * curl http://eye3-analysis/varz | grep "\(\(g\|p\)4.*invocations\)\|\(sccs.*\)" | sed -e 's/<b>//g;s/<\/b>//g;s/<br>//g' | mail -s "SCCS Stats - example script harvested output" recipient@foo.com
+
+# loop against some database machines collecting some information, here executing mysql
+for host in agpq14 bfgd20 iaco20 ynoo20 ynpp21 ynqq20 ynrr17 ynss21; do
+  ssh root@$host "mysql -u user -ppassword database -e 'SHOW SLAVE STATUS\G' | grep Seconds_Behind_Master"
+done
+
+# and a second simple looping example
+for host in agpq14 bfgd20 iaco20 ynoo20 ynpp21 ynqq20 ynrr17 ynss21; do
+  ssh root@$host "mysql -u user -ppassword database -e 'CHECKSUM TABLE IdSequences'"
+done
