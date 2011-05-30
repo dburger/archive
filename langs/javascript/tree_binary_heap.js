@@ -31,11 +31,6 @@ var binaryHeap = function(comp) {
   var last = null;
   var size = 0;
 
-  var full = function() {
-    var log = Math.log(size) / Math.log(2);
-    return log === Math.floor(log);
-  };
-
   var bubbleUp = function(node) {
     if (node === root) {
       return;
@@ -75,8 +70,8 @@ var binaryHeap = function(comp) {
       root.left = node(value, root, null, null);
       last = root.left;
     } else if (last.parent.left === last) {
-        last.parent.right = node(value, last.parent, null, null);
-        last = last.parent.right;
+      last.parent.right = node(value, last.parent, null, null);
+      last = last.parent.right;
     } else {
       var hops = 0;
       var temp = last;
@@ -88,9 +83,8 @@ var binaryHeap = function(comp) {
         temp = temp.parent.right;
         hops--;
       }
-      while (hops > 0) {
+      while (hops-- > 0) {
         temp = temp.left;
-        hops--;
       }
       temp.left = node(value, temp, null, null);
       last = temp.left;
@@ -107,7 +101,6 @@ var binaryHeap = function(comp) {
     root.value = last.value;
     if (root === last) {
       root = last = null;
-      size--;
     } else if (last.parent.right === last) {
       last.parent.right = null;
       last = last.parent.left;
@@ -123,9 +116,8 @@ var binaryHeap = function(comp) {
       } else {
         hops--;
       }
-      while (hops > 0) {
+      while (hops-- > 0) {
         temp = temp.right;
-        hops--;
       }
       last.parent.left = null;
       last = temp;
@@ -134,20 +126,6 @@ var binaryHeap = function(comp) {
     bubbleDown(root);
     return value;
   };
-
-  that.t = function(node) {
-    if (node == null) {
-      return;
-    }
-    this.t(node.left);
-    this.t(node.right);
-  }
-
-  that.tree = function() {
-    print("xxx");
-    this.t(root);
-    print("yyy");
-  }
 
   that.size = function() {
     return size;
